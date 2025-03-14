@@ -19,12 +19,12 @@
 
 ## 📊 数据示例  
 
-### 📄 CSV 数据（2024_CVPR_papers.csv）  
+### 📄 CSV 数据（arxiv_data.csv）  
 
 ![image](https://github.com/user-attachments/assets/6fd5d726-6fe4-430d-bf3f-0d5783618728)
 
 
-👉 [查看完整 CSV 数据](./2024_CVPR_papers.csv)  
+👉 [查看完整 CSV 数据](./arxiv_data.csv)  
 
 ---
 
@@ -32,7 +32,6 @@
 
 ```json
 [
-  [
     {
         "prompt": "summary: Efficient generation of 3D digital humans is important\nin several industries...",
         "chosen": "Gaussian Shell Maps (GSMs) are introduced to enhance 3D human generation efficiency...",
@@ -46,7 +45,7 @@
 ]
 ```
 
-👉 [查看完整 JSON 数据](./2024_CVPR_DPO.json)  
+👉 [查看完整 JSON 数据](./filled_DPO_data.json)  
 
 ---
 
