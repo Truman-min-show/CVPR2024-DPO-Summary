@@ -1,0 +1,2 @@
+# 2024_CVPR_summary_dataset
+2024年CVPR中所有文献的标题以及摘要等信息整理
