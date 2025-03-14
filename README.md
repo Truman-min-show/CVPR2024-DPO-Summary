@@ -1,2 +1,5 @@
 # 2024_CVPR_summary_dataset
 2024年CVPR中所有文献的标题以及摘要等信息整理
+## 数据集说明
+csv文件中为2024年度所有cvpr上发表文献的title、abstract、introduction信息。约1400条
+而json文件为DPO数据集，chosend为使用kimi结合摘要和文献标题深度思考得到的，而rejected为使用通义千问不深度思考只根据文献摘要总结得到的，prompt为文献的abstract。共200条
