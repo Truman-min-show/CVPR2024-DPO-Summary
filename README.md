@@ -45,7 +45,7 @@
 ]
 ```
 
-👉 [查看完整 JSON 数据](./filled_DPO_data.json)  
+👉 [查看完整 JSON 数据](./2024_CVPR_DPO.json)  
 
 ---
 
