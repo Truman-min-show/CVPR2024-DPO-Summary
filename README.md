@@ -24,7 +24,7 @@
 ![image](https://github.com/user-attachments/assets/6fd5d726-6fe4-430d-bf3f-0d5783618728)
 
 
-👉 [查看完整 CSV 数据](./arxiv_data.csv)  
+👉 [查看完整 CSV 数据](./data/arxiv_data.csv)  
 
 ---
 
@@ -45,7 +45,7 @@
 ]
 ```
 
-👉 [查看完整 JSON 数据](./2024_CVPR_DPO.json)  
+👉 [查看完整 JSON 数据](./data/cleaned_data_DPO.json)  
 
 ---
 
