@@ -1,0 +1,10 @@
+Chen Morphable Diffusion 3D-Consistent Diffusion for Single-image Avatar Creation
+Chen NeRF-HuGS Improved Neural Radiance Fields in Non-static Scenes Using Heuristics-Guided
+Chen Neural Refinement for Absolute Pose Regression with Feature Synthesis
+Chen On Scaling Up a Multilingual Vision and Language Model
+Chen OST Refining Text Knowledge with Optimal Spatio-Temporal Descriptor for General
+Chen PeLK Parameter-efficient Large Kernel ConvNets with Peripheral Convolution
+Chen PracticalDG Perturbation Distillation on Vision-Language Models for Hybrid Domain Generalization
+Chen Prompt-Enhanced Multiple Instance Learning for Weakly Supervised Video Anomaly Detection
+Chen RobustSAM Segment Anything Robustly on Degraded Images
+Chen SceneTex High-Quality Texture Synthesis for Indoor Scenes via Diffusion Priors

@@ -1,0 +1,726 @@
+Abstract
+In recent years, Neural Radiance Field (NeRF) has
+demonstrated remarkable capabilities in representing 3D
+scenes.
+To expedite the rendering process, learnable
+explicit
+representations
+have
+been
+introduced
+for
+combination with implicit NeRF representation, which
+however results in a large storage space requirement.
+In this paper, we introduce the Context-based NeRF
+Compression (CNC) framework, which leverages highly
+efﬁcient context models to provide a storage-friendly NeRF
+representation.
+Speciﬁcally, we excavate both level-wise
+and
+dimension-wise
+context
+dependencies
+to
+enable
+probability prediction for information entropy reduction.
+Additionally, we exploit hash collision and occupancy grids
+as strong prior knowledge for better context modeling. To
+the best of our knowledge, we are the ﬁrst to construct and
+exploit context models for NeRF compression. We achieve
+a size reduction of 100⇥and 70⇥with improved ﬁdelity
+against the baseline Instant-NGP on Synthesic-NeRF and
+Tanks and Temples datasets, respectively. Additionally, we
+attain 86.7% and 82.3% storage size reduction against
+the SOTA NeRF compression method BiRF. Our code is
+available here: https://github.com/YihangChen-ee/CNC.
+1. Introduction
+High-quality photo-realistic rendering at novel viewpoints
+remains a pivotal challenge in both computer vision and
+computer graphics. Traditional explicit 3D representations,
+such as voxel grids [17, 25, 34, 37], have earned their
+place due to their efﬁciency across numerous applications.
+However, their discrete nature makes them susceptible to
+the limitations imposed by the Nyquist sampling theorem,
+often necessitating exponentially increased memory for
+capturing detailed nuances.
+In the past few years, Neural Radiance Field (NeRF) [28]
+has emerged as a game-changer for novel view synthesis.
+NeRF deﬁnes both density and radiance at a 3D point as
+1The size of INGP is calculated under 16 levels with resolution from
+16 to 2048. The feature vector dimension is 2 and represented with FP32.
+σ
+c
+Rendering MLP
+Occupancy Grid
+Feature Embeddings:
+Context Models
+3D Feature Embeddings
+Rendering MLP
+Occupancy Grid
+45.56MB 
+33.76dB
+3D
+!!
+…
+(x, d)
+concat
+Indexing
+45.56MB 
+36.98dB
+103x
+smaller
+103x
+smaller
+…
+∈−1; +1
+…
+3D=>2D
+3D
+2D
+…
+Dimension-wise
+Context Models
+Level-wise
+Context Models
+Hash 
+Fusion
+2D
+2D Feature Embeddings
+0.444MB 
+34.35dB
+0.442MB 
+37.31dB
+Context Models
+Figure 1.
+Motivation of our work.
+Instant-NGP represents
+3D scenes using 3D hash feature embeddings along with a
+rendering MLP, which takes a non-negligible storage size with the
+embeddings accounting for over 99% of storage size (upper-left).
+To tackle this, we introduce context models to substantially
+compress feature embeddings, with the three key technical
+components (bottom-left). Our approach achieves a size reduction
+of over 100⇥while simultaneously improving ﬁdelity.1
+functions of the 3D coordinates. Its implicit representation,
+encapsulated within a Multi-Layer Perceptron (MLP),
+captures continuous signals of a 3D scene seamlessly.
+Leveraging frequency-based positional embeddings of 3D
+coordinates [28, 41, 49], NeRF has showcased superior
+novel view synthesis quality in comparison to traditional
+explicit 3D representations.
+While NeRF exhibits good
+characteristics in memory efﬁciency and image quality, its
+complex queries of the MLP slow down its rendering speed.
+To boost NeRF’s rendering speed, recent approaches
+have converged towards a hybrid representation, merging
+explicit voxelized feature encoding with implicit neural
+networks.
+This combination promises faster rendering
+without compromising on quality. These methods include
+varied data structures such as dense grids [7, 38–40],
+octrees [26, 50],
+sparse voxel grids [24],
+and hash
+tables [29]. Among them, Instant-NGP (INGP) [29] which
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+20321
+Abstract
+Diffusion models have shown an impressive ability to
+model complex data distributions, with several key advan-
+tages over GANs, such as stable training, better coverage
+of the training distribution’s modes, and the ability to solve
+inverse problems without extra training. However, most dif-
+fusion models learn the distribution of fixed-resolution im-
+ages. We propose to learn the distribution of continuous
+images by training diffusion models on image neural fields,
+which can be rendered at any resolution, and show its ad-
+vantages over fixed-resolution models. To achieve this, a
+key challenge is to obtain a latent space that represents pho-
+torealistic image neural fields. We propose a simple and
+effective method, inspired by several recent techniques but
+with key changes to make the image neural fields photo-
+realistic. Our method can be used to convert existing la-
+tent diffusion autoencoders into image neural field autoen-
+coders.
+We show that image neural field diffusion mod-
+els can be trained using mixed-resolution image datasets,
+outperform fixed-resolution diffusion models followed by
+super-resolution models, and can solve inverse problems
+with conditions applied at different scales efficiently.
+1. Introduction
+Diffusion models [16, 34, 50] have recently become attrac-
+tive alternatives to GANs. These likelihood-based models
+†Equal advising.
+exhibit fewer artifacts, stable training, can model complex
+data distributions, do not suffer from mode collapse, and
+can solve inverse problems using the score function with-
+out extra training. Since diffusion typically requires many
+iterations at a fixed dimension, directly modeling the dif-
+fusion process in the pixel space [17, 40, 43] can be in-
+efficient for high-resolution image synthesis. Latent diffu-
+sion models (LDMs) [41, 57] were proposed as a more ef-
+ficient alternative. The key idea is to learn an autoencoder
+to map images to a latent representation from which the im-
+age can be decoded back, and train a diffusion model on
+the lower-dimensional latent representation. Despite their
+success, LDMs’ latent space still represents images at fixed
+resolution (for example, 256 in LDM [41] and 512 in Stable
+Diffusion). To generate higher-resolution images (e.g., 2K),
+LDMs usually first generate a low-resolution image and up-
+sample it using a separate super-resolution model.
+In this work, we propose Image Neural Field Diffusion
+models (INFD). Our method is based on the latent diffusion
+framework, where we first learn a latent representation that
+represents an image neural field (which can be rendered at
+any resolution), then learn a diffusion model on this latent
+representation. A key challenge of our approach is to learn a
+latent space of photorealistic image neural fields where the
+diffusion model is applied. We propose a simple and effec-
+tive method that can convert an existing autoencoder of la-
+tent diffusion models to a neural field autoencoder. We find
+that directly implementing an autoencoder with LIIF [8]
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+8007
+Abstract
+The exponential growth of large language models
+(LLMs) has opened up numerous possibilities for multi-
+modal AGI systems. However, the progress in vision and
+vision-language foundation models, which are also critical
+elements of multi-modal AGI, has not kept pace with LLMs.
+In this work, we design a large-scale vision-language foun-
+dation model (InternVL), which scales up the vision foun-
+dation model to 6 billion parameters and progressively
+aligns it with the LLM, using web-scale image-text data
+from various sources. This model can be broadly applied
+to and achieve state-of-the-art performance on 32 generic
+visual-linguistic benchmarks including visual perception
+tasks such as image-level or pixel-level recognition, vision-
+language tasks such as zero-shot image/video classification,
+zero-shot image/video-text retrieval, and link with LLMs to
+create multi-modal dialogue systems. It has powerful visual
+capabilities and can be a good alternative to the ViT-22B.
+We hope that our research could contribute to the develop-
+ment of multi-modal large models.
+† This work is done when they are interns at Shanghai AI Laboratory;
+B corresponding author (daijifeng@tsinghua.edu.cn)
+1. Introduction
+Large language models (LLMs) largely promote the de-
+velopment of artificial general intelligence (AGI) systems
+with their impressive capabilities in open-world language
+tasks, and their model scale and performance are still in-
+creasing at a fast pace.
+Vision large language models
+(VLLMs) [3, 5, 19, 21, 28, 69, 87, 113, 147], which leverage
+LLMs, have also achieved significant breakthroughs, en-
+abling sophisticated vision-language dialogues and interac-
+tions. However, the progress of vision and vision-language
+foundation models, which are also crucial for VLLMs, has
+lagged behind the rapid growth of LLMs.
+To bridge vision models with LLMs, existing VLLMs
+[5, 61, 100, 138, 147] commonly employ lightweight “glue”
+layers, such as QFormer [61] or linear projection [69], to
+align features of vision and language models. Such align-
+ment contains several limitations: (1) Disparity in param-
+eter scales. The large LLMs [38] now boosts up to 1000
+billion parameters, while the widely-used vision encoders
+of VLLMs are still around one billion. This gap may lead
+to the under-use of LLM’s capacity. (2) Inconsistent rep-
+resentation. Vision models, trained on pure-vision data or
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+24185
+Abstract
+Speech-preserving
+facial
+expression
+manipulation
+(SPFEM) aims to modify facial emotions while meticu-
+lously maintaining the mouth animation associated with
+spoken content.
+Current works depend on inaccessible
+paired training samples for the person, where two aligned
+frames exhibit the same speech content yet differ in emo-
+tional expression, limiting the SPFEM applications in
+real-world scenarios. In this work, we discover that speak-
+ers who convey the same content with different emotions
+exhibit highly correlated local facial animations, providing
+valuable supervision for SPFEM. To capitalize on this
+insight, we propose a novel adaptive spatial coherent
+correlation learning (ASCCL) algorithm, which models
+the aforementioned correlation as an explicit metric and
+integrates the metric to supervise manipulating facial
+expression and meanwhile better preserving the facial
+animation of spoken contents. To this end, it first learns
+a spatial coherent correlation metric, ensuring the visual
+disparities of adjacent local regions of the image belonging
+to one emotion are similar to those of the corresponding
+counterpart of the image belonging to another emotion.
+Recognizing that visual disparities are not uniform across
+all regions,
+we have also crafted a disparity-aware
+adaptive strategy that prioritizes regions that present
+greater challenges.
+During SPFEM model training, we
+construct the adaptive spatial coherent correlation metric
+between corresponding local regions of the input and
+output images as addition loss to supervise the generation
+*Zhijing Yang is the corresponding author.
+Tianshui Chen, Jian-
+man Lin, and Zhijing Yang are with Guangdong University of Tech-
+nology.
+Chunmei Qing is with South China University of Technol-
+ogy.
+Liang Lin is with Sun Yat-Sen University.
+This work was
+supported in part by National Natural Science Foundation of China
+(NSFC) under Grant No. 62206060, in Part by Natural Science Foun-
+dation of Guangdong Province (2022A1515011555, 2023A1515012568,
+2023A1515012561), Guangdong Provincial Key Laboratory of Human
+Digital Twin (2022B1212010004), and in part by Guangzhou Basic and
+Applied Basic Research Foundation under Grant No. SL2022A04J01626.
+Reference
+Source
+NED
+ASCCL
+Figure 1. Several examples are generated by the current advanced
+NED with and without the proposed ASCCL algorithm. Incor-
+porating the ASCCL can better manipulate the expressions and
+meanwhile preserve mouth shapes.
+process.
+We conduct extensive experiments on variant
+datasets, and the results demonstrate the effectiveness of
+the proposed ASCCL algorithm. Code is publicly available
+at https://github.com/jianmanlincjx/ASCCL
+1. Introduction
+Speech-preserving
+facial
+expression
+manipulation
+(SPFEM), which aims to manipulate facial emotions
+while preserving the mouth animations in static images
+or dynamic videos, can enhance human expressiveness
+and thus benefit variant applications including virtual
+avatars and film & television production. For example, it
+requires lots of effects and repeated remakes to capture
+an expected actor’s emotions in a movie & shooting. In
+contrast, a robust SPFEM system can easily modify the
+facial emotions to achieve comparable performance in the
+post-production stage and thus is urgently expected.
+Current SPFEM literature either predominantly previous
+face reenactment algorithms [10, 28] or harnesses decou-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+7267
+Abstract
+Multimodal Large Language Models (MLLMs) have
+endowed LLMs with the ability to perceive and under-
+stand multi-modal signals.
+However, most of the exist-
+ing MLLMs mainly adopt vision encoders pretrained on
+coarsely aligned image-text pairs, leading to insufficient ex-
+traction and reasoning of visual knowledge. To address this
+issue, we devise a dual-Level vIsual knOwledge eNhanced
+Multimodal Large Language Model (LION), which empow-
+ers the MLLM by injecting visual knowledge in two lev-
+els. 1) Progressive incorporation of fine-grained spatial-
+aware visual knowledge. We design a vision aggregator
+cooperated with region-level vision-language (VL) tasks to
+incorporate fine-grained spatial-aware visual knowledge
+into the MLLM. To alleviate the conflict between image-
+level and region-level VL tasks during incorporation, we
+devise a dedicated stage-wise instruction-tuning strategy
+with mixture-of-adapters. This progressive incorporation
+scheme contributes to the mutual promotion between these
+two kinds of VL tasks. 2) Soft prompting of high-level se-
+mantic visual evidence. We facilitate the MLLM with high-
+level semantic visual evidence by leveraging diverse image
+tags. To mitigate the potential influence caused by imper-
+fect predicted tags, we propose a soft prompting method by
+embedding a learnable token into the tailored text instruc-
+tion. Comprehensive experiments on several multi-modal
+benchmarks demonstrate the superiority of our model (e.g.,
+improvement of 5% accuracy on VSR and 3% CIDEr on
+TextCaps over InstructBLIP, 5% accuracy on RefCOCOg
+over Kosmos-2).
+1. Introduction
+Recently, Large Language Models (LLMs) have demon-
+strated remarkable zero-shot abilities on various linguistic
+tasks.
+Assisted by LLMs, several multimodal large lan-
+guage models (MLLMs), such as MiniGPT-4 [54], Otter
+†Corresponding author
+Instruction:
+What is in the photo?
+LLM
+Vision
+Encoder
+LION
+chicken, potatoes
+and cauliflower on a
+white plate with a
+knife and fork in
+the middle of the
+table next to a red
+wine bottle that
+sits on the table
+next to it.
+Instruction:
+What is in the photo?
+LLM
+Grilled chicken breast [                      ]
+Spatial-aware Visual Knowledge:
+Semantic Visual Evidence:
+ cauliflower, chicken, table,
+plate, food, meat,  potato, white
+Chicken, potatoes,
+and cauliflower on a
+white plate with a
+wooden table in
+the foreground.
+The plate is sitting
+on a wooden table.
+Response:
+Response:
+Exsiting MLLMs
+Bridge
+Module
+Bridge
+Module
+Vision
+Encoder
+A piece of steamed cauliflower [                      ] 
+Roasted baby yellow potato [                      ]  
+Mixture
+of
+Adapters
+Figure 1. Comparison between existing MLLMs and LION
+.
+The existing MLLM generates a vague and inaccurate response,
+while LION provides a more precise and contextually accurate de-
+scription by progressively incorporating spatial-aware knowledge
+and softly prompting semantic visual evidence.
+[19], and InstructBLIP [7], achieve significant improve-
+ments in reasoning abilities to deal with various vision-
+language (VL) tasks.
+In most of the existing MLLMs, the visual informa-
+tion is mainly extracted from a vision encoder pretrained
+with image-level supervision (e.g., CLIP [32]), and then
+are adapted to a LLM by using a tiny bridge module. This
+makes these MLLMs inherently possess limited image un-
+derstanding capabilities [21]. As shown in Fig. 1, the in-
+sufficient visual information misleads MLLMs to provide
+erroneous and hallucinated responses. An intuitive solution
+to this problem is to replace or tune the vision encoder [41].
+However, it requires pretraining on massive data or suffers
+from the catastrophic forgetting issue [35, 36, 50], which
+diminishes the practical efficacy of this strategy.
+These
+predicaments highlight that the insufficient extraction of vi-
+sual knowledge has become a central obstacle impeding the
+development of MLLMs.
+To overcome this dilemma, as depicted in Fig. 1, we de-
+vise a dual-Level vIsual knOwledge eNhanced Multimodal
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+26540
+Abstract
+Recent progress in Large Multimodal Models (LMM)
+has opened up great possibilities for various applications in
+the ﬁeld of human-machine interactions. However, develop-
+ing LMMs that can comprehend, reason, and plan in com-
+plex and diverse 3D environments remains a challenging
+topic, especially considering the demand for understanding
+permutation-invariant point cloud representations of the 3D
+scene. Existing works seek help from multi-view images by
+projecting 2D features to 3D space, which inevitably leads
+to huge computational overhead and performance degrada-
+tion. In this paper, we present LL3DA, a Large Language
+3D Assistant that takes point cloud as the direct input and
+responds to both text instructions and visual interactions.
+The additional visual interaction enables LMMs to better
+comprehend human interactions with the 3D environment
+and further remove the ambiguities within plain texts. Ex-
+periments show that LL3DA achieves remarkable results
+and surpasses various 3D vision-language models on both
+3D Dense Captioning and 3D Question Answering.
+1. Introduction
+The recent surge in Large Language Model (LLM) fam-
+ilies [14, 31, 46, 52, 63] opens up great opportunities for
+addressing various machine learning tasks in a generalized
+way [30, 32, 40, 60]. During this LLM carnival, researchers
+are also seeking generalized LLM solutions for various vi-
+sion language tasks [37, 50, 62]. Among these, LLM-based
+3D scene understanding is a valuable topic that would ben-
+eﬁt the development of autonomous driving [9, 23] and em-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+26428
+Abstract
+For image super-resolution (SR), bridging the gap be-
+tween the performance on synthetic datasets and real-world
+degradation scenarios remains a challenge. This work in-
+troduces a novel ”Low-Res Leads the Way” (LWay) train-
+ing framework, merging Supervised Pre-training with Self-
+supervised Learning to enhance the adaptability of SR mod-
+els to real-world images.
+Our approach utilizes a low-
+resolution (LR) reconstruction network to extract degrada-
+tion embeddings from LR images, merging them with super-
+resolved outputs for LR reconstruction. Leveraging unseen
+LR images for self-supervised learning guides the model
+to adapt its modeling space to the target domain, facili-
+tating fine-tuning of SR models without requiring paired
+high-resolution (HR) images. The integration of Discrete
+Wavelet Transform (DWT) further refines the focus on high-
+frequency details.
+Extensive evaluations show that our
+method significantly improves the generalization and de-
+tail restoration capabilities of SR models on unseen real-
+world datasets, outperforming existing methods. Our train-
+ing regime is universally compatible, requiring no network
+architecture modifications, making it a practical solution
+for real-world SR applications.
+1. Introduction
+Image super-resolution (SR) aims to restore high-resolution
+(HR) images from their low-resolution (LR) or degraded
+counterparts. The inception of the deep-learning-based SR
+model can be traced back to SRCNN [14]. Recently, ad-
+vancements in deep learning models have substantially en-
+hanced SR performance [1, 6, 8–10, 12, 25–27, 39, 51, 52,
+54, 56], particularly in addressing specific degradation types
+like bicubic downsampling. Nevertheless, the efficacy of
+SR models is generally restricted by the degradation strate-
+gies employed during the training phase, posing great chal-
+lenges in complex real-world applications.
+*Lei Zhu (leizhu@ust.hk) is the corresponding author.
+SL space on 
+synthetic data
+SSL space on 
+real test data
+Unseen 
+Real-world Image
+High quality
+Low fidelity
+Low quality
+High fidelity
+Ground Truth
+High quality
+High fidelity
+Ours
+pull
+SL space on 
+synthetic data
+SSL space on 
+real test data
+Zoom In
+Zoom In
+Zoom In
+Zoom In
+Zoom In
+Figure 1.
+Our proposed training method combine the benefits
+of supervised learning (SL) on synthetic data and self-supervised
+learning (SSL) on the unseen test images, achieve high quality and
+high fidelity SR results.
+In the realm of real-world SR, as shown in Figure 2,
+training approaches can primarily be categorized into three
+main paradigms.
+(a) Unsupervised Learning with Un-
+paired Data: Methods within this paradigm [2, 3, 15, 38,
+40, 45, 46, 55] commonly utilize Generative Adversarial
+Networks (GAN) architecture to learn target distributions
+without paired data. Using one or multiple discriminators,
+they distinguish between generated images and actual sam-
+ples, guiding the generator to model accurately. However,
+as this approach heavily relies on external data, it encoun-
+ters significant challenges when facing scarce target domain
+data, particularly in real-world scenarios. The GAN frame-
+work for unsupervised learning also has some drawbacks.
+Firstly, it inherently struggles with stability during training,
+leading to noticeable artifacts in SR outputs. Secondly, it
+is difficult for a single 0/1 plane modelled by a discrimina-
+tor to accurately separate the target domain [31]. This can
+result in imprecise distribution learning. (b) Supervised
+Learning with Paired Synthetic Data: BSRGAN [47] and
+Real-ESRGAN [42] have largely enhanced the SR model’s
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+25857
+Abstract
+Pose regression networks predict the camera pose of a
+query image relative to a known environment. Within this
+family of methods, absolute pose regression (APR) has re-
+cently shown promising accuracy in the range of a few cen-
+timeters in position error. APR networks encode the scene
+geometry implicitly in their weights. To achieve high ac-
+curacy, they require vast amounts of training data that, re-
+alistically, can only be created using novel view synthesis
+in a days-long process. This process has to be repeated
+for each new scene again and again. We present a new
+approach to pose regression, map-relative pose regression
+(marepo), that satisfies the data hunger of the pose re-
+gression network in a scene-agnostic fashion. We condi-
+tion the pose regressor on a scene-specific map representa-
+tion such that its pose predictions are relative to the scene
+map.
+This allows us to train the pose regressor across
+hundreds of scenes to learn the generic relation between
+a scene-specific map representation and the camera pose.
+Our map-relative pose regressor can be applied to new
+map representations immediately or after mere minutes of
+fine-tuning for the highest accuracy. Our approach out-
+performs previous pose regression methods by far on two
+public datasets, indoor and outdoor.
+Code is available:
+https://nianticlabs.github.io/marepo.
+1. Introduction
+Today, neural networks have conquered virtually all sectors
+of computer vision, but there is still at least one task that
+they struggle with: visual relocalization. What is visual
+relocalization? Given a set of mapping images and their
+poses, expressed in a common coordinate system, build a
+scene representation. Later, given a query image, estimate
+its pose, i.e. position and orientation, relative to the scene.
+Successful approaches to visual relocalization rely
+on predicting image-to-scene correspondences, either via
+matching [8, 21, 38–40, 42, 57] or direct regression [4–
+6, 14, 56], then solving for the pose using traditional and
+robust algorithms like PnP [18] and RANSAC [17].
+Adopting a different perspective, approaches based on
+20x
+Figure 1. Camera pose estimation performance vs. mapping
+time. The figure shows the median translation error of several
+pose regression relocalization methods on the 7-Scenes dataset and
+the time required (proportional to the bubble size) to train each
+relocalizer on the target scenes. Our proposed approach, marepo,
+achieves superior performance – by far – on both metrics, thanks
+to its integration of scene-specific geometric map priors within an
+accurate, map-relative, pose regression framework.
+pose regression [12, 25, 32, 46] attempt to perform visual
+relocalization without resorting to traditional pose solving,
+by using a single feed-forward neural network to infer poses
+from single images.
+The mapping data is treated as a
+training set where the camera extrinsics serve as supervi-
+sion. Generally, pose regression approaches come in two
+flavors, but they both struggle with accuracy compared to
+correspondence-based methods.
+Absolute pose regression (APR) methods [7, 24, 25] in-
+volve training a dedicated pose regressor for each individual
+scene, enabling the prediction of camera poses to that par-
+ticular scene. Though the scene coordinate space can be im-
+plicitly encoded in the weights of the neural networks, ab-
+solute pose regressors exhibit low pose estimation accuracy,
+primarily due to the often limited training data available for
+each scene, and struggle to generalize to unseen views [43].
+Relative pose regression is a second flavor of pose re-
+gression methods [10, 16, 26, 51, 54].
+The regressor is
+trained to predict the relative pose between two images. In a
+typical inference scenario, the regressor is applied to a pair
+formed by an unseen query and an image from the mapping
+set (typically selected via a nearest neighbor-type match-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+20665
+Abstract
+We introduce Mind Artist (MindArt), a novel and efficient
+neural decoding architecture to snap artistic photographs
+from our mind in a controllable manner. Recently, progress
+has been made in image reconstruction with non-invasive
+brain recordings, but it’s still difficult to generate realis-
+tic images with high semantic fidelity due to the scarcity of
+data annotations. Unlike previous methods, this work casts
+the neural decoding into optimal transport (OT) and rep-
+resentation decoupling problems. Specifically, under dis-
+crete OT theory, we design a graph matching-guided neu-
+ral representation learning framework to seek the under-
+lying correspondences between conceptual semantics and
+neural signals, which yields a natural and meaningful self-
+supervisory task. Moreover, the proposed MindArt, struc-
+tured with multiple stand-alone modal branches, enables
+the seamless incorporation of semantic representation into
+any visual style information, thus leaving it to have multi-
+modal reconstruction and training-free semantic editing ca-
+†Corresponding author: Yu Qi.
+pabilities. By doing so, the reconstructed images of Min-
+dArt have phenomenal realism both in terms of semantics
+and appearance. We compare our MindArt with leading al-
+ternatives, and achieve SOTA performance in different de-
+coding tasks. Importantly, our approach can directly gen-
+erate a series of stylized “mind snapshots” w/o extra opti-
+mizations, which may open up more potential applications.
+Code is available at https://github.com/JxuanC/
+MindArt.
+1. Introduction
+As we venture into the frontiers of human creativity, one
+captivating question has surfaced: Can our brains serve as
+hidden “artistic cameras”? Let’s envision a world where
+painting tools, and photographic skills are going out of fash-
+ion. All you need is to think or gaze upon a visual object
+or immerse yourself in the wonders of nature. Then, your
+brain will be turned into an artistic lens transforming your
+perceptions into astonishing works of art, perhaps resem-
+bling a Van Gogh-style snapshot with vibrant yellow and
+orange sunflowers. To actualize aforesaid goals, we present
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+27207
+Abstract
+Learning-based stereo matching techniques have made
+significant progress. However, existing methods inevitably
+lose geometrical structure information during the feature
+channel generation process, resulting in edge detail mis-
+matches. In this paper, the Motif Channel Attention Stereo
+Matching Network (MoCha-Stereo) is designed to address
+this problem. We provide the Motif Channel Correlation
+Volume (MCCV) to determine more accurate edge match-
+ing costs.
+MCCV is achieved by projecting motif chan-
+nels, which capture common geometric structures in fea-
+ture channels, onto feature maps and cost volumes. In ad-
+dition, edge variations in the reconstruction error map also
+affect details matching, we propose the Reconstruction Er-
+ror Motif Penalty (REMP) module to further refine the full-
+resolution disparity estimation. REMP integrates the fre-
+quency information of typical channel features from the re-
+construction error. MoCha-Stereo ranks 1st on the KITTI-
+2015 and KITTI-2012 Reflective leaderboards. Our struc-
+ture also shows excellent performance in Multi-View Stereo.
+*Co-first author.
+†Corresponding author.
+Code is avaliable at MoCha-Stereo.
+1. Introduction
+Stereo matching remains a foundational challenge in
+computer vision, bearing significant relevance to au-
+tonomous driving, virtualization, rendering, and related sec-
+tors [40]. The primary goal of the assignment is to establish
+a pixel-wise displacement map, or disparity, which can be
+used to identify the depth of the pixels in the scene. Edge
+performance of disparity maps is particularly vital in tech-
+niques requiring pixel-level rendering, such as virtual real-
+ity and augmented reality, where precise fitting between the
+scene model and image mapping is essential [23]. This un-
+derscores the need for a close alignment between the edges
+of the disparity map and the original RGB image.
+Traditional stereo matching relies on global [8], semi-
+global [13], or local [2] grayscale relationships between left
+and right view pixels. These methods struggle to fully lever-
+age scene-specific prior knowledge. Achieving optimal re-
+sults often involves human observation, this tuning process
+can be resource-intensive in scenes with complex images
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+27768

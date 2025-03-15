@@ -1,0 +1,10 @@
+Costanzino Multimodal Industrial Anomaly Detection by Crossmodal Feature Mapping
+Cui Learning Continual Compatible Representation for Re-indexing Free Lifelong Person Re-identification
+Cui On the Robustness of Large Multimodal Models Against Image Adversarial
+Cui TextNeRF A Novel Scene-Text Image Synthesis Method based on Neural
+Dabhi 3D-LFM Lifting Foundation Model
+Dai A Study of Dropout-Induced Modality Bias on Robustness to Missing
+Dai Evaluating Transferability in Retrieval Tasks An Approach Using MMD and
+Dai HMD-Poser On-Device Real-time Human Motion Tracking from Scalable Sparse Observations
+Dalva NoiseCLR A Contrastive Learning Approach for Unsupervised Discovery of Interpretable
+Dal Cin Minimal Perspective Autocalibration

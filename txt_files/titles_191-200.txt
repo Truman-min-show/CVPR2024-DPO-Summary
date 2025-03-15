@@ -1,0 +1,10 @@
+Danish Improving Single Domain-Generalized Object Detection A Focus on Diversification and
+Dao EFHQ Multi-purpose ExtremePose-Face-HQ dataset
+Daroya Task2Box Box Embeddings for Modeling Asymmetric Task Relationships
+Das Neural Parametric Gaussians for Monocular Non-Rigid Object Reconstruction
+Davydov CLOAF CoLlisiOn-Aware Human Flow
+Decatur 3D Paintbrush Local Stylization of 3D Shapes with Cascaded Score
+Dehdashtian Utility-Fairness Trade-Offs and How to Find Them
+Dekel Estimating Extreme 3D Image Rotations using Cascaded Attention
+Delitzas SceneFun3D Fine-Grained Functionality and Affordance Understanding in 3D Scenes
+Deng 2S-UDF A Novel Two-stage UDF Learning Method for Robust Non-watertight

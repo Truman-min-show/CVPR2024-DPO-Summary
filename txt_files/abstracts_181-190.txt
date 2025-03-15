@@ -1,0 +1,696 @@
+Abstract
+Recent advancements have shown the potential of lever-
+aging both point clouds and images to localize anomalies.
+Nevertheless, their applicability in industrial manufactur-
+ing is often constrained by significant drawbacks, such as
+the use of memory banks, which leads to a substantial in-
+crease in terms of memory footprint and inference times.
+We propose a novel light and fast framework that learns
+to map features from one modality to the other on nominal
+samples and detect anomalies by pinpointing inconsisten-
+cies between observed and mapped features. Extensive ex-
+periments show that our approach achieves state-of-the-art
+detection and segmentation performance in both the stan-
+dard and few-shot settings on the MVTec 3D-AD dataset
+while achieving faster inference and occupying less memory
+than previous multimodal AD methods. Furthermore, we
+propose a layer pruning technique to improve memory and
+time efficiency with a marginal sacrifice in performance.
+1. Introduction
+Industrial Anomaly Detection (AD) aims to identify un-
+usual characteristics or defects in products, serving as a vital
+component within quality inspection processes. Collecting
+data to exemplify anomalies is challenging due to their rar-
+ity and unpredictability. Therefore, most works focus on
+unsupervised approaches, i.e., algorithms trained only on
+samples without defects, also referred to as nominal sam-
+ples. Currently, most existing AD methods are geared to-
+ward analyzing RGB images. However, in many industrial
+settings, anomalies are hard to recognize effectively based
+solely on colour images, e.g., due to varying light conditions
+conducive to false detection and surface deviations that may
+not appear as unlikely colours. Deploying colour images
+and surface information acquired by 3D sensors can tackle
+the above issues and substantially improve AD.
+Recently, researchers have started to explore novel av-
+enues thanks to the introduction of benchmark datasets for
+*These authors contributed equally to this work.
+Figure 1. Performance, speed and memory occupancy of Mul-
+timodal Anomaly Detection methods. The chart reports defect
+segmentation performance (AUPRO@30%) vs inference speed
+(Frame Rate on an NVIDIA 4090 GPU).
+3D anomaly detection, such as MVTec 3D-AD [5] and
+Eyecandies [6]. Indeed, both provide RGB images along-
+side pixel-registered 3D information for all data samples,
+thereby fostering the development of new, multimodal AD
+approaches [17, 34, 39].
+Unsupervised multimodal AD
+methods like BTF [17] and M3DM [39] rely on large mem-
+ory banks of multimodal features.
+They achieve excel-
+lent performance (AUPRO@30% metric in Fig. 1) at the
+cost of extensive memory requirements and slow inference
+(Fig. 1). In particular, M3DM outperforms BTF by leverag-
+ing frozen feature extractors trained by self-supervision on
+large datasets, i.e., ImageNet and Shapenet, for 2D and 3D
+features, respectively. Another recent multimodal method,
+AST [34], follows a teacher-student paradigm conducive to
+a faster architecture (Fig. 1). Yet, AST does not exploit
+the spatial structure of the 3D data but employs this infor-
+mation just as an additional input channel in a 2D network
+architecture. This results in inferior performance compared
+to M3DM and BTF (Fig. 1).
+In this paper, we propose a novel paradigm to exploit
+the relationship between features extracted from different
+modalities and improve multimodal AD. The core idea be-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+17234
+Abstract
+Lifelong Person Re-identiﬁcation (L-ReID) aims to learn
+from sequentially collected data to match a person across
+different scenes. Once an L-ReID model is updated using
+new data, all historical images in the gallery are required to
+be re-calculated to obtain new features for testing, known as
+“re-indexing”. However, it is infeasible when raw images
+in the gallery are unavailable due to data privacy concerns,
+resulting in incompatible retrieval between the query and
+the gallery features calculated by different models, which
+causes signiﬁcant performance degradation.
+In this pa-
+per, we focus on a new task called Re-indexing Free Life-
+long Person Re-identiﬁcation (RFL-ReID), which requires
+achieving effective L-ReID without re-indexing raw images
+in the gallery. To this end, we propose a Continual Com-
+patible Representation (C2R) method, which facilitates the
+query feature calculated by the continuously updated model
+to effectively retrieve the gallery feature calculated by the
+old model in a compatible manner. Speciﬁcally, we design
+a Continual Compatible Transfer (CCT) network to con-
+tinuously transfer and consolidate the old gallery feature
+into the new feature space. Besides, a Balanced Compati-
+ble Distillation module is introduced to achieve compatibil-
+ity by aligning the transferred feature space with the new
+feature space. Finally, a Balanced Anti-forgetting Distilla-
+tion module is proposed to eliminate the accumulated for-
+getting of old knowledge during the continual compatible
+transfer. Extensive experiments on several benchmark L-
+ReID datasets demonstrate the effectiveness of our method
+against state-of-the-art methods for both RFL-ReID and L-
+ReID tasks. The source code of this paper is available at
+https://github.com/PKU-ICST-MIPL/C2R CVPR2024.
+1. Introduction
+Person re-identiﬁcation (ReID) aims to identify the same
+person across different areas at different times [42]. Exist-
+*Corresponding author.
+Query Images
+Query Features
+(a) Traditionial Lifelong ReID
+ID:1
+Re-indexed
+Gallery Features
+ID:5
+ID:1      ID:2
+Old Gallery Images
+ReID w/ Re-indexing
+ReID w/o Re-indexing
+Ɍ
+Ɂ
+Query Features
+(b) Re-indexing Free Lifelong ReID
+Old Gallery Features
+Re-indexing
+New Model
+Query Images
+ID:1      ID:2
+Old Gallery Images
+ID:3
+ID:5
+Ɂ
+Ɂ
+Data
+Privacy×
+New Model
+Old Gallery Features
+Feature Replacing
+Figure 1. Comparison between (a) the traditional Lifelong Per-
+son Re-identiﬁcation (L-ReID) task and (b) the Re-indexing Free
+Lifelong Person Re-identiﬁcation (RFL-ReID) task.
+ing methods [26, 32, 44] have made remarkable progress
+based on deep learning methods [37] and large-scale
+datasets [34, 41, 43]. However, their performance is often
+limited when training data are continuously collected from
+a series of different scenarios due to the well-known catas-
+trophic forgetting challenge [3].
+Recently, Lifelong person ReID (L-ReID) has aroused
+great concerns involving acquiring knowledge from stream-
+ing data and performing well across all data [5, 18, 19, 38].
+Its challenge is to balance the anti-forgetting of old knowl-
+edge with the acquisition of new knowledge. To this end,
+existing L-ReID methods usually adopt the exemplar re-
+play [38] and the knowledge distillation [27] to preserve
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+16614
+Abstract
+Recent advances in instruction tuning have led to the
+development of State-of-the-Art Large Multimodal Models
+(LMMs).
+Given the novelty of these models, the impact
+of visual adversarial attacks on LMMs has not been thor-
+oughly examined. We conduct a comprehensive study of the
+robustness of various LMMs against different adversarial
+attacks, evaluated across tasks including image classifica-
+tion, image captioning, and Visual Question Answer (VQA).
+We find that in general LMMs are not robust to visual ad-
+versarial inputs. However, our findings suggest that context
+provided to the model via prompts—such as questions in a
+QA pair—helps to mitigate the effects of visual adversarial
+inputs. Notably, the LMMs evaluated demonstrated remark-
+able resilience to such attacks on the ScienceQA task with
+only an 8.10% drop in performance compared to their vi-
+sual counterparts which dropped 99.73%. We also propose
+a new approach to real-world image classification which
+we term query decomposition. By incorporating existence
+queries into our input prompt we observe diminished at-
+tack effectiveness and improvements in image classification
+accuracy. This research highlights a previously under ex-
+plored facet of LMM robustness and sets the stage for future
+work aimed at strengthening the resilience of multimodal
+systems in adversarial environments.
+1. Introduction
+Large Multi-modal Models (LMMs) have demonstrated re-
+markable abilities in a range of applications, from image
+classification and Visual Question Answering (VQA) to im-
+age captioning and semantic segmentation [1, 13, 22, 23,
+28]. These models excel in generalizing to new domains
+with data-efficient solution, a feat attributed to advance-
+ments in Instruction Tuning [42].
+Such techniques, tra-
+ditionally applied to text-only models, have now been ex-
+tended to multi-modal models, opening new avenues for ef-
+ficient fine-tuning with significantly less data [13, 28].
+†University of Central Florida
+LLaVA(adv): A group of people are sitting in a tub, with
+one person holding a toothbrush. ✗
+Query: Is the photo taken indoor or outdoor?
+LLaVA(adv): Outdoor. ✓
+Query: What is this image about?
+Query: Is there a tree in the image?
+LLaVA(adv): Yes. ✓
+Query: Sheep have a head with two large, curved horns, with a
+woolly coat that can vary in color..
+Question: What animal is in the image?
+LLaVA(adv): Sheep. ✓
+Query: What is in the background of the image?
+LLaVA(adv): Trees. ✓
+Query: What animal is in the image?
+LLaVA(adv): None. ✗
+LLaVA: Two sheep are standing on a ledge, looking
+over a wall.. ✓
+LLaVA: Sheep. ✓
+Figure 1. QA pairs for LLaVA [28] given an adversarial image.
+“LLaVA” and “LLaVA(adv)” refer to LLaVA’s response to the
+user query with clean and adversarial image, respectively. For the
+readers, there are two sheep in the scene, and the adversarial attack
+was based on maximizing the distance between the image and the
+text “a photo of a sheep”. In the first two QA pairs, we can see
+that LLaVA(adv)’s answer is completely wrong. However, it can
+still answer the following questions correctly, because they are not
+pertinent to the object being attacked (sheep). Also note the con-
+trast between the second and last QA pairs. LLaVA(adv) answers
+the question correctly after additional context has been provided.
+These observations help drove some of the findings in this paper.
+Source: COCO 2014 [26]
+Despite the recent advancements in LMMs, the impact
+of adversarial examples still remains under explored. Typi-
+cally adversarial examples are generated end-to-end, target-
+ing the final loss of the whole model, and focusing on a sin-
+gle modality. However, in the era of combining different
+pre-trained models with additional projectors or adaptors
+[8, 28, 44], it is imperative to reevaluate the effectiveness
+of these adversarial approaches. For example, let’s consider
+LLaVA [28] which uses CLIP as its visual component and
+LLAMA as text component (with some additional projector
+to bridge the gap), will an attack on one of the two compo-
+nents compromise its overall performance?
+From a practical perspective, given the substantial size
+of LMMs, attacking the entire model is often prohibitively
+expensive [7], making the above question an increasingly
+important one to answer since traditional adversarial attacks
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+24625
+Abstract
+Acquiring large-scale, well-annotated datasets is essen-
+tial for training robust scene text detectors, yet the pro-
+cess is often resource-intensive and time-consuming. While
+some efforts have been made to explore the synthesis of
+scene text images, a notable gap remains between syn-
+thetic and authentic data. In this paper, we introduce a
+novel method that utilizes Neural Radiance Fields (NeRF)
+to model real-world scenes and emulate the data collec-
+tion process by rendering images from diverse camera per-
+spectives, enriching the variability and realism of the syn-
+thesized data.
+A semi-supervised learning framework is
+proposed to categorize semantic regions within 3D scenes,
+ensuring consistent labeling of text regions across vari-
+ous viewpoints.
+Our method also models the pose, and
+view-dependent appearance of text regions, thereby offer-
+ing precise control over camera poses and significantly
+*Corresponding author. E-mail: lianzhouhui@pku.edu.cn
+This work was supported by National Natural Science Foundation of China
+(Grant No.: 62372015), Center For Chinese Font Design and Research,
+and Key Laboratory of Intelligent Press Media Technology.
+improving the realism of text insertion and editing within
+scenes. Employing our technique on real-world scenes has
+led to the creation of a novel scene text image dataset
+(https://github.com/cuijl-ai/TextNeRF). Compared to other
+existing benchmarks, the proposed dataset is distinctive in
+providing not only standard annotations such as bounding
+boxes and transcriptions but also the information of 3D
+pose attributes for text regions, enabling a more detailed
+evaluation of the robustness of text detection algorithms.
+Through extensive experiments, we demonstrate the effec-
+tiveness of our proposed method in enhancing the perfor-
+mance of scene text detectors.
+1. Introduction
+The detection of text in natural images are pivotal in ad-
+vancing numerous computer vision applications, includ-
+ing industrial automation, image retrieval, robot navigation,
+and autonomous driving. Despite the remarkable progress
+in scene text detection, the inherent complexity of natural
+scenes and the diverse manifestations of text present are still
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+22272
+Abstract
+The lifting of a 3D structure and camera from 2D land-
+marks is at the cornerstone of the discipline of computer
+vision.
+Traditional methods have been confined to spe-
+cific rigid objects, such as those in Perspective-n-Point
+(PnP) problems, but deep learning has expanded our ca-
+pability to reconstruct a wide range of object classes (e.g.
+C3DPO [18] and PAUL [24]) with resilience to noise, oc-
+clusions, and perspective distortions. However, all these
+techniques have been limited by the fundamental need to
+establish correspondences across the 3D training data, sig-
+nificantly limiting their utility to applications where one
+has an abundance of “in-correspondence” 3D data. Our
+approach harnesses the inherent permutation equivariance
+of transformers to manage varying numbers of points per
+3D data instance, withstands occlusions, and generalizes
+*Both authors advised equally.
+to unseen categories. We demonstrate state-of-the-art per-
+formance across 2D-3D lifting task benchmarks. Since our
+approach can be trained across such a broad class of struc-
+tures, we refer to it simply as a 3D Lifting Foundation Model
+(3D-LFM) – the first of its kind.
+1. Introduction
+Lifting 2D landmarks from a single-view RGB image into
+3D has long posed a complex challenge in the field of com-
+puter vision because of the ill-posed nature of the problem.
+This task is important for a range of applications from aug-
+mented reality to robotics, and requires an understanding
+of non-rigid spatial geometry and accurate object descrip-
+tions [2, 11, 25]. Historically, efforts in single-frame 2D-
+3D lifting have encountered significant hurdles: reliance on
+object-specific models, poor scalability, and limited adapt-
+ability to diverse and complex object categories. Traditional
+methods, while advancing in specific domains like human
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+10466
+Abstract
+Advanced Audio-Visual Speech Recognition (AVSR) sys-
+tems have been observed to be sensitive to missing video
+frames, performing even worse than single-modality mod-
+els. While applying the common dropout techniques to the
+video modality enhances robustness to missing frames, it
+simultaneously results in a performance loss when deal-
+ing with complete data input. In this study, we delve into
+this contrasting phenomenon through the lens of modality
+bias and uncover that an excessive modality bias towards
+the audio modality induced by dropout constitutes the fun-
+damental cause. Next, we present the Modality Bias Hy-
+pothesis (MBH) to systematically describe the relationship
+between the modality bias and the robustness against miss-
+ing modality in multimodal systems. Building on these find-
+ings, we propose a novel Multimodal Distribution Approxi-
+mation with Knowledge Distillation (MDA-KD) framework
+to reduce over-reliance on the audio modality, maintain-
+ing performance and robustness simultaneously. Finally,
+to address an entirely missing modality, we adopt adapters
+to dynamically switch decision strategies.
+The effective-
+ness of our proposed approach is evaluated through com-
+prehensive experiments on the MISP2021 and MISP2022
+datasets. Our code is available at https://github.
+com/dalision/ModalBiasAVSR.
+1. Introduction
+Audio-Visual Speech Recognition (AVSR) is a multimodal
+application inspired by human speech perception. It out-
+performs single-modality models by incorporating noise-
+invariant complementary information from visual cues, es-
+pecially in noisy environments.
+Driven by increasingly
+large open-source datasets and models [1–4], AVSR has
+achieved significant advancements across various bench-
+*Corresponding author. This work was supported by the National Nat-
+ural Science Foundation of China under Grant No. 62171427.
+marks with a simple end-to-end design [5, 6].
+Recent research on AVSR focuses on more challenging
+real-life scenarios. Techniques such as reinforcement learn-
+ing [7] and carefully designed fusion architecture [8–10] are
+used to accommodate varying noise levels and overlapping
+speech. Self-supervised learning [11] and automatic label-
+ing techniques [12] are applied facing insufficient audio-
+visual pairs. Meanwhile, various synchronization modules
+have been developed for audio-visual alignment.[13–15].
+However, restricted to the open-source datasets [1, 2, 16],
+most studies often assume that each video is recorded in
+relatively high quality, without blurring, corruption, or loss.
+Moreover, there is growing evidence to suggest that current
+advanced AVSR systems are highly susceptible to pertur-
+bations in video modality [17, 18], resulting in significant
+performance degradation even perform worse than single-
+modality models [19, 20].
+Missing video modality is a crucial and common prob-
+lem for AVSR applied in real-life scenarios [1, 17, 19, 20].
+It arises from various causes, including losses induced by
+network latency or hardware limitations, as well as errors in
+lip movement tracking due to occlusion and side-face. Most
+researchers utilize dropout techniques 1 on video training
+data to improve robustness against missing modalities [19–
+23]. It has been demonstrated to effectively mitigate the
+out-of-distribution (OOD) issue and alleviate performance
+degradation without additional inference consumption or
+complex modules. However, it leads to new challenges on
+real-life scenarios with low-quality input. In our early ex-
+periments on MISP datasets [24, 25], a contradictory phe-
+nomenon could be observed in Figure 1: while applying the
+dropout strategy to video training data enhance the robust-
+ness against missing video modality, it also leads to perfor-
+mance degradation when dealing with complete data input.
+1Distinguished from the classic dropout that randomly deactivates
+nodes during neural network training, dropout in this paper specifically
+refers to a data augmentation technique that partially or entirely replaces
+original video frames with padding frames.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+27445
+Abstract
+Retrieval tasks play central roles in real-world machine
+learning systems such as search engine, recommender sys-
+tem, and retrieval-augmented generation (RAG). Achieving
+decent performance in these tasks often requires fine-tuning
+various pretrained models on specific datasets and select-
+ing the best candidate, a process that can be both time and
+resource consuming. To tackle the problem, we introduce a
+novel and efficient method, called RetMMD, that leverages
+Maximum Mean Discrepancy (MMD) and kernel methods to
+assess the transferability of pretrained models in retrieval
+tasks. RetMMD is calculated on pretrained model and tar-
+get dataset without any fine-tuning involved. Specifically,
+given some query, we quantify the distribution discrepancy
+between relevant and irrelevant document embeddings, by
+estimating the similarities within their mappings in the fine-
+tuned embedding space through kernel method. This discrep-
+ancy is averaged over multiple queries, taking into account
+the distribution characteristics of the target dataset. Ex-
+periments suggest that the proposed metric calculated on
+pretrained models closely aligns with retrieval performance
+post fine-tuning. The observation holds across a variety of
+datasets, including image, text, and multi-modal domains,
+indicating the potential of using MMD and kernel meth-
+ods for transfer learning evaluation in retrieval scenarios.
+In addition, we also design a way of evaluating dataset
+transferability for retrieval tasks, with experimental results
+demonstrating the effectiveness of the proposed approach.
+1. Introduction
+Developing transfer learning evaluation metrics for retrieval
+tasks is of great importance in machine learning and infor-
+mation retrieval. Reliable metrics enable assessing the effec-
+tiveness of transfer learning models in retrieval-based appli-
+cations, such as search engines, recommendation systems,
+and Retrieval Augmented Generation (RAG) with Large
+Language Models (LLMs) [1, 24, 39, 53]. For example, in-
+*Partial work done at Salesforce.
+tegrating retrieval mechanisms into LLMs allows them to ac-
+cess and leverage external knowledge sources, significantly
+enhancing their ability to provide accurate, up-to-date and
+contextually relevant responses. In these contexts, the goal is
+often to retrieve the most relevant items from a large dataset
+given a specific query or user profile. A well-designed trans-
+fer learning evaluation metric can help assess whether the
+learned representations from a pretrained model are effec-
+tively capturing the underlying semantics of the data and
+improving retrieval performance. Additionally, such a met-
+ric can facilitate comparison between different models or
+different fine-tuning strategies, thus guiding researchers and
+practitioners in model selection and further optimization.
+Existing transfer learning evaluation metrics primarily
+focus on classification tasks [3, 37, 40, 50, 54]. Although
+classification and retrieval tasks are often used together and
+can be treated as complementary tasks, there exists funda-
+mental differences between them. For instance, classification
+assigns data items to predefined categories or classes, while
+retrieval is the process of searching relevant information
+from a collection of items, often using similarity measures
+calculated from their embeddings. Another distinguishing
+factor is the asymmetric distribution of item embeddings
+in retrieval tasks. This asymmetric distribution can often
+result in a complex and nuanced performance landscape for
+retrieval models. Furthermore, the discrepancy between dis-
+tributions of relevant and irrelevant documents in retrieval
+tasks is often dependent on the specific query. This means
+that any transfer learning evaluation metric must take into
+account this query-dependent variability to provide an accu-
+rate measure of model performance. In addition, one also
+needs to take account into the importance of each examined
+query, to be able to provide less biased predictions regarding
+overall retrieval performance in downstream tasks.
+Given these unique challenges, we propose a method de-
+signed specifically to assess model transferability in retrieval
+tasks. Our approach utilizes the Maximum Mean Discrep-
+ancy (MMD) [15] to quantify the discrepancy between dis-
+tributions of relevant and irrelevant document embeddings
+in embedding spaces. We employ a kernel-based method to
+estimate these discrepancies, which are then averaged over
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+22390
+Abstract
+It is especially challenging to achieve real-time human
+motion tracking on a standalone VR Head-Mounted Dis-
+play (HMD) such as Meta Quest and PICO. In this pa-
+per, we propose HMD-Poser, the first unified approach to
+recover full-body motions using scalable sparse observa-
+tions from HMD and body-worn IMUs. In particular, it
+can support a variety of input scenarios, such as HMD,
+HMD+2IMUs, HMD+3IMUs, etc. The scalability of in-
+puts may accommodate users’ choices for both high track-
+ing accuracy and easy-to-wear.
+A lightweight temporal-
+spatial feature learning network is proposed in HMD-Poser
+to guarantee that the model runs in real-time on HMDs.
+Furthermore, HMD-Poser presents online body shape es-
+timation to improve the position accuracy of body joints.
+Extensive experimental results on the challenging AMASS
+dataset show that HMD-Poser achieves new state-of-the-
+art results in both accuracy and real-time performance. We
+also build a new free-dancing motion dataset to evaluate
+HMD-Poser’s on-device performance and investigate the
+performance gap between synthetic data and real-captured
+sensor data. Finally, we demonstrate our HMD-Poser with
+a real-time Avatar-driving application on a commercial
+HMD. Our code and free-dancing motion dataset are avail-
+able here.
+1. Introduction
+Human motion tracking (HMT), which aims at estimating
+the orientations and positions of body joints in 3D space, is
+highly demanded in various VR applications, such as gam-
+ing and social interaction. However, it is quite challeng-
+ing to achieve both accurate and real-time HMT on HMDs.
+There are two main reasons. First, since only the user’s
+head and hands are tracked by HMD (including hand con-
+trollers) in the typical VR setting, estimating the user’s full-
+!"#$%&'
+!(#$%&')*+&,-
+!.#$%&')/+&,-
+ ."0"(01 +2345  .12"678-
+%&'$!59611$:';<-#
+ ."0"(01  3"6-1 ;(-16="5782-
+>1"057?1$&8@10 +2A1612.1$
+82$%&'$'1=7.1
+'67=72B "2$C="5"6 82$%&' 72 >1"0D57?1
+C$="67"(01$24?(16$8A
+/';<$+&,-$!;35782"0#
+$
+$
+Figure 1. HMD-Poser can handle scalable input scenarios, includ-
+ing (a) HMD, (b) HMD+2IMUs wherein two IMUs are worn on
+the lower legs, (c) HMD+3IMUs wherein a third IMU is added to
+the pelvis, etc. HMD-Poser runs on HMD and outputs full-body
+motion data to drive an Avatar in real-time.
+body motions, especially lower-body motions, is inherently
+an under-constrained problem with such sparse tracking sig-
+nals. Second, computing resources are usually highly re-
+stricted in portable HMDs, which makes deploying a real-
+time HMT model on HMDs even harder.
+Prior works have focused on improving the accuracy of
+full-body tracking. One category of methods utilizes three
+6DOFs (degrees of freedom) from HMD to estimate full-
+body motions, and they could be roughly classified into
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+874
+Abstract
+Generative models have been very popular in the recent
+years for their image generation capabilities. GAN-based
+models are highly regarded for their disentangled latent
+space, which is a key feature contributing to their success
+in controlled image editing. On the other hand, diffusion
+models have emerged as powerful tools for generating high-
+quality images. However, the latent space of diffusion mod-
+els is not as thoroughly explored or understood. Existing
+methods that aim to explore the latent space of diffusion
+models usually relies on text prompts to pinpoint specific
+semantics. However, this approach may be restrictive in ar-
+eas such as art, fashion, or specialized fields like medicine,
+where suitable text prompts might not be available or easy
+to conceive thus limiting the scope of existing work. In this
+paper, we propose an unsupervised method to discover la-
+tent semantics in text-to-image diffusion models without re-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+24209
+Abstract
+We introduce a new family of minimal problems for re-
+construction from multiple views. Our primary focus is a
+novel approach to autocalibration, a long-standing prob-
+lem in computer vision.
+Traditional approaches to this
+problem, such as those based on Kruppa’s equations or
+the modulus constraint, rely explicitly on the knowledge of
+multiple fundamental matrices or a projective reconstruc-
+tion. In contrast, we consider a novel formulation involv-
+ing constraints on image points, the unknown depths of
+3D points, and a partially specified calibration matrix K.
+For 2 and 3 views, we present a comprehensive taxonomy
+of minimal autocalibration problems obtained by relaxing
+some of these constraints. These problems are organized
+into classes according to the number of views and any as-
+sumed prior knowledge of K. Within each class, we deter-
+mine problems with the fewest—or a relatively small num-
+ber of—solutions. From this zoo of problems, we devise
+three practical solvers. Experiments with synthetic and real
+data and interfacing our solvers with COLMAP demon-
+strate that we achieve superior accuracy compared to state-
+of-the-art calibration methods.
+The code is available at
+github.com/andreadalcin/MinimalPerspectiveAutocalibration.
+1. Introduction
+Autocalibration is the fundamental process of determin-
+ing intrinsic camera parameters using only point correspon-
+dences, without external calibration objects or known scene
+geometry [11–14, 23, 28, 33, 34, 36, 38, 47, 51].
+1.1. Contribution
+This paper presents a comprehensive characterization of
+two- and three-view minimal autocalibration problems in
+the case of a perspective camera with constant intrinsics.
+We introduce practical and efficient solvers for minimal au-
+tocalibration by introducing a novel formulation that ex-
+tends the minimal Euclidean reconstruction problem of four
+points in three calibrated views [24, 40] to the uncalibrated
+case. Our approach jointly estimates camera intrinsics, en-
+coded in the calibration matrix K, and unknown 3D point
+depths, and seamlessly integrates any partial knowledge
+of the camera intrinsics.
+This gives rise to a variety of
+two- and three-view minimal autocalibration problems, for
+which we provide a complete taxonomy in Tab. 1. We de-
+velop a general theory of minimal relaxations to address
+cases where our formulation leads to an over-constrained
+problem. These minimal relaxations of our depth formu-
+lation can be completely enumerated, and each instance of
+a specific autocalibration problem can be solved offline by
+applying numerical homotopy continuation (HC) methods
+to one such relaxation. Crucially, the offline analysis with
+HC methods also enables us to identify the most efficiently
+solvable minimal relaxations.
+Our practical contributions include implementing a nu-
+merical solver for full camera calibration, i.e., calibration of
+all 5 unknown parameters of a perspective camera. We also
+consider common assumptions—namely, zero-skew and
+square pixels—and design fast solvers for specialized prob-
+lems with a partially calibrated camera. These solvers can
+be fast enough for many online calibration applications, and
+can also bootstrap solutions using RANSAC-based frame-
+works with high accuracy in offline calibration settings.
+Among the strengths of our approach, we avoid well-known
+degeneracies of Kruppa’s equations [48] and recover K di-
+rectly instead of relying on estimates of the dual image
+of the absolute conic (DIAC), which may not be positive-
+semidefinite. Experiments show that our solvers outperform
+existing autocalibration methods in terms of accuracy in
+both synthetic and real image sequences despite increased
+runtime. Interfacing our solvers with COLMAP [44] further
+highlights the applicability of our approach.
+C1
+<latexit sha1_base64="2XSB6vctFt2ibIztuHwmJKhq67w=">ACEnicdVA9TwJBFNzDL8Qv1NJmIzGxIncGoyWRxh
+KjIAlcyLvlgRv29i670wI4SfYGf0vdsbWP+BfsfI4KR0qsnMvGTeBLGSlz3w8ktLa+sruXCxubW9s7xd29po0SI7AhIhWZVgAWldTYIEkKW7FBCAOFt8GwNvVv79FYGekbGsXohzDQsi8FUCpd17pet1hy24Gvki8GSmxGerd4menF4kRE1C
+gbVtz43JH4MhKROCp3EYgxiCANsp1RDiNYfZ1Un/CixQBGP0XCpeCbiz4sxhNaOwiBNhkB3dt7rR5rsf+ZU/MtrJ9Q/98dSxwmhFtMWJBVmLawMh0IeU8aJILpW8il5gIMEKGRHIRIxSRdrJCO5c1Ps0iaJ2WvUj69qpSqF7PZ8uyAHbJj5rEzVmW
+XrM4aTLABe2BP7Nl5dF6cV+ftO5pzZjf7Bec9y97/p3q</latexit>
+xiq
+<latexit sha1_base64="ZDWfS4W5wCjdMfUNT7krdrNOck=">ACFXicdVC7TsNAEDyHVwivACXNiQiJKrJREJQ
+RNJRBIg8psaLzZROnM/mbo2IrPwDHYJ/oUO01PwKFbZxAQlMNZqZlWbHC6UwaNsfVmFhcWl5pbhaWlvf2Nwqb+0TBpDk0eyEB3PGZACgVNFCihE2pgvieh7Y3PU79B9qIQF3hJATXZyMlhoIzTKTWfT8Wt9N+uWJX7Qx0njg5qZAcjX7
+5szcIeOSDQi6ZMV3HDtGNmUbBJUxLvchAyPiYjaCbUMV8MG6ctZ3Sg8gwDGgImgpJMxF+XsTMN2bie0nSZ3htZr1hoND8Z6biX143wuGpGwsVRgiKpy1QSMhaGK5FshHQgdCAyNK3gApFOdMEbSgjPNEjJLRSslYzuw086R1VHVq1ePLWqV
++ls9WJHtknxwSh5yQOrkgDdIknNyQB/JEnq1H68V6td6+owUrv9klv2C9fwEC25/e</latexit>
+Xp
+<latexit sha1_base64="B3Quf9Hiy5SE6Dkge+HzD7gqzs=">ACEnicdVC7SgNBFJ2NrxhfUubwSBYhV2JaBm0sY
+xoHpAsYXZyE4fMzg4zd4UQ8gl2ov9iJ7b+gL9i5e6hSZ6qsM58K5J9BSWHTdD6ewtLyulZcL21sbm3vlHf3WjaKDYcmj2RkOgGzIWCJgqU0NEGWBhIaAfjy9Rv34OxIlK3ONHgh2ykxFBwhol0+nrfrniVt0MdJF4OamQHI1+bM3iHgcgkIu
+mbVdz9XoT5lBwSXMSr3YgmZ8zEbQTahiIVh/mlWd0aPYMoyoBkOFpJkIPy+mLR2EgZJMmR4Z+e9YaTQ/mem4l9eN8bhuT8VSscIiqctUEjIWlhuRDIQ0IEwgMjSt4AKRTkzDBGMoIzRIyTxUrJWN78NIukdVL1atXT61qlfpHPViQH5JAcE4+ckTq
+5Ig3SJyMyAN5Is/Oo/PivDpv39GCk9/sk19w3r8ACKePg=</latexit>
+Ci
+<latexit sha1_base64="Sw+bqk05SmHaZ5o12fyk3S+/h/E=">ACEnicdVA9TwJBFHyHX4hfqKXNRmJiRe4MRksijS
+VGQRK4kL3lgRv29i670wI4SfYGf0vdsbWP+BfsfI4KR0qsnMvGTeBLGSlz3w8ktLa+sruXCxubW9s7xd29po0SI7AhIhWZVsAtKqmxQZIUtmKDPAwU3gbD2tS/vUdjZaRvaBSjH/KBln0pOKXSda0ru8WSW3YzsEXizUgJZqh3i5+dXiSEDUJ
+xa1te25M/pgbkLhpNBJLMZcDPkA2ynVPETrj7OqE3aUWE4Ri9EwqVgm4s+LMQ+tHYVBmgw53dl5rx9psv+ZU/Evr51Q/9wfSx0nhFpMW5BUmLWwsh0IGQ9aZCIT9CJjUT3HAiNJxIVIxSRcrpGN589MskuZJ2auUT68qperFbLY8HMAhHIMHZ1C
+FS6hDAwQM4AGe4Nl5dF6cV+ftO5pzZjf78AvO+xfZnp4i</latexit>
+CM
+<latexit sha1_base64="dYU0D6NtPg3R3NjgwHeJ2ItpBow=">ACEnicdVDLSsNAFJ3UV62vqks3g0VwVRKp6LYjR
+uhon1AG8pkeluHTiZh5kYoZ/gTvRf3Ilbf8BfcWUSs9BWz+pwzrlw7vFCKQza9odVWFpeWV0rpc2Nre2d8q7e20TRJpDiwcy0F2PGZBCQsFSuiGpjvSeh4k0bqd+5BGxGoW5yG4PpsrMRIcIaJdNMYXA3KFbtqZ6CLxMlJheRoDsqf/WHAIx8U
+csmM6Tl2iG7MNAouYVbqRwZCxidsDL2EKuaDceOs6oweRYZhQEPQVEiaifDzIma+MVPfS5I+wzsz740CheY/MxX/8noRjs7dWKgwQlA8bYFCQtbCcC2SgYAOhQZElr4FVCjKmWaIoAVlnCdilCxWSsZy5qdZJO2TqlOrnl7XKvWLfLYiOSCH5Jg45Iz
+UySVpkhbhZEweyBN5th6tF+vVevuOFqz8Zp/8gvX+BarOngY=</latexit>
+Xq
+<latexit sha1_base64="/Wl+QO+p+fKb+w0keoeVATkLEVs=">ACEnicdVC7TsNAEDyHVwivACXNiQiJKrIRCMoIGs
+ogyENKrGh92YRTzmdzt0aKonwCHYJ/oUO0/AC/QoUdUkACU41mZqXZCWIlLbnuh5NbWFxaXsmvFtbWNza3its7dRslRmBNRCoyzQAsKqmxRpIUNmODEAYKG8HgIvMb92isjPQNDWP0Q+hr2ZMCKJWum527TrHklt0J+DzxpqTEpqh2ip/tbiSEDUJ
+Bda2PDcmfwSGpFA4LrQTizGIAfSxlVINIVp/NKk65geJBYp4jIZLxSci/rwYQWjtMAzSZAh0a2e9XqTJ/mdm4l9eK6HemT+SOk4ItchakFQ4aWGFkelAyLvSIBFkbyGXmgswQIRGchAiFZN0sUI6ljc7zTypH5W94/LJ1XGpcj6dLc/2D47ZB47ZRV
+2yaqsxgTrswf2xJ6dR+fFeXevqM5Z3qzy37Bef8ClOePw=</latexit>
+K−1xip
+<latexit sha1_base64="N1nOjePq3T8BaE3KbCkBXKuc4U=">ACG3icdVA9SwNBFNzM8avqKXNYhBsDHcS0TJoI9hEMB
++QnGFv8xKX7O0tu+/EcORv2In+FzuxtfCvWHk5U2iUw0z82DeBFoKi674czNLywuLedW8qtr6xubha3tuo1iw6HGIxmZsAsSKGghgIlNLUBFgYSGsHgfOw37sBYEalrHGrwQ9ZXoic4w1RqX94kh97ovpMIPeoUim7JzUBniTchRTJBtVP4bHcjHoegkEtmb
+ctzNfoJMyi4hFG+HVvQjA9YH1opVSwE6ydZ5xHdjy3DiGowVEiaifDzImGhtcMwSJMhw1s7fUihfY/cyz+5bVi7J36iVA6RlB83AKFhKyF5UakSwHtCgOIbPwWUKEoZ4YhghGUcZ6KcTpdPh3Lm5mltSPSl65dHxVLlbOJrPlyC7ZIwfEIyekQi5IldQIJ5o8
+kCfy7Dw6L86r8/YdnXMmNzvkF5z3L0dFohg=</latexit>
+xip
+<latexit sha1_base64="Rom81qI/rQ7PWgLYA0G6G21RiME=">ACFXicdVA9SwNBFNyLXzF+RS1tFoNgFe5E0TJoYx
+nBfEASwt7mJa7Z21t234nhyH+wE/0vdmJr7V+x8u68QhOdapiZB/PG1JYdN0Pp7CwuLS8Ulwtra1vbG6Vt3eaNowMhwYPZWjaPrMghYIGCpTQ1gZY4Eto+eOL1G/dgbEiVNc40dAL2EiJoeAME6l534+FnvbLFbfqZqDzxMtJheSo98uf3UHIowAUc
+sms7Xiuxl7MDAouYVrqRhY042M2gk5CFQvA9uKs7ZQeRJZhSDUYKiTNRPh5EbPA2kngJ8mA4Y2d9YahQvufmYp/eZ0Ih2e9WCgdISietkAhIWthuRHJRkAHwgAiS98CKhTlzDBEMIyzhMxSkYrJWN5s9PMk+ZR1TunlwdV2rn+WxFskf2ySHxyCmp
+kUtSJw3CyS15IE/k2Xl0XpxX5+07WnDym13yC87FwEun90=</latexit>
+Figure 1. Illustrating the setup of equations (1) and (4).
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+5064

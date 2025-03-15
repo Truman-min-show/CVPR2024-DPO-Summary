@@ -1,0 +1,705 @@
+Abstract
+Despite being (pre)trained on a massive amount of data,
+state-of-the-art video-language alignment models are not
+robust to semantically-plausible contrastive changes in the
+video captions.
+Our work addresses this by identifying
+a broad spectrum of contrast misalignments, such as re-
+placing entities, actions, and flipping event order, which
+alignment models should be robust against. To this end,
+we introduce the VideoCon, a video-language alignment
+dataset constructed by a large language model that gen-
+erates plausible contrast video captions and explanations
+for differences between original and contrast video cap-
+tions.
+Then, a generative video-language model is fine-
+tuned with VideoCon to assess video-language entailment
+and generate explanations. Our VideoCon-based alignment
+model significantly outperforms current models. It exhibits
+a 12-point increase in AUC for the video-language align-
+ment task on human-generated contrast captions. Finally,
+our model sets new state of the art zero-shot performance
+in temporally-extensive video-language tasks such as text-
+to-video retrieval (SSv2-Temporal) and video question an-
+swering (ATP-Hard). Moreover, our model shows superior
+performance on novel videos and human-crafted captions
+and explanations.
+1. Introduction
+Semantically aligning data points from diverse modalities
+is a long-standing goal of AI. We focus on video-language
+alignment, which is challenging due to the complexities in-
+volved in understanding of entities, their relationships, and
+temporal order of the depicted events [17]. Recent mod-
+els such as VideoCLIP [55], ImageBind [14] learn a shared
+embedding space.
+Similarly, generative models such as
+Flamingo [1], mPLUG-Owl-Video [61] can provide a clas-
+sification label (e.g., yes/no) when queried about video-
+language alignment.
+*Equal Advising.
+Despite large-scale pretraining, prior work [5, 37, 38, 51]
+highlights that video-language alignment models are not ro-
+bust to semantically plausible manipulations to an original
+aligned caption in the form of contrast captions, such as
+from ‘dog runs away before it eats food’ to ‘dog runs away
+after it eats food’. Such pitfalls in robustness questions the
+trustworthiness of alignment models for large-scale deploy-
+ment. To mitigate these shortcomings, one possible solution
+is to scale video-language pairs more for increased diver-
+sity during pretraining. However, this is challenging due to
+the difficulties in sourcing new, high-quality and permissi-
+ble content, as well as the requirement for substantial stor-
+age capacity. Several works [11, 13, 16] have shown that
+naively training models on web-scale data has diminishing
+returns on downstream tasks, and emphasize the importance
+of data quality. Furthermore, the recent studies [28, 62]
+demonstrate that applying a contrastive objective to the pre-
+training datasets does not encourage the model to grasp the
+fine-grained details within image/region-caption data.
+To this end, we take a scalable, active strategy to gather
+high-quality data that is deliberately enriched with the at-
+tributes that we want to instill in alignment models. We
+create a novel dataset, VideoCon, to improve the robust-
+ness of models. Specifically, the dataset consists of a vari-
+ety of semantically plausible video-language misalignments
+in contrast captions.
+These misalignments include alter-
+ing objects (entities), actions, attributes, relations, counts,
+event orders, and introducing hallucinations (Figure 2).
+To construct VideoCon, a large language model (PaLM-
+2 API) takes video-caption pairs as input and generates
+high-quality contrast captions for a given misalignment
+type.
+To make our dataset temporally-challenging, we
+skipped “easy” video-caption pairs whose alignment could
+be inferred based on a single frame (image) understanding
+[9, 26] (§3.1). In addition, the LLM generates natural lan-
+guage explanations (NLEs) [42] to the differences between
+original and altered captions, which are used for further ro-
+bust training. We performed human verification on a sam-
+ple of VideoCon and found that it is of high-quality. Finally,
+to evaluate the model’s generalization capabilities, we col-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+13927
+Abstract
+Recently, we have witnessed the explosive growth of
+various volumetric representations in modeling animatable
+head avatars. However, due to the diversity of frameworks,
+there is no practical method to support high-level applica-
+tions like 3D head avatar editing across different represen-
+tations. In this paper, we propose a generic avatar editing
+approach that can be universally applied to various 3DMM-
+driving volumetric head avatars. To achieve this goal, we
+design a novel expression-aware modification generative
+model, which enables lift 2D editing from a single image to
+a consistent 3D modification field. To ensure the effective-
+ness of the generative modification process, we develop sev-
+eral techniques, including an expression-dependent mod-
+ification distillation scheme to draw knowledge from the
+large-scale head avatar model and 2D facial texture editing
+tools, implicit latent space guidance to enhance model con-
+vergence, and a segmentation-based loss reweight strategy
+for fine-grained texture inversion. Extensive experiments
+demonstrate that our method delivers high-quality and con-
+sistent results across multiple expression and viewpoints.
+Project page: https://zju3dv.github.io/geneavatar/.
+1. Introduction
+Recently various volumetric representations [3, 4, 15, 16,
+57, 68, 69, 76] have achieved remarkable success in re-
+constructing personalized, animatable, and photorealistic
+head avatars using implicit [15, 16, 57, 68, 69] or ex-
+plicit [3, 4, 76] conditioning of 3D Morphable Models
+*Authors contributed equally.
+†Corresponding authors.
+§The work was partially done when visiting ETHZ.
+(3DMM) [6]. A popular demand, once with a created avatar
+model, is to edit the avatar, e.g., for face shape, facial
+makeup, or apply artistic effects, for the downstream ap-
+plications, e.g., in virtual/augmented reality.
+Ideally, the desired editing functionality on the animat-
+able avatar should have the following properties. (1) Adapt-
+able: The editing method should be applicable across var-
+ious volumetric avatar representations. This is particularly
+valuable in light of the growing diversity of avatar frame-
+works [16, 50, 76]. (2) User-friendly: The editing should
+be user-friendly and intuitive. Preferably, the editing of ge-
+ometry and texture of the 3D avatar could be accomplished
+on a single-perspective rendered image. (3) Faithful: The
+editing results should be consistent across various facial ex-
+pression and camera viewpoints. (4) Flexible: Both inten-
+sive editing (e.g., global appearance transfer following style
+prompts) and delicate local editing (e.g., dragging to enlarge
+eyes or ears) should be supported as illustrated in Fig. 1.
+However, 3D-aware avatar editing is still underexplored
+in both geometry and texture. One plausible way is to per-
+form 3D editing via animatable 3D GAN [50, 52, 54], but
+the editing results may not be consistently reflected when
+expression and camera viewpoint change. Alternatively, the
+editing can be done on the generated 2D video using 2D
+personalized StyleGAN [28]; however, the identity shift is
+often observed. Some face-swapping methods [11, 12, 42]
+are capable of substituting the face in a video with another
+face derived from a reference image or video; however, they
+do not support texture editing and local geometry editing.
+To this end, we propose GeneAvatar – a generic ap-
+proach to support fine-grained 3D editing in various vol-
+umetric avatar representations from a single perspective by
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+8952
+Abstract
+Adversarial attacks aim to perturb images such that a pre-
+dictor outputs incorrect results. Due to the limited research
+in structured attacks, imposing consistency checks on natural
+multi-object scenes is a practical defense against conven-
+tional adversarial attacks. More desired attacks should be
+able to fool defenses with such consistency checks. Therefore,
+we present the first approach GLOW that copes with various
+attack requests by generating global layout-aware adversar-
+ial attacks, in which both categorical and geometric layout
+constraints are explicitly established. Specifically, we focus
+on object detection tasks and given a victim image, GLOW
+first localizes victim objects according to target labels. And
+then it generates multiple attack plans, together with their
+context-consistency scores. GLOW, on the one hand, is ca-
+pable of handling various types of requests, including single
+or multiple victim objects, with or without specified victim
+objects. On the other hand, it produces a consistency score
+for each attack plan, reflecting the overall contextual consis-
+tency that both semantic category and global scene layout
+are considered. We conduct our experiments on MS COCO
+and Pascal. Extensive experimental results demonstrate that
+we can achieve about 30% average relative improvement
+compared to state-of-the-art methods in conventional single
+object attack request; Moreover, such superiority is also
+valid across more generic attack requests, under both white-
+box and zero-query black-box settings. Finally, we conduct
+comprehensive human analysis, which not only validates
+our claim further but also provides strong evidence that our
+evaluation metrics reflect human reviews well.
+1. Introduction
+Object detection aims to localize and recognise multiple
+objects in given images with their 2D bounding boxes and
+corresponding semantic categories [14, 19]. Due to the phys-
+ical commonsense and viewpoint preferences [16], detected
+*Equal contribution.
+†Corresponding author.
+Figure 1. We propose a novel attack generation algorithm GLOW
+that manages both conventional single targeted object (R1) and our
+generic attack requests (R2,R3). Specifically, GLOW consists of
+two steps. The first step localizes victim objects, if not provided.
+The second step generates various attack plans with their consis-
+tency scores. Then the one with the highest score is our final attack
+plan and parsed to attackers. Best viewed in color.
+bounding boxes in natural images are not only semantically
+labeled but also placed relative to each other within a co-
+herent scene geometry, reflecting the underlying 3D scene
+structure. Such bounding box representation allows us to
+derive a notion of both semantic and geometric constraints.
+For example, co-occurrence matrix is a commonly exploited
+semantic constraint where certain object categories are more
+likely to co-occur, e.g., bed and pillow [20]. Geometric
+constraints, on the other hand, leverage the inductive bias
+of scene layout [11], such as when oc-occurring in a scene,
+traffic light is more likely to be appeared on the upper region
+with a smaller bounding box compared to car.
+Adversarial attacks on object detectors mainly focus on
+targeted victim setting [7, 45] where the goal is to perturb a
+specific victim object to target class. In this case, the location,
+ground truth and target class of the victim object are assumed
+to be known to attackers. Naturally, contextual cues are lever-
+aged in attack and defense mechanisms [6, 7, 48] on detec-
+tors to enhance or detect holistic context (in)consistency [6].
+Though being well-motivated and demonstrating good per-
+formances in conventional setting, the state-of-the-art meth-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+12057
+Abstract
+Conditional human motion generation is an important
+topic with many applications in virtual reality, gaming, and
+robotics. While prior works have focused on generating mo-
+tion guided by text, music, or scenes, these typically result
+in isolated motions confined to short durations. Instead,
+we address the generation of long, continuous sequences
+guided by a series of varying textual descriptions. In this
+context, we introduce FlowMDM, the first diffusion-based
+model that generates seamless Human Motion Composi-
+tions (HMC) without any postprocessing or redundant de-
+noising steps. For this, we introduce the Blended Positional
+Encodings, a technique that leverages both absolute and
+relative positional encodings in the denoising chain. More
+specifically, global motion coherence is recovered at the ab-
+solute stage, whereas smooth and realistic transitions are
+built at the relative stage. As a result, we achieve state-of-
+the-art results in terms of accuracy, realism, and smooth-
+ness on the Babel and HumanML3D datasets. FlowMDM
+excels when trained with only a single description per mo-
+tion sequence thanks to its Pose-Centric Cross-ATtention,
+which makes it robust against varying text descriptions at
+inference time. Finally, to address the limitations of existing
+HMC metrics, we propose two new metrics: the Peak Jerk
+and the Area Under the Jerk, to detect abrupt transitions.
+1. Introduction
+In the field of computer vision, recent progress has been
+made in developing photorealistic avatars [53] for appli-
+cations like virtual reality, gaming, and robotics [60, 76].
+Aside from looking visually realistic, avatars must also
+move in a convincing manner. This is challenging due to
+the intricate nature of human motion, strongly influenced
+by factors such as the environment, interactions, and phys-
+ical contact [14]. Furthermore, complexity increases when
+attempting to control these motions. Recent advances in-
+clude the generation of motion sequences from control sig-
+nals like text descriptions or actions [106]; however, such
+methods only produce isolated, standalone motion. There-
+fore, these approaches fail to handle scenarios where a long
+motion is driven by distinct control signals on different time
+slices. Such capability is needed to provide full control over
+the sequence of desired actions and their duration. In these
+scenarios, the generated motion needs to feature seamless
+and realistic transitions between actions. In this work, we
+tackle this problem, which we refer to as generative Hu-
+man Motion Composition (HMC). In particular, we focus
+on generating single-human motion from text (Fig. 1).
+One of the primary obstacles in HMC is the lack of
+datasets that offer long motion sequences with diverse tex-
+tual annotations.
+Existing datasets typically feature se-
+quences of limited duration, often lasting only up to 10 sec-
+onds, and with just a single control signal governing the en-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+457
+Abstract
+Training a linear classifier or lightweight model on top
+of pretrained vision model outputs, so-called ‘frozen fea-
+tures’, leads to impressive performance on a number of
+downstream few-shot tasks. Currently, frozen features are
+not modified during training.
+On the other hand, when
+networks are trained directly on images, data augmenta-
+tion is a standard recipe that improves performance with
+no substantial overhead. In this paper, we conduct an ex-
+tensive pilot study on few-shot image classification that ex-
+plores applying data augmentations in the frozen feature
+space, dubbed ‘frozen feature augmentation (FroFA)’, cov-
+ering twenty augmentations in total.
+Our study demon-
+strates that adopting a deceptively simple pointwise FroFA,
+such as brightness, can improve few-shot performance con-
+sistently across three network architectures, three large pre-
+training datasets, and eight transfer datasets.
+1. Introduction
+Vision transformers (ViTs) [19] achieve remarkable perfor-
+mance on ImageNet-sized [43, 69] and smaller [21, 38, 41]
+datasets. In this setup, data augmentation, i.e., a predefined
+set of stochastic input transformations, is a crucial ingredi-
+ent. Examples for image augmentations are random crop-
+ping or pixel-wise modifications that change brightness or
+contrast. These are complemented by more advanced strate-
+gies [13, 46, 75], such as AutoAugment [12].
+A more prevalent trend is to first pretrain vision mod-
+els on large-scale datasets and then adapt them downstream
+[6, 8, 49, 73]. Notable, even training a simple linear classi-
+fier or lightweight model on top of ViT outputs, also known
+as frozen features, can yield remarkable performance across
+a number of diverse downstream few-shot tasks [16, 25, 52].
+Given the success of image augmentations and frozen fea-
+tures, we ask: Can we effectively combine image augmen-
+tations and frozen features to train a lightweight model?
+*Work done as Research Intern at Google DeepMind. †Project lead.
+1
+5
+10
+25
+shots
+0
+2
+4
+6
+top-1 accuracy
+(absolute gains)
+JFT-3B
+1
+5
+10
+25
+shots
+WebLI + SigLIP
+MAPwd
+linear probe
+Figure 1. Average top-1 accuracy gains across seven few-shot test
+sets (CIFAR100 [1], SUN397 [71], ...) on various few-shot set-
+tings. We train on frozen features from an L/16 ViT [19] with
+JFT-3B pretraining [73] or WebLI sigmoid language-image pre-
+training (SigLIP) [6, 74]. Our proposed frozen feature augmenta-
+tion (FroFA) method gives consistent gains over a weight decay-
+regularized multi-head attention pooling [37] (MAPwd) and an L2-
+regularized linear probe baseline, both without FroFA.
+In this paper, we revisit standard image augmentation
+techniques and apply them on top of frozen features in a
+data-constrained, few-shot setting. We dub this type of aug-
+mentation frozen feature augmentation (FroFA). Inspired di-
+rectly by image augmentations, we first stochastically trans-
+form frozen features and then train a lightweight model on
+top. Our only modification before applying image augmen-
+tations on top of frozen features is a point-wise scaling such
+that each feature value lies in [0, 1] or [0, 255].
+We investigate eight (few-shotted) image classification
+datasets using ViTs pretrained on JFT-3B [73], ImageNet-
+21k [17], or WebLI [6]. After extracting features from each
+few-shot dataset we apply twenty different frozen feature
+augmentations and train a lightweight multi-head attention
+pooling (MAP) [37] on top. Our major insights are:
+1. Geometric augmentations that modify the shape and
+structure of two-dimensional frozen features always lead
+to worse performance on ILSVRC-2012 [57]. On the
+other hand, simple stylistic (point-wise) augmentations,
+such as brightness, contrast, and posterize, give steady
+improvements on 1-, 5-, and 10-shot settings.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+16046
+Abstract
+Non-isometric shape correspondence remains a funda-
+mental challenge in computer vision. Traditional methods
+using Laplace-Beltrami operator (LBO) eigenmodes face
+limitations in characterizing high-frequency extrinsic shape
+changes like bending and creases. We propose a novel ap-
+proach of combining the non-orthogonal extrinsic basis of
+eigenfunctions of the elastic thin-shell hessian with the in-
+trinsic ones of the LBO, creating a hybrid spectral space
+in which we construct functional maps. To this end, we
+present a theoretical framework to effectively integrate non-
+orthogonal basis functions into descriptor- and learning-
+based functional map methods. Our approach can be in-
+corporated easily into existing functional map pipelines
+across varying applications and can handle complex de-
+formations beyond isometries. We show extensive evalua-
+tions across various supervised and unsupervised settings
+and demonstrate significant improvements. Notably, our ap-
+proach achieves up to 15% better mean geodesic error for
+non-isometric correspondence settings and up to 45% im-
+provement in scenarios with topological noise. Code is avail-
+able at: https://hybridfmaps.github.io/
+∗Equal Contribution
+  : {lennart.bastian,yizheng.xie}@tum.de
+1. Introduction
+Establishing dense correspondences between 3D shapes is
+a cornerstone for numerous computer vision and graphics
+tasks such as object recognition, character animation, and
+texture transfer. The complexity of this task varies signifi-
+cantly depending on the nature of the transformation a shape
+undergoes. Many classic correspondence methods leverage
+that rigid transformations can be represented in six degrees
+of freedom in R3 and preserve the Euclidean distance be-
+tween pairs of points. Iterative closest point (ICP) [4], and
+its variations [25, 40], which alternate between transforma-
+tion and correspondence estimation, are very popular due
+to their simplicity. In this setting, local extrinsic surface
+properties in the embedding space stay invariant under rigid
+transformations such that they can be used as features during
+optimization, for example, the change of normals. For the
+wider class of isometric deformations (w.r.t. the geodesic
+distance), the relative embedding of the shape can change
+significantly, and Euclidean distances between points may
+not be preserved. In this class, only intrinsic properties –
+those that do not depend on a specific embedding of the
+surface – stay invariant, and the correspondence problem
+becomes much harder due to the quadratic size of the so-
+lution space. For example, solving a quadratic assignment
+problem preserving geodesic distances [24] or heat kernel
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+3313
+Abstract
+Point cloud matching, a crucial technique in computer
+vision, medical and robotics ﬁelds, is primarily concerned
+with ﬁnding correspondences between pairs of point clouds
+or voxels.
+In some practical scenarios, emphasizing lo-
+cal differences is crucial for accurately identifying a cor-
+rect match, thereby enhancing the overall robustness and
+reliability of the matching process. Commonly used shape
+descriptors have several limitations and often fail to pro-
+vide meaningful local insights about the paired geome-
+tries.
+In this work, we propose a new technique, based
+on graph Laplacian eigenmaps, to match point clouds by
+taking into account ﬁne local structures. To deal with the
+order and sign ambiguity of Laplacian eigenmaps, we in-
+troduce a new operator, called Coupled Laplacian1, that
+allows to easily generate aligned eigenspaces for multiple
+registered geometries. We show that the similarity between
+those aligned high-dimensional spaces provides a locally
+meaningful score to match shapes. We ﬁrstly evaluate the
+performance of the proposed technique in a point-wise man-
+ner, focusing on the task of object anomaly localization on
+the MVTec 3D-AD dataset. Additionally, we deﬁne a new
+medical task, called automatic Bone Side Estimation (BSE),
+which we address through a global similarity score derived
+from coupled eigenspaces. In order to test it, we propose a
+benchmark collecting bone surface structures from various
+public datasets. Our matching technique, based on Cou-
+pled Laplacian, outperforms other methods by reaching an
+impressive accuracy on both tasks.
+1. Introduction
+Point cloud matching, or more generally 3D shape match-
+ing, is a fundamental task in computer vision. It involves
+⇤Corresponding author: matteo.bastico@minesparis.psl.eu
+1Code: https://github.com/matteo-bastico/CoupLap
+ﬁnding the closest matching geometry to a target shape
+within a set of reference shapes [65]. In addition, if the
+task involves ﬁnding rigid transformations that best align
+the target shape with the reference, it is often part of a reg-
+istration process. In particular, point-set rigid registration
+determines the relative transformation needed to align two
+point clouds without altering their internal structures [41].
+This problem is essential for many practical computer vi-
+sion tasks, such as medical image analysis [3, 32, 48, 61],
+intelligent vehicles [21, 34], human pose estimation [22]
+and objects retrieval and tracking [46, 64].
+Traditional
+[8, 19, 57] and probabilistic registration and matching meth-
+ods [15, 20, 30, 45], while robust, often struggle to opti-
+mally align complex geometries, especially in cases with
+intricate local structures or slight deformations.
+Over the years, several methods have been proposed
+to tackle the challenge of accurate and efﬁcient 3D shape
+matching and retrieval [5, 9, 11, 51, 53, 65, 73]. Data-driven
+3D shape descriptors [54], capturing underlying properties
+of the shapes under study, are the common denominator of
+early shape matching techniques. Global descriptors, such
+as volume and areas descriptors [78], describe the entirety
+of the shape in one compact representation, often failing
+to capture local ﬁne details of complex geometries. On the
+other hand, local descriptors [38, 57] aim to tackle this issue
+but they generally are sensitive to noise, based on landmarks
+and they might not capture semantic information [63]. More
+recently, deep-learned shape descriptors [6, 72] and neural
+networks for shape matching, based on auto-encoders [73]
+or transformers [59, 68], have been proposed. Despite their
+good performances, these methods require a huge amount
+of annotated data for training, which are hard to collect in
+ﬁelds such as medical imaging [37]. Furthermore, non-rigid
+point cloud matching and retrieval methods [35, 36, 71] are
+designed to handle shape deformations and, therefore, they
+might be excessively ﬂexible ignoring ﬁne local details that
+are not due to deformations, such as anomalies.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+3447
+Abstract
+In recent years, automated Gallbladder Cancer (GBC)
+detection has gained the attention of researchers.
+Cur-
+rent state-of-the-art (SOTA) methodologies relying on ultra-
+sound sonography (US) images exhibit limited generaliza-
+tion, emphasizing the need for transformative approaches.
+We observe that individual US frames may lack sufficient
+information to capture disease manifestation. This study
+advocates for a paradigm shift towards video-based GBC
+detection, leveraging the inherent advantages of spatiotem-
+poral representations. Employing the Masked Autoencoder
+(MAE) for representation learning, we address shortcom-
+ings in conventional image-based methods.
+We propose
+a novel design called FocusMAE to systematically bias
+the selection of masking tokens from high-information re-
+gions, fostering a more refined representation of malig-
+nancy. Additionally, we contribute the most extensive US
+video dataset for GBC detection. We also note that, this
+is the first study on US video-based GBC detection. We
+validate the proposed methods on the curated dataset, and
+report a new SOTA accuracy of 96.4% for the GBC de-
+tection problem, against an accuracy of 84% by current
+Image-based SOTA – GBCNet and RadFormer, and 94.7%
+by Video-based SOTA – AdaMAE. We further demonstrate
+the generality of the proposed FocusMAE on a public CT-
+based Covid detection dataset, reporting an improvement
+in accuracy by 3.3% over current baselines. Project page
+with source code, trained models, and data is available at:
+https://gbc-iitd.github.io/focusmae.
+1. Introduction
+Gallbladder Cancer (GBC). Lately, automated GBC de-
+tection has drawn an increased interest from the researchers
+[5,6,10,31]. GBC is difficult to detect at an early stage [27],
+and surgical resection becomes infeasible for most patients
+as the disease gets detected at a late stage. As a result, the
+* Soumen is currently affiliated to Samsung R&D Institute Bangalore
+† Joint first authors
+(a)
+(b)
+Figure 1. (a) Masking strategy of FocusMAE in comparison to
+existing random patch [14], frame [50], tube [45] masking. Our
+approach selects more tokens from the semantically meaningful
+regions with a small number of background tokens for masking.
+(b) Inflating the masking probability of the tokens which spatially
+lie within the object region (gray region) by π increases the accu-
+racy. However, excessive masking of the object region degrades
+performance. Blue line: accuracy of the original random masking.
+disease shows bleak survival statistics. The 5-year survival
+rate for patients with advanced GBC is only 5%, and the
+mean survival time is six months [24,40]. Hence, early de-
+tection of GBC is crucial for timely intervention and im-
+proving the survival rate [26].
+Ultrasound (US) for GBC Detection. US has been the
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+11715
+Abstract
+We propose a novel method for 3D point cloud ac-
+tion recognition.
+Understanding human actions in RGB
+videos has been widely studied in recent years, however,
+its 3D point cloud counterpart remains under-explored de-
+spite the clear value that 3D information may bring. This
+is mostly due to the inherent limitation of the point cloud
+data modality—lack of structure, permutation invariance,
+and varying number of points—which makes it difﬁcult to
+learn a spatio-temporal representation. To address this lim-
+itation, we propose the 3DinAction pipeline that ﬁrst esti-
+mates patches moving in time (t-patches) as a key build-
+ing block, alongside a hierarchical architecture that learns
+an informative spatio-temporal representation.
+We show
+that our method achieves improved performance on existing
+datasets, including DFAUST and IKEA ASM. Code is pub-
+licly available at https://github.com/sitzikbs/3dincaction.
+1. Introduction
+In this paper, we address the task of action recognition
+from 3D point cloud sequences.
+We propose a novel
+pipeline wherein points are grouped into temporally evolv-
+ing patches that capture discriminative action dynamics.
+Our work is motivated by the massive growth of online me-
+dia, mobile and surveillance cameras that have enabled the
+computer vision community to develop many data-driven
+action-recognition methods [5, 12, 26, 31], most of which
+rely on RGB video data. Recently, commodity 3D sensors
+are gaining increased momentum, however, the 3D point
+cloud modality for action recognition has yet been under-
+exploited due to the scarcity of 3D action-labeled data.
+In many cases, a pure RGB video-based inference may
+not be enough and incorporating other modalities like ge-
+ometry is required. This is especially necessary for safety
+critical applications such as autonomous systems, where
+redundancy is crucial, or in scenarios where the video is
+heavily degraded (e.g., due to poor lighting).
+Some ap-
+proaches incorporate geometrical information implicitly,
+e.g., through intermediate pose estimation [7]. This often
+entails extra steps that require more time and resources and
+is still limited to video input. Therefore a more explicit ap-
+proach is desirable.
+3D sensors provide an alternative modality in the form of
+point clouds sampled on the environment. Despite the vast
+research on 3D vision and learning, even static 3D point
+cloud datasets are signiﬁcantly smaller than their RGB im-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+19978
+Abstract
+Domain Generalized Semantic Segmentation (DGSS)
+deals with training a model on a labeled source domain
+with the aim of generalizing to unseen domains during in-
+ference. Existing DGSS methods typically effectuate robust
+features by means of Domain Randomization (DR). Such an
+approach is often limited as it can only account for style
+diversification and not content. In this work, we take an
+orthogonal approach to DGSS and propose to use an as-
+sembly of CoLlaborative FOUndation models for Domain
+Generalized Semantic Segmentation (CLOUDS). In detail,
+CLOUDS is a framework that integrates Foundation Mod-
+els of various kinds: (i) CLIP backbone for its robust feature
+representation, (ii) Diffusion Model to diversify the con-
+tent, thereby covering various modes of the possible tar-
+get distribution, and (iii) Segment Anything Model (SAM)
+for iteratively refining the predictions of the segmentation
+model. Extensive experiments show that our CLOUDS ex-
+cels in adapting from synthetic to real DGSS benchmarks
+and under varying weather conditions, notably outperform-
+ing prior methods by 5.6% and 6.7% on averaged mIoU, re-
+spectively. Our code is available at https://github.
+com/yasserben/CLOUDS
+1. Introduction
+Deep Neural Networks have showcased remarkable abil-
+ity in scene understanding tasks like Semantic Segmenta-
+tion (SS) [7, 70, 72], when the training and test distribu-
+tion are the same. This dependency reveals a significant
+vulnerability: their performance substantially diminishes
+when encountering domain shifts [66], highlighting a fun-
+damental challenge in generalizing these networks to un-
+seen domains [43, 46, 61]. To address this, Domain Gen-
+eralized Semantic Segmentation (DGSS) has gained promi-
+nence [28, 31, 33, 82]. DGSS aims to develop models that
+leverage a source-annotated dataset while remaining effec-
+mIoU
+Year
+Traditional DGSS
+Open-vocabulary (zero-shot)
+DGSS with foundation models
+Ours
+FC-CLIP
+CATSeg
+HRDA
+MoDify
+DRPC
+SHADE
+ODISE
+2019
+2020
+2021
+2022
+2023
+60
+50
+40
+55
+45
+FSDR
+GTR
+TLDR
+Figure 1.
+Performance over time by various methods on the
+GTA →{Cityscapes, BDD, Mapillary} benchmark. Recent open-
+vocabulary approaches, like FC-CLIP, are shown to excel in zero-
+shot learning and surpass traditional domain generalization meth-
+ods trained in closed-set scenarios, challenging the relevance of
+the DGSS setting. CLOUDS, by harnessing multiple foundation
+models, demonstrates its ability to effectively utilize the source
+dataset, thereby outperforming both conventional DGSS and open-
+vocabulary methods.
+tive across unseen domains, thus overcoming the limitations
+of traditional DNNs in handling unseen environments.
+Recently, the advent of large-scale pretrained models,
+often referred to as Foundation Models (FMs) [2, 35, 56,
+59, 67], have brought a paradigm shift in computer vi-
+sion tasks. The FMs comprise of contrastively trained im-
+age classification models (e.g., CLIP [56], ALIGN [30]),
+text-conditioned generative models (e.g., Stable Diffusion
+[59], DALL-E [57]), vision transformer-based segmenta-
+tion model trained on mammoth dataset (e.g., Segment
+Anything Model (SAM) [35]), to name a few.
+Of par-
+ticular interest to SS, SAM is a promptable segmenta-
+tion model that accepts as input an image and geometric
+prompts (points, scribbles, boxes, masks) and outputs class-
+agnostic masks. Owing to its pre-training on billion-scale
+dataset [35], SAM has demonstrated excellent performance
+on varied out-of-distribution tasks namely, medical imaging
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+3108

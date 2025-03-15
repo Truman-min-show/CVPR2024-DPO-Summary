@@ -1,0 +1,712 @@
+Abstract
+Neural character models can now reconstruct detailed
+geometry and texture from video, but they lack explicit shad-
+ows and shading, leading to artifacts when generating novel
+views and poses or during relighting. It is particularly dif-
+ficult to include shadows as they are a global effect and the
+required casting of secondary rays is costly. We propose
+a new shadow model using a Gaussian density proxy that
+replaces sampling with a simple analytic formula. It sup-
+ports dynamic motion and is tailored for shadow computa-
+tion, thereby avoiding the affine projection approximation
+and sorting required by the closely related Gaussian splat-
+ting. Combined with a deferred neural rendering model, our
+Gaussian shadows enable Lambertian shading and shadow
+casting with minimal overhead. We demonstrate improved
+reconstructions, with better separation of albedo, shading,
+and shadows in challenging outdoor scenes with direct sun
+light and hard shadows. Our method is able to optimize
+the light direction without any input from the user. As a
+result, novel poses have fewer shadow artifacts, and re-
+lighting in novel scenes is more realistic compared to the
+state-of-the-art methods, providing new ways to pose neu-
+ral characters in novel environments, increasing their ap-
+plicability. Code available at: https://github.com/
+LuisBolanos17/GaussianShadowCasting
+1. Introduction
+It is now possible to reconstruct animatable 3D neural
+avatars from video but methods do not account for accurate
+lighting and shadows. They have to rely on recordings that
+have soft uniform lighting, which precludes recording out-
+doors in direct sun light and on film sets with spotlights, and
+most are unable to relight characters in novel environments,
+limiting their applicability in content creation.
+The most recent body models [17,20,28,36,37,40] which
+are based on neural radiance fields (NeRFs) [26], approxi-
+mate the light transport by casting primary rays between the
+camera and the scene, sampling the underlying neural net-
+work dozens of times along each ray to obtain the density
+and color. As they do not include an illumination model, the
+color that the NeRF learns includes lighting, shadow, and
+view-dependent effects. Learning a body model in a chal-
+lenging scene with a strong directional light source, such as
+the sun, leads to the neural field overfitting to the observed
+shadows. It does not generalize to novel poses, as the cast
+shadows are global effects where movement of a joint could
+affect the appearance of other distant areas of the body. Fig-
+ure 1 shows such setting. This is in contrast to local shad-
+ing effects such as wrinkles in clothing which current body
+models can successfully reconstruct.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+20997
+Abstract
+In the context of autonomous navigation of terrestrial robots,
+the creation of realistic models for agent dynamics and sens-
+ing is a widespread habit in the robotics literature and in
+commercial applications, where they are used for model
+based control and/or for localization and mapping. The
+more recent Embodied AI literature, on the other hand, fo-
+cuses on modular or end-to-end agents trained in simulators
+like Habitat or AI-Thor, where the emphasis is put on photo-
+realistic rendering and scene diversity, but high-fidelity robot
+motion is assigned a less privileged role. The resulting
+sim2real gap significantly impacts transfer of the trained
+models to real robotic platforms. In this work we explore
+end-to-end training of agents in simulation in settings which
+minimize the sim2real gap both, in sensing and in actuation.
+Our agent directly predicts (discretized) velocity commands,
+which are maintained through closed-loop control in the real
+robot. The behavior of the real robot (including the under-
+lying low-level controller) is identified and simulated in a
+modified Habitat simulator. Noise models for odometry and
+localization further contribute in lowering the sim2real gap.
+We evaluate on real navigation scenarios, explore different
+localization and point goal calculation methods and report
+significant gains in performance and robustness compared
+to prior work.
+1. Introduction
+Point goal navigation of terrestrial robots in indoor buildings
+has traditionally been addressed in the robotics community
+with mapping and planning [6, 30, 50], which led to solu-
+tions capable of operating on robots in real environments.
+The field of computer vision and embodied AI has addressed
+this problem through large-scale machine learning in sim-
+ulated 3D environments from reward with RL [24, 34] or
+with imitation learning [14]. Learning from large-scale data
+allows the agent to pick up more complex regularities, to
+process more subtle cues and therefore (in principle) to be
+more robust, to exploit data regularities to infer hidden and
+occluded information, and generally to learn more powerful
+Training/sim (ours)
+Test/real
+xt
+1
+2
+1
+2 xt+1
+Training/sim (classical)
+xt
+1
+2 xt+1
+Policy: 
+∆π
+Onboard ctrl
+∆φ
+333ms/3 Hz (Unknown)
+Policy: 
+∆π
+Dyn. model
+∆φ
+333ms/3 Hz 33ms/30 Hz
+Policy: 
+∆π
+constant
+333ms/3 Hz velocities
+Piecewise
+Figure 1. Efficient navigation with policies end-to-end trained in
+3D photorealistic simulators requires closing the sim2real gap in
+sensing and actuation. Efficiency demands that the robot continues
+to move during decision taking (as opposed to stopping for each
+sensing operation), and this requires a realistic motion model in
+simulation allowing the agent to internally anticipate its future state.
+This requirement is exacerbated by the delay between sensing
+①and actuation ②caused by the computational complexity of
+high-capacity deep networks (visual encoders, policy). To model
+realistic motion while training in simulation, we create a 2nd order
+dynamical model running with higher frequency, which models
+the robot and its low-level closed-loop controller. We identify the
+model from real data and add it to the Habitat [44] Simulator.
+decision rules. In this context, the specific task of point goal
+navigation (navigation to coordinates) is now sometimes
+considered “solved” in the literature [38], incorrectly, as we
+argue. While the machine learning and computer vision
+community turns its attention towards the exciting goal of
+integrating language models into navigation [15, 23], we
+think that further improvements are required to make trained
+agents perform reliably in real environments with sufficient
+speed.
+Experiments and evaluations of trained models in real
+environments and the impact of the sim2real gap do exist in
+the Embodied AI literature [11, 20, 43], but they are rare and
+were performed in restricted environments. Known models
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+17837
+Abstract
+Local
+Interpretable
+Model-agnostic
+Explanations
+(LIME) - a widely used post-ad-hoc model agnostic ex-
+plainable AI (XAI) technique. It works by training a simple
+transparent (surrogate) model using random samples
+drawn around the neighborhood of the instance (image)
+to be explained (IE). Explanations are then extracted for
+a black-box model and a given IE, using the surrogate
+model.
+However, the explanations of LIME suffer from
+inconsistency across different runs for the same model and
+the same IE. We identify two main types of inconsistencies:
+variance in the sign and importance ranks of the segments
+(superpixels). These factors hinder LIME from obtaining
+consistent explanations. We analyze these inconsistencies
+and propose a new method, Stabilized LIME for Consistent
+Explanations (SLICE). The proposed method handles the
+stabilization problem in two aspects: using a novel feature
+selection technique to eliminate spurious superpixels and
+an adaptive perturbation technique to generate perturbed
+images in the neighborhood of IE. Our results demonstrate
+that the explanations from SLICE exhibit signiﬁcantly
+better consistency and ﬁdelity than LIME (and its variant
+BayLime).
+1. Introduction
+In the broad spectrum of post-ad-hoc explanation methods,
+model-agnostic methods like LIME [13], SHAP [9] and
+their variants have been popular for extracting explanations
+from Black-Box models. While explanation methods such
+as Grad-CAM [16], Grad-CAM++ [2], and Ablation-CAM
+[12] require access to the intermediate layers of the model,
+methods like LIME, and SHAP methods require access only
+to the input and the output of the model.
+In our paper, we focus on the category of post-ad-
+hoc methods that uses local surrogate models for expla-
+nations. While LIME has the advantages of being model-
+agnostic and being able to extract explanations in a post-
+ad-hoc manner, it is also inconsistent in the explanations
+[5, 7, 8, 22, 23, 25, 26]. [23] observes three types of un-
+certainty: sampling variance in explaining a data point, sen-
+sitivity to the choice of parameters such as the size of the
+neighborhood and sample size, and variation of model cred-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+10988
+Abstract
+We study the underexplored but fundamental problem of
+machine understanding of abstract freehand scene sketches.
+We introduce a sketch encoder that ensures a semantically-
+aware feature space, which we evaluate by testing its per-
+formance on a semantic sketch segmentation task. To train
+our model, we rely only on bitmap sketches accompanied
+by brief captions, avoiding the need for pixel-level anno-
+tations. To generalize to a large set of sketches and cat-
+egories, we build upon a vision transformer encoder pre-
+trained with the CLIP model. We freeze the text encoder and
+perform visual-prompt tuning of the visual encoder branch
+while introducing a set of critical modifications. First, we
+augment the classical key-query (k-q) self-attention blocks
+with value-value (v-v) self-attention blocks. Central to our
+model is a two-level hierarchical training that enables ef-
+ficient semantic disentanglement: The first level ensures
+holistic scene sketch encoding, and the second level focuses
+on individual categories. In the second level of the hierar-
+chy, we introduce cross-attention between the text and vi-
+sion branches.
+Our method outperforms zero-shot CLIP
+segmentation results by 37 points, reaching a pixel accu-
+racy of 85.5% on the FS-COCO sketch dataset. Finally, we
+conduct a user study that allows us to identify further im-
+provements needed over our method to reconcile machine
+and human understanding of freehand scene sketches.
+1. Introduction
+Even a quick sketch can convey rich information about what
+is relevant in a visual scene: what objects there are and how
+they are arranged. However, little work has been devoted
+to the task of machine scene sketch understanding, largely
+due to a lack of data. Understanding sketches with meth-
+ods designed for images is challenging because sketches
+have very different statistics from images – they are sparser
+and lack detailed color and texture information. Moreover,
+sketches contain abstraction at multiple levels: the holis-
+CLIP zero shot
+segmentation
+CLIP zero shot
+segmentation
+Our
+segmentation
+Our
+segmentation
+A giraffe and a zebra are 
+standing on the grass.
+A man with a kite and a tree 
+in the background.
+Figure 1. Comparison of the segmentation result obtained with
+CLIP visual encoder features and features from our model.
+tic scene level and the object level. Here we explore the
+promise of two main ideas: (1) the use of language to guide
+the learning of how to parse scene sketches and (2) a two-
+level training network design for holistic scene understand-
+ing and individual categories recognition.
+Freehand sketches can be represented as a sequence or
+cloud of individual strokes, or as a bitmap image. As one
+of the first works on scene sketch understanding, we target
+a general setting where we assume only the availability of
+bitmap representations. We also aim at the method that can
+generalize to a large number of scenes and object categories.
+To this end, we build our sketch encoder on a Visual Trans-
+former (ViT) encoder pre-trained with a popular CLIP [44]
+foundation model (Fig. 1). We propose a two-level hierar-
+chical training of our network, where the two levels (“Holis-
+tic” and “Category-level”) share the weights of our visual
+encoder. The first level focuses on ensuring that our model
+can capture holistic scene understanding (Fig. 2: I. Holis-
+tic), while the second level ensures that the encoder can effi-
+ciently encode and distinguish individual categories (Fig. 2:
+II. Category-level). We avoid reliance on tedious user per-
+pixel annotations by leveraging sketch-caption pairs from
+the FS-COCO dataset [9], and aligning the visual tokens of
+sketch patches with textual tokens from the sketch captions,
+using triplet loss training. We strengthen the alignment by
+introducing sketch-text cross-attention in the second level
+of the network’s hierarchy (Fig. 2: g.). Additionally, we in-
+troduce a modified self-attention computation to the visual
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+4176
+Abstract
+Vision-language foundation models have shown remark-
+able performance in various zero-shot settings such as im-
+age retrieval, classification, or captioning. But so far, those
+models seem to fall behind when it comes to zero-shot lo-
+calization of referential expressions and objects in images.
+As a result, they need to be fine-tuned for this task.
+In
+this paper, we show that pretrained vision-language (VL)
+models allow for zero-shot open-vocabulary object local-
+ization without any fine-tuning. To leverage those capabil-
+ities, we propose a Grounding Everything Module (GEM)
+that generalizes the idea of value-value attention introduced
+by CLIPSurgery [17] to a self-self attention path. We show
+that the concept of self-self attention corresponds to cluster-
+ing, thus enforcing groups of tokens arising from the same
+object to be similar while preserving the alignment with
+the language space. To further guide the group formation,
+we propose a set of regularizations that allows the model
+to finally generalize across datasets and backbones.
+We
+evaluate the proposed GEM framework on various bench-
+mark tasks and datasets for semantic segmentation. GEM
+not only outperforms other training-free open-vocabulary
+localization methods, but also achieves state-of-the-art re-
+sults on the recently proposed OpenImagesV7 large-scale
+segmentation benchmark. 1
+1. Introduction
+Vision-Language models, trained on large-scale web-based
+datasets such as WIT-400M [29], LAION400M [30], or
+metaclip-400M [35] with image-text supervision only, have
+so far shown a remarkable set of capabilities. These mod-
+els such as CLIP [29], OpenCLIP [30], BLIP [15], or re-
+cently MetaCLIP [35] exhibit the ability to generalize to a
+broad range of downstream tasks like zero-shot image clas-
+sification [6, 12, 29], visual question answering [13], action
+recognition [38, 40], image captioning [15, 16], and view
+synthesis [11]. However, models trained with image-level
+objectives such as contrastive loss, image-text matching, or
+1Code is available at https://github.com/WalBouss/GEM.
+CLIP
+GEM (ours)
+CLIPSurgery
+MaskCLIP
+Bowl
+Man
+Hamburger
+Jet ski
+Figure 1. Qualitative results of training-free methods: given a text
+prompt, the similarity of each image token with the prompt is cal-
+culated (red:high, blue:low). The proposed GEM method provides
+improved grouping and alignment compared to other approaches.
+image captioning struggle to maintain their zero-shot ca-
+pabilities for tasks related to visual localization [17, 42].
+Even worse, when prompting such models, e.g., for spe-
+cific objects, they often exhibit an inverse vision-language
+relation: the prompt embedding has a larger distance from
+image patches containing the object compared to patches of
+the background, as shown in Figure 1.
+In order to leverage vision-language models (VLMs)
+to localize objects in an open-vocabulary setting, different
+sets of approaches have been proposed. The first line of
+work trains models to detect or segment regions in an im-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+3828
+Abstract
+Text-to-image diffusion models have recently received in-
+creasing interest for their astonishing ability to produce
+high-ﬁdelity images from solely text inputs.
+Subsequent
+research efforts aim to exploit and apply their capabili-
+ties to real image editing.
+However, existing image-to-
+image methods are often inefﬁcient, imprecise, and of lim-
+ited versatility. They either require time-consuming ﬁne-
+tuning, deviate unnecessarily strongly from the input im-
+age, and/or lack support for multiple, simultaneous edits.
+To address these issues, we introduce LEDITS++, an efﬁ-
+cient yet versatile and precise textual image manipulation
+technique. LEDITS++’s novel inversion approach requires
+no tuning nor optimization and produces high-ﬁdelity re-
+sults with a few diffusion steps. Second, our methodology
+supports multiple simultaneous edits and is architecture-
+agnostic. Third, we use a novel implicit masking technique
+that limits changes to relevant image regions. We propose
+the novel TEdBench++ benchmark as part of our exhaus-
+tive evaluation. Our results demonstrate the capabilities of
+LEDITS++ and its improvements over previous methods.
+1. Introduction
+Text-to-image diffusion models (DM) have garnered recog-
+nition for their ability to generate high-quality images from
+textual descriptions. A growing body of research has re-
+cently been dedicated to utilizing these models for manip-
+ulating real images.
+However, several barriers prevent
+many real-world applications of diffusion-based image edit-
+ing. Current methods often entail computationally expen-
+sive model tuning or other optimization, presenting prac-
+tical challenges [6, 18, 28, 30, 44]. Additionally, existing
+techniques have the proclivity to induce profound changes
+to the original image [17, 26], often resulting in completely
+different images. Lastly, all these approaches are inherently
+constrained when editing multiple (arbitrary) concepts si-
+multaneously.
+We tackle these problems by introducing
+LEDITS++1, a diffusion-based image editing technique ad-
+dressing these limitations.
+LEDITS++2 offers a streamlined approach for textual
+image editing, eliminating the need for extensive parameter
+tuning. To this end, we derive image inversion for a more ef-
+ﬁcient diffusion sampling algorithm to a) drastically reduce
+computational resources and b) guarantee perfect image re-
+construction. Thus, we overcome computational obstacles
+and avoid changes in the edited image in the ﬁrst place. Fur-
+thermore, we use a novel implicit masking approach to se-
+mantically ground each edit instruction to its relevant image
+region. This further optimizes changes to the image by re-
+taining the overall image composition and object identity.
+*Equal contribution
+†Partially as research intern at Adobe
+1LEDITS++ stands for Limitless Edits with sde-dpm-solver++.
+2https://huggingface.co/spaces/leditsplusplus/project
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+8861
+Abstract
+Neural approaches have shown a significant progress
+on camera-based reconstruction. But they require either a
+fairly dense sampling of the viewing sphere, or pre-training
+on an existing dataset, thereby limiting their generaliz-
+ability.
+In contrast, photometric stereo (PS) approaches
+have shown great potential for achieving high-quality re-
+construction under sparse viewpoints. Yet, they are imprac-
+tical because they typically require tedious laboratory con-
+ditions, are restricted to dark rooms, and often multi-staged,
+making them subject to accumulated errors.
+To address
+these shortcomings, we propose an end-to-end uncalibrated
+multi-view PS framework for reconstructing high-resolution
+shapes acquired from sparse viewpoints in a real-world en-
+vironment. We relax the dark room assumption, and allow
+a combination of static ambient lighting and dynamic near
+LED lighting, thereby enabling easy data capture outside
+the lab. Experimental validation confirms that it outper-
+forms existing baseline approaches in the regime of sparse
+viewpoints by a large margin. This allows to bring high-
+accuracy 3D reconstruction from the dark room to the real
+world, while maintaining a reasonable data capture com-
+plexity.
+1. Introduction
+The challenge of 3D reconstruction stands as a corner-
+stone in both computer vision and computer graphics. De-
+spite notable progress in recovering an object’s shape from
+dense image viewpoints, predicting consistent geometry
+from sparse viewpoints remains a difficult task. Contem-
+porary approaches employing neural data structures depend
+heavily on extensive training data to achieve generalization
+in the context of sparse views. Additionally, the presence of
+a wide baseline or textureless objects form significant ob-
+stacles. In contrast, photometric methodologies like photo-
+metric stereo (PS) excel in reconstructing geometry, even in
+textureless regions. This capability is attributed to the abun-
+*The contribution was done while at TUM.
+Multi-
+illumination
+data at
+viewpoint 1
+Multi-
+illumination
+data at
+viewpoint 2
+PS-NeRF [60]
+Ours
+Figure 1. We introduce the first framework for multi-view un-
+calibrated point-light photometric stereo. Given a set of PS im-
+ages captured from different viewpoints (left), our method recov-
+ers high-fidelity 3D reconstruction (right). The acquisition of un-
+calibrated point-light PS imagery captured under ambient lighting
+in a sparse multi-view setup does not only allow for easy data cap-
+ture, but also leads to 3D reconstructions of unprecedented detail.
+Here, with as few as two views we are able to reconstruct the squir-
+rel’s 3D geometry at higher precision than the state-of-the-art.
+dance of shading information derived from images acquired
+under diverse illumination. Yet, such approaches typically
+require a controlled laboratory setup to fulfill the necessary
+dark room and directional light assumptions. As a conse-
+quence, PS approaches become impractical beyond the con-
+fines of a laboratory.
+To address these shortcomings we combine state-of-the-
+art volume rendering formulations with a sparse multi-view
+photometric stereo model.
+In particular, we advocate a
+physically realistic lighting model that combines ambient
+light and uncalibrated point-light illumination.
+Our ap-
+proach facilitates simplified data acquisition, and we intro-
+duce a novel pipeline capable of reconstructing an object’s
+geometry from a sparse set of viewpoints, even if the object
+is completely textureless. Furthermore, since we assume a
+point-light model instead of distant directional lighting, we
+can infer absolute depth from a single viewpoint, allowing
+us to address the challenge of wide camera baselines.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+11862
+Abstract
+This paper introduces a versatile paradigm for inte-
+grating multi-view reﬂectance (optional) and normal maps
+acquired through photometric stereo. Our approach em-
+ploys a pixel-wise joint re-parameterization of reﬂectance
+and normal, considering them as a vector of radiances
+rendered under simulated, varying illumination. This re-
+parameterization enables the seamless integration of re-
+ﬂectance and normal maps as input data in neural volume
+rendering-based 3D reconstruction while preserving a sin-
+gle optimization objective. In contrast, recent multi-view
+photometric stereo (MVPS) methods depend on multiple,
+potentially conﬂicting objectives. Despite its apparent sim-
+plicity, our proposed approach outperforms state-of-the-art
+approaches in MVPS benchmarks across F-score, Chamfer
+distance, and mean angular error metrics. Notably, it sig-
+niﬁcantly improves the detailed 3D reconstruction of areas
+with high curvature or low visibility.
+1. Introduction
+Automatic 3D reconstruction is pivotal in various ﬁelds,
+such as archaeological and cultural heritage (virtual recon-
+struction), medical imaging (surgical planning), virtual and
+augmented reality, games and ﬁlm production.
+Multi-view stereo (MVS) [5], which retrieves the geom-
+etry of a scene seen from multiple viewpoints, is the most
+famous 3D reconstruction solution. Coupled with neural
+volumetric rendering (NVR) techniques [22], it effectively
+handles complex structures and self-occlusions. However,
+dealing with non-Lambertian scenes remains a challenge
+due to the breakdown of the underlying brightness consis-
+tency assumption. The problem is also ill-posed in certain
+conﬁgurations e.g., poorly textured scene [25] or degener-
+*Equal contributions. brument.bcb@gmail.com / rb@di.ku.dk
+Figure 1. One image from DiLiGenT-MV’s Buddha dataset [12],
+and 3D reconstruction results from several recent MVPS methods:
+[11, 26, 27] and ours. The latter provides the ﬁne details closest to
+the ground truth (GT), while being remarkably simpler.
+ate viewpoints conﬁgurations with limited baselines. More-
+over, despite recent efforts in this direction [13], recovering
+the thinnest geometric details remains difﬁcult under ﬁxed
+illumination. In such a setting, estimating the reﬂectance of
+the scene also remains a challenge.
+On the other hand, photometric stereo (PS) [24], which
+relies on a collection of images acquired under varying
+lighting, excels in the recovery of high-frequency details
+under the form of normal maps. It is also the only pho-
+tographic technique that can estimate reﬂectance.
+And,
+with the recent advent of deep learning techniques [8], PS
+gained enough maturity to handle non-Lambertian surfaces
+and complex illumination. Yet, its reconstruction of geom-
+etry’s low frequencies remains suboptimal.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+5230
+Abstract
+In this paper we tackle the problem of learning Structure-
+from-Motion (SfM) through the use of graph attention net-
+works. SfM is a classic computer vision problem that is
+solved though iterative minimization of reprojection errors,
+referred to as Bundle Adjustment (BA), starting from a good
+initialization.
+In order to obtain a good enough initial-
+ization to BA, conventional methods rely on a sequence
+of sub-problems (such as pairwise pose estimation, pose
+averaging or triangulation) which provide an initial solu-
+tion that can then be refined using BA. In this work we re-
+place these sub-problems by learning a model that takes
+as input the 2D keypoints detected across multiple views,
+and outputs the corresponding camera poses and 3D key-
+point coordinates.
+Our model takes advantage of graph
+neural networks to learn SfM-specific primitives, and we
+show that it can be used for fast inference of the recon-
+struction for new and unseen sequences. The experimen-
+tal results show that the proposed model outperforms com-
+peting learning-based methods, and challenges COLMAP
+while having lower runtime.
+Our code is available at:
+https://github.com/lucasbrynte/gasfm/.
+1. Introduction
+Structure-from-Motion (SfM) is a classic and still relevant
+problem in computer vision.
+The goal of SfM is to es-
+timate camera poses and 3D coordinates of keypoints de-
+tected across multiple images, and can be formulated as an
+optimization over m camera matrices {Pi}, i = 1, . . . , m
+and n 3D points {Xj} , j = 1, . . . , n of the form
+  \begin
+ {aligned
+}
+ &
+ \unde rset
+ {\{\ma th
+bf { P} _i\} ,\{ \mathbf {X}_j\}}{\text {minimize}} & & \sum _{ij} r\left (\mathbf {m}_{ij}, \mathbf {z}_{ij} \right ) \\ & \text {subject to} & & \mathbf {z}_{ij} = \mathbf {P}_i \mathbf {\bar {X}}_j, \text { } \forall i,j \end {aligned} \label {eq:sfm_optimization} 
+(1)
+where mij holds the 2D coordinates of the jth keypoint in
+the ith image. The loss in (1) is generally chosen as the
+reprojection error
+  r\le ft ( \ mathb f  {m}_{ ij}, \mathbf {z}_{ij} \right ) = || \mathbf {m}_{ij} - \Pi \left (\mathbf {z}_{ij}\right ) ||^2 
+(2)
+where Π(x) =
+
+x1
+x3 , x2
+x3
+
+, and the nonlinear least squares
+problem (1), referred to as Bundle Adjustment (BA) [15],
+can be solved iteratively using second-order methods like
+Levenberg-Marquardt [15, 41]. Given the sparsity of the
+problem, sparse computation methods [27] can be used in
+order to increase the efficiency of the optimization, allow-
+ing BA to be used even for scenes with a large number of
+views or points. However, it is widely known that BA is
+highly non-convex and tends to converge to the nearest local
+minimum when not initialized close to the globally optimal
+solution. As a consequence, BA is typically the last step of
+a reconstruction pipeline, preceeding global SfM methods
+such as [9, 10, 20, 25], or incremental SfM methods such
+as [2, 37, 38] that solve a sequence of subproblems like pair-
+wise pose estimation, pose averaging, triangulation or cam-
+era resection [13, 15, 22, 32]. A different approach consists
+of projective factorization methods [8, 17, 18, 28, 39, 48]
+which factorize the 2m × n measurement matrix into two
+rank four matrices corresponding to the camera matrices
+and 3D points (in homogeneous coordinates). In particular,
+works like [17, 18, 48] allow initialization-free SfM given
+their wide basin of convergence, meaning that their meth-
+ods can be initialized with random camera poses and still
+converge with a high rate of success to the desired global
+minimum. Even though these methods have been improv-
+ing in terms of accuracy and robustness to missing data,
+factorization-based methods require the input data to be al-
+most completely free of outliers which unfortunately cannot
+be guaranteed in most real world sequences or datasets, and
+hence severely compromises the usability of these methods.
+A common challenge with all these approaches to solve
+SfM is their scalability as the number of views and key-
+points increase.
+Incremental SfM tries to tackle this is-
+sue by starting with a subset of the views, estimate its re-
+construction and incrementally adding more views. Some
+factorization-based methods can also take advantage of the
+same sparse computation methods used in BA, which sig-
+nificantly improves their ability to scale with sequence size.
+While this allows to reconstruct scenes with thousands of
+views and millions of points, it can still take hours to re-
+cover the reconstruction of a single scene.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+4808
+Abstract
+Existing object recognition models have been shown to
+lack robustness in diverse geographical scenarios due to
+domain shifts in design and context. Class representations
+need to be adapted to more accurately reflect an object con-
+cept under these shifts.
+In the absence of training data
+from target geographies, we hypothesize that geographi-
+cally diverse descriptive knowledge of categories can en-
+hance robustness. For this purpose, we explore the feasibil-
+ity of probing a large language model for geography-based
+object knowledge, and we examine the effects of integrat-
+ing knowledge into zero-shot and learnable soft prompt-
+ing with CLIP. Within this exploration, we propose geog-
+raphy knowledge regularization to ensure that soft prompts
+trained on a source set of geographies generalize to an un-
+seen target set. Accuracy gains over prompting baselines on
+DollarStreet while training only on Europe data are up to
++2.8/1.2/1.6 on target data from Africa/Asia/Americas, and
++4.6 overall on the hardest classes. Competitive perfor-
+mance is shown vs. few-shot target training, and analysis is
+provided to direct future study of geographical robustness.
+1. Introduction
+The performance of object recognition models degrades
+when tested in new geographies (e.g., cities, countries, con-
+tinents) [7, 21, 33, 39, 43]. Numerous factors contribute to
+the challenging problem of geographical domain shift, such
+as cross-geography changes in object design/parts, materi-
+als, and context. These changes in turn may be due to cul-
+tural, climate, or economic differences around the world.
+Recent work has shown standard adaptation techniques fail
+when used for geographical domain shifts [21, 33], but there
+has yet to be significant progress in the creation of tech-
+niques that improve geographical robustness. Such progress
+is necessary to ensure equitable use of AI in the future.
+Figure 1.
+Descriptive knowledge can address concept shifts
+across geographies. Observe the wide range of object designs and
+contexts in the DollarStreet [11] category tools around the world.
+Our work’s premise is that textual representations for classes in
+vision-language models can be enhanced to better suit diverse ob-
+ject representations across geographies. Map made with [16].
+Overall, models need representations that adequately
+capture a category’s various forms around the world. A
+natural solution is to collect training data of objects from
+different regions.
+However, this approach is expensive,
+takes significant effort, and is difficult for regions with lim-
+ited Internet access. Fortunately, geographical shifts have a
+unique property compared to other common domain shifts
+(e.g. ones due to artistic style or weather changes)—they
+can be addressed with descriptive knowledge about con-
+cept changes. In other words, it is possible to describe the
+features of an object in a region and use this information
+to adapt a model’s default representation. For instance, as
+shown in Fig. 1, for rural areas in Papua New Guinea, tools
+can be described as being used for “cooking, hunting, and
+fishing”, and for rural areas in Malawi, tools may often be
+“made of metal and wood, for farming”. Models should ac-
+count for diverse presentations and contexts of a category
+and not be limited to biased presentations (e.g. if the model
+learns tools as just being “metallic with logos”).
+We examine the effects of probing geo-diverse knowl-
+edge in two ways.
+First, we analyze whether a vision-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+13515

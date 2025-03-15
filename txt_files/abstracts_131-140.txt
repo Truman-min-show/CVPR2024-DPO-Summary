@@ -1,0 +1,644 @@
+Abstract
+Recent advances in generative diffusion models have en-
+abled the previously unfeasible capability of generating 3D
+assets from a single input image or a text prompt. In this
+work, we aim to enhance the quality and functionality of
+these models for the task of creating controllable, photo-
+realistic human avatars. We achieve this by integrating a
+3D morphable model into the state-of-the-art multi-view-
+consistent diffusion approach. We demonstrate that accu-
+rate conditioning of a generative pipeline on the articulated
+3D model enhances the baseline model performance on the
+task of novel view synthesis from a single image. More im-
+portantly, this integration facilitates a seamless and accu-
+rate incorporation of facial expression and body pose con-
+trol into the generation process. To the best of our knowl-
+edge, our proposed framework is the first diffusion model to
+enable the creation of fully 3D-consistent, animatable, and
+photorealistic human avatars from a single image of an un-
+seen subject; extensive quantitative and qualitative evalua-
+tions demonstrate the advantages of our approach over ex-
+isting state-of-the-art avatar creation models on both novel
+view and novel expression synthesis tasks. The code for our
+project is publicly available.
+1. Introduction
+The field of photorealistic controllable human avatar gener-
+ation has been subject to several technological leaps in the
+recent decade. The introduction of large 3D scan collec-
+tions has facilitated the construction of expressive, articu-
+lated models of 3D human bodies [47, 55], faces [5, 39, 56],
+and hands [65]. From the outset, one of the primary appli-
+cations of these models was to reconstruct a 3D avatar from
+highly under-constrained setups, such as monocular video
+or a single image [5, 18, 37, 55].
+While allowing for rich semantic information to be in-
+ferred, these 3D morphable models were limited in the level
+of photorealism due to their focus on minimally clothed
+bodies and face regions, as well as their reliance on the stan-
+dard mesh-based computer graphics pipelines for rendering.
+Recently, the task of generating photorealistic avatars
+[57] gained significant attention from the research commu-
+nity due to its potential to revolutionize our ways of digital
+communication. Here, combining novel neural rendering
+techniques [50, 86] with articulated human models allowed
+for a new level of generated image quality. However, the
+best-performing models here still require a significant vi-
+sual input, such as calibrated multi-view images [21, 78] or
+monocular video sequences of the subject [61, 82, 95, 99].
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+10359
+Abstract
+Neural Radiance Field (NeRF) has been widely recog-
+nized for its excellence in novel view synthesis and 3D
+scene reconstruction.
+However, their effectiveness is in-
+herently tied to the assumption of static scenes, rendering
+them susceptible to undesirable artifacts when confronted
+with transient distractors such as moving objects or shad-
+ows. In this work, we propose a novel paradigm, namely
+“Heuristics-Guided Segmentation” (HuGS), which signifi-
+cantly enhances the separation of static scenes from tran-
+sient distractors by harmoniously combining the strengths
+of hand-crafted heuristics and state-of-the-art segmentation
+models, thus significantly transcending the limitations of
+previous solutions. Furthermore, we delve into the metic-
+ulous design of heuristics, introducing a seamless fusion
+of Structure-from-Motion (SfM)-based heuristics and color
+residual heuristics, catering to a diverse range of texture
+profiles. Extensive experiments demonstrate the superiority
+and robustness of our method in mitigating transient dis-
+tractors for NeRFs trained in non-static scenes. Project
+page: https://cnhaox.github.io/NeRF-HuGS/
+1. Introduction
+Neural Radiance Fields (NeRF) [29] have garnered signif-
+icant attention for their remarkable achievements in novel
+view synthesis. Utilizing multiple-view images, NeRF con-
+ceptualizes the 3D scene as a neural field [54] and produces
+highly realistic renderings through advanced volume ren-
+dering techniques. This capability has opened the door to
+a wide array of downstream applications including 3D re-
+construction [22, 43, 48], content generation [23, 33, 36],
+*Corresponding author is Guanbin Li. This work was supported in part
+by the National Natural Science Foundation of China (NO. 62322608),
+in part by the CAAI-MindSpore Open Fund, developed on OpenI Com-
+munity, in part by the Open Project Program of State Key Labora-
+tory of Virtual Reality Technology and Systems, Beihang University
+(No.VRLAB2023A01), in part by Shenzhen Science and Technology Pro-
+gram KQTD20210811090149095 and also the Pearl River Talent Recruit-
+ment Program 2019QN01X226.
+Seg. w/ Prior (“carton, bottle, car…”)
+Heuristics (Color Residual)
+HuGS (SfM + Color Residual)
+Static Map
+(a) Segmentation-based Method
+(b) Heuristics-based Method
+(c) NeRF-HuGS (Ours)
+NeRF Training and Rendering
+Static Map
+NeRF Training and Rendering
+Static Map
+NeRF Training and Rendering
+Train
+Images
+···
+Figure 1.
+Comparison between previous methods and the
+proposed Heuristics-Guided Segmentation (HuGS) paradigm.
+When training NeRF with static scenes disturbed by transient
+distractors, (a) segmentation-based methods rely on prior knowl-
+edge and cannot identify unexpected transient objects (e.g., pizza);
+(b) heuristics-based methods are more generalizable but inaccu-
+rate (e.g., tablecloth textures); (c) our method combines their
+strengths and produces highly accurate transient vs. static sepa-
+rations, thereby significantly improving NeRF results.
+semantic understanding [14, 42, 58], etc.
+However, the images used as NeRF training data must
+meet several strict conditions, one of which is the require-
+ment for content consistency and stability. In other words,
+the native NeRF model operates under the assumption of a
+static scene. Any elements that exhibit motion or inconsis-
+tency throughout the entire data capture session, which we
+refer to as “transient distractors”, can introduce undesirable
+artifacts into the reconstructed 3D geometry. However, the
+presence of transient distractors is nearly inevitable in real-
+world scenarios. For instance, in outdoor settings, random
+appearances of pedestrians and vehicles may occur during
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+19436
+Abstract
+Absolute Pose Regression (APR) methods use deep neu-
+ral networks to directly regress camera poses from RGB
+images. However, the predominant APR architectures only
+rely on 2D operations during inference, resulting in limited
+accuracy of pose estimation due to the lack of 3D geometry
+constraints or priors. In this work, we propose a test-time
+refinement pipeline that leverages implicit geometric con-
+straints using a robust feature field to enhance the ability of
+APR methods to use 3D information during inference. We
+also introduce a novel Neural Feature Synthesizer (NeFeS)
+model, which encodes 3D geometric features during train-
+ing and directly renders dense novel view features at test
+time to refine APR methods. To enhance the robustness of
+our model, we introduce a feature fusion module and a pro-
+gressive training strategy. Our proposed method achieves
+state-of-the-art single-image APR accuracy on indoor and
+outdoor datasets.
+Code will be released at https://
+github.com/ActiveVisionLab/NeFeS.
+1. Introduction
+Camera relocalization is a crucial task that allows machines
+to understand their position and orientation in 3D space.
+It is an essential prerequisite for applications such as aug-
+mented reality, robotics, and autonomous driving, where the
+accuracy and efficiency of pose estimation are important.
+Recently, Absolute Pose Regression (APR) methods [21–
+23] have been shown to be effective in directly estimating
+camera pose from RGB images using convolutional neu-
+ral networks. The simplicity of APR’s architecture offers
+several potential advantages over classical geometry-based
+methods [5, 43, 45], involving end-to-end training, cheap
+computation cost, and low memory demand.
+Latest advances in APR, particularly the use of novel
+view synthesis (NVS) [10, 11, 29, 32, 33, 49] to generate
+new images from random viewpoints as data augmentation
+during training, have significantly improved the pose re-
+gression performance. Despite this, state-of-the-art (SOTA)
+(a) Before Pose Refinement
+(b) After Pose Refinement
+Figure 1. Our pose refinement (R) improves (coarse) pose predic-
+tions from other methods using novel feature synthesis to achieve
+pixel-wise alignment.
+Top left / right: 3D plots of predicted
+(green) and ground-truth (red) camera positions. Bottom left /
+right: alignment between rendered features and query image.
+APRs still have the following limitations: (i) They predict
+the pose of a query image by passing it through a CNN,
+which typically disregards geometry at inference time. This
+causes APR networks to struggle to generalize to view-
+points that the training data fails to cover [46]; (ii) The un-
+labeled data, often sampled from the validation/testing set,
+used for finetuning the APR network [8, 10, 11] may not
+be universally available in real-life circumstances, and this
+semi-supervised finetuning is also time-consuming.
+To address these limitations, we propose a novel test-
+time refinement pipeline for APR methods. Unlike prior
+works that explore extended Kalman filters [34], pose graph
+optimization [8], or pose auto-encoders [49], our method
+integrates an implicit representation based geometric refine-
+ment into an end-to-end learning framework, where gradi-
+ents can be backpropagated to the APR network. We test
+our proposed method across different APR architectures to
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+20987
+Abstract
+We explore the boundaries of scaling up a multilingual
+vision and language model, both in terms of size of the com-
+ponents and the breadth of its training task mixture. Our
+model achieves new levels of performance on a wide-range
+of varied and complex tasks, including multiple image-based
+captioning and question-answering tasks, image-based doc-
+ument understanding and few-shot (in-context) learning, as
+well as object detection, video question answering, and video
+captioning. Our model advances the state-of-the-art on most
+vision-and-language benchmarks considered (20+ of them).
+Finally, we observe emerging capabilities, such as complex
+counting and multilingual object detection, tasks that are
+not explicitly in the training mix.
+1. Introduction
+The success of scaling language models [1–4] makes it ap-
+pealing to similarly scale Vision-Language (V&L) models,
+and investigate the improvements, capabilities, and emergent
+properties of such models. Inspired by the work in [5], we
+present PaLI-X, a multilingual vision and language model
+with reusable scaled-up components, consisting of a pre-
+trained large-capacity visual encoder (using [6] as the start-
+ing point) and a pretrained language-only encoder-decoder
+(using [7] as the starting point), further trained at-scale on
+a vision-and-language data mixture using a combination of
+self-supervision and full-supervision signals.
+One clear pattern that emerges from the combination
+of results from PaLI [5] and the work we present in this
+paper is that scaling both V&L components together brings
+increases in performance across a wide range of tasks. We
+show this by comparing against the same benchmarks used
+for PaLI (Fig. 1, Left), and also against new benchmarks
+for which the new capabilities of PaLI-X are evaluated (e.g.,
+ChartQA, AI2D, DocVQA, InfographicVQA, as well as
+video understanding tasks). We observe that scaling leads
+to large improvements over the results of the PaLI model,
+and also over specialized large-scale models that are trained
+speciﬁcally to solve certain tasks, often with the help of
+(often much larger) text-only LLMs [8]. In particular, we
+ﬁnd that increasing both the effective capacity of the vision
+component (which [9] does more unilaterally) and of the
+language component (which [10] also does unilaterally) is
+beneﬁcial; the new PaLI-X model provides more balanced
+parameter allocation than any other prior work (roughly
+40%-60% split of the total capacity).
+Aside from demonstrating the consistent impact of scale,
+the original contribution of PaLI-X consists in leveraging
+the mixture-of-objectives proposed in [7] for vision-and-
+language modeling, and showing that it results in a model
+that improves both state-of-the-art results and the Pareto
+frontier for ﬁne-tuning and few-shot (Fig. 1, Right).
+We also observe emergent properties based on PaLI-X’s
+results compared to previous models with similar architec-
+ture but smaller sizes. For instance, we report drastically im-
+proved performance on the counting ability (See Table 1 and
+Appendix B), both for the plain variety (count all instances
+of a class) and the complex variety (count instances based
+on a natural language description), that are not attributable
+to training design1. Additionally, we present qualitative in-
+sights into the model’s performance (Appendix A), with an
+1Plain counting is usually achievable via good object detection, while
+complex counting requires a ﬁne-grained understanding of the alignment
+between language-based speciﬁcations and visually-based occurrences.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+14432
+Abstract
+Due to the resource-intensive nature of training vision-
+language models on expansive video data, a majority
+of studies have centered on adapting pre-trained image-
+language models to the video domain. Dominant pipelines
+propose to tackle the visual discrepancies with additional
+temporal learners while overlooking the substantial dis-
+crepancy for web-scaled descriptive narratives and con-
+cise action category names, leading to less distinct semantic
+space and potential performance limitations. In this work,
+we prioritize the refinement of text knowledge to facilitate
+generalizable video recognition. To address the limitations
+of the less distinct semantic space of category names, we
+prompt a large language model (LLM) to augment action
+class names into Spatio-Temporal Descriptors thus bridg-
+ing the textual discrepancy and serving as a knowledge base
+for general recognition. Moreover, to assign the best de-
+scriptors with different video instances, we propose Optimal
+Descriptor Solver, forming the video recognition problem as
+solving the optimal matching flow across frame-level repre-
+sentations and descriptors. Comprehensive evaluations in
+zero-shot, few-shot, and fully supervised video recognition
+highlight the effectiveness of our approach. Our best model
+achieves a state-of-the-art zero-shot accuracy of 75.1% on
+Kinetics-600.
+1. Introduction
+Large-scale contrastive language-image pre-training [25,
+46, 65] have shown remarkable performance in various
+computer vision tasks.
+The visual-semantic joint space
+not only serves powerful visual representation but also en-
+ables few/zero-shot transferring to downstream tasks with
+the reference of natural language. However, training a sim-
+ilar model for video recognition can be costly since large-
+scale video-language datasets are exponentially more mas-
+sive [57] due to the extra temporal dimension.
+Hence,
+a feasible solution is to adapt the pre-trained image-text
+models for the task of video recognition. As depicted in
+Ski jumping competitions. Jumper in 
+mid air with extreme speed. The 
+background of the forest and slope.
+CLIP Pre-training Data
+Visual 
+Discrepancy
+Textual
+Discrepancy
+A video of a person
+ Ski jumping.
+Video Recognition Data
+Web-scaled Descriptive Narratives
+Concise Category Names
+Static Images
+Video Sequences
+Low semantic distinction
+High semantic distinction
+Spatio-Temporal
+Spatial Inductive
+Text Encoder
+Visual Encoder
+Temporal Learner
+Matching
+Dominant Pipeline
+: The textual discrepancy is overlooked, which may introduce ambiguity in matching
+: Dominant pipelines tackle the visual discrepancy via additional temporal learners 
+(Settings, common objects, certain steps, etc.)
+(Short phrases with constant hard-prompt)
+Figure 1. Motivation of our method. Dominant pipelines propose
+to tackle the visual discrepancies with additional temporal learn-
+ers while overlooking the textual discrepancy between descriptive
+narratives and concise category names. This oversight results in a
+less separable latent space, which may hinder video recognition.
+Fig. 1, current methods devise a range of temporal learn-
+ers to address the visual discrepancy while preserving text-
+domain knowledge in the semantic space of action cat-
+egory names, often by merging the category name with
+CLIP-style hard-prompts (e.g., “a video of a person {ski
+jumping}”) [41, 45, 53, 56, 60]. Despite providing essen-
+tial inter-class correlations that can benefit general recog-
+nition, we speculate this paradigm overlooks the textual
+discrepancy between web-scaled descriptive narratives in
+CLIP pre-training and concise category names in down-
+stream video recognition.
+Given that category names of
+video datasets generally consist of verbs and nouns, the
+nouns exhibit variability while the verbs tend to remain con-
+sistent. For instance, playing cello, playing organ & play-
+ing violin are distinct actions related to playing instruments.
+The sole differentiation between these category names lies
+in the noun itself, resulting in low discriminative text em-
+beddings. This may lead to a less separable semantic space,
+potentially introducing ambiguity in recognition tasks [5].
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+18888
+Abstract
+Recently, some large kernel convnets strike back with
+appealing performance and efﬁciency.
+However, given
+the square complexity of convolution, scaling up kernels
+can bring about an enormous amount of parameters and
+the proliferated parameters can induce severe optimization
+problem. Due to these issues, current CNNs compromise
+to scale up to 51 × 51 in the form of stripe convolution
+(i.e., 51 × 5 + 5 × 51) and start to saturate as the ker-
+nel size continues growing. In this paper, we delve into
+addressing these vital issues and explore whether we can
+continue scaling up kernels for more performance gains.
+Inspired by human vision, we propose a human-like periph-
+eral convolution that efﬁciently reduces over 90% parame-
+ter count of dense grid convolution through parameter shar-
+ing, and manage to scale up kernel size to extremely large.
+Our peripheral convolution behaves highly similar to hu-
+man, reducing the complexity of convolution from O(K2) to
+O(log K) without backﬁring performance. Built on this, we
+propose Parameter-efﬁcient Large Kernel Network (PeLK).
+Our PeLK outperforms modern vision Transformers and
+ConvNet architectures like Swin, ConvNeXt, RepLKNet and
+SLaK on various vision tasks including ImageNet classiﬁca-
+tion, semantic segmentation on ADE20K and object detec-
+tion on MS COCO. For the ﬁrst time, we successfully scale
+up the kernel size of CNNs to an unprecedented 101 × 101
+and demonstrate consistent improvements.
+1. Introduction
+Convolutional Neural Networks (CNNs) have played a piv-
+otal role in machine learning for decades [16, 19, 20, 35].
+However, their dominance has been greatly challenged by
+Vision Transformers (ViTs) [6, 12, 24, 42, 47] over re-
+cent years.
+Some works [32, 44] attribute the powerful
+performance of ViTs to their large receptive ﬁelds: Facil-
+*Work done during internship at Meituan Inc.
+†Corresponding author.
+itated by self-attention mechanism, ViTs can capture con-
+text information from a large spatial scope and model long-
+range dependencies. Inspired by this, recent advances in
+CNNs [11, 23, 25] have revealed that when equipped with
+large kernel size (e.g., 31 × 31), pure CNN architecture can
+perform on par with or even better than state-of-the-art ViTs
+on various vision tasks.
+Although large kernel convnets exhibit strong perfor-
+mance and appealing efﬁciency, a fatal problem exists: the
+square complexity O(K2) with respect to kernel size K.
+Due to this problem, directly scaling up kernels will bring
+about a huge amount of parameters. For instance, the pa-
+rameter of a 31 × 31 kernel is more than 100× larger than
+that of a typical 3 × 3 counterpart in ResNet [16] and about
+20× as many as that of the 7 × 7 kernel used in Con-
+vNeXt [25]. The proliferated parameters subsequently in-
+duce severe optimization problem, making it useless or even
+harmful to directly scale up kernel size [11, 23, 25]. To
+solve, RepLKNet [11] re-parameterize a 5×5 kernel par-
+allel to the large one to make up the optimization issue,
+SLaK [23] compromise to use stripe convolution to reduce
+the complexity to linear and scales up to 51 × 51 (i.e.,
+51 × 5 + 5 × 51). However, this is still a limited inter-
+action range for the resolution of downstream tasks (e.g.,
+2048 × 512 on ADE20K) and more importantly, stripe con-
+volution lacks the range perception of dense convolution,
+thus we conjecture it may undermine the model’s spatial
+perception capacity.
+In this paper, we ﬁrst conduct a comprehensive dissec-
+tion of convolution forms under a uniﬁed modern frame-
+work (i.e., SLaK [23]). We empirically verify our conjec-
+ture that dense grid convolution outperforms stripe convo-
+lution with consistent improvements across multiple kernel
+sizes. This phenomenon holds not only for classiﬁcation
+task, but even more pronounced for downstream tasks, in-
+dicating the essential advantage of dense convolution over
+stripe form. Nevertheless, as mentioned above, the square
+complexity of large dense convolution leads to the prolif-
+erated parameters, causing rapidly increasing model size,
+greater optimization difﬁculty and thus preventing it from
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+5557
+Abstract
+Domain Generalization (DG) aims to resolve distribu-
+tion shifts between source and target domains, and cur-
+rent DG methods are default to the setting that data from
+source and target domains share identical categories. Nev-
+ertheless, there exists unseen classes from target domains
+in practical scenarios.
+To address this issue, Open Set
+Domain Generalization (OSDG) has emerged and several
+methods have been exclusively proposed. However, most ex-
+isting methods adopt complex architectures with slight im-
+provement compared with DG methods. Recently, vision-
+language models (VLMs) have been introduced in DG fol-
+lowing the fine-tuning paradigm, but consume huge train-
+ing overhead with large vision models. Therefore, in this
+paper, we innovate to transfer knowledge from VLMs to
+lightweight vision models and improve the robustness by
+introducing Perturbation Distillation (PD) from three per-
+spectives, including Score, Class and Instance (SCI), named
+SCI-PD. Moreover, previous methods are oriented by the
+benchmarks with identical and fixed splits, ignoring the di-
+vergence between source domains. These methods are re-
+vealed to suffer from sharp performance decay with our
+proposed new benchmark Hybrid Domain Generalization
+(HDG) and a novel metric H2-CV, which construct var-
+ious splits to comprehensively assess the robustness of
+algorithms.
+Extensive experiments demonstrate that our
+method outperforms state-of-the-art algorithms on multi-
+ple datasets, especially improving the robustness when con-
+fronting data scarcity.
+1. Introduction
+Deep learning has attained remarkable success on var-
+ious downstream tasks in computer vision, typically un-
+*Corresponding author
+†Source code is available at https://github.com/znchen666/HDG.
+Figure 1. The balance between model performance and training
+time consumption. Model performance is evaluated on the average
+H-score of different splits based on the proposed HDG benchmark.
+Our method achieves superior performance with less training time
+compared with state-of-the-art (SOTA) methods in OSDG.
+der the presumption that both training and test samples
+are Independent and Identically Distributed (IID) with the
+same label space. However, real-world data often exhibits
+unpredictable distributions, leading to the failure of deep
+neural networks. To address such distribution shifts, Do-
+main Generalization (DG) is first introduced to leverage
+data from multiple source domains to achieve generaliza-
+tion on unseen target domains, from the perspective of
+domain-invariant learning [16, 27, 32, 37, 39, 43], data
+augmentation [8, 23, 52, 58, 59], and learning strategies
+[2, 6, 20, 30, 48, 56].
+However, it has been observed
+that most existing domain generalization methods assume
+a closed-set distribution, where the label space remains
+identical across the source and target domain. To address
+this limitation, Open Set Domain Generalization (OSDG)
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+23501
+Abstract
+Weakly-supervised Video Anomaly Detection (wVAD)
+aims to detect frame-level anomalies using only video-
+level labels in training. Due to the limitation of coarse-
+grained labels, Multi-Instance Learning (MIL) is prevail-
+ing in wVAD. However, MIL suffers from insufficiency of
+binary supervision to model diverse abnormal patterns. Be-
+sides, the coupling between abnormality and its context hin-
+ders the learning of clear abnormal event boundary.
+In
+this paper, we propose prompt-enhanced MIL to detect var-
+ious abnormal events while ensuring clear event bound-
+aries. Concretely, we design the abnormal-aware prompts
+by using abnormal class annotations together with learn-
+able prompt, which can incorporate semantic priors into
+video features dynamically.
+The detector can utilize the
+semantic-rich features to capture diverse abnormal pat-
+terns. In addition, normal context prompt is introduced to
+amplify the distinction between abnormality and its context,
+facilitating the generation of clear boundary. With the mu-
+tual enhancement of abnormal-aware and normal context
+prompt, the model can construct discriminative represen-
+tations to detect divergent anomalies without ambiguous
+event boundaries. Extensive experiments demonstrate our
+method achieves SOTA performance on three public bench-
+marks.
+The code is available at https://github.
+com/Junxi-Chen/PE-MIL.
+1. Introduction
+To identify anomaly at frame level in video, Video Anomaly
+Detection (VAD) has become vital in critical areas, e.g.,
+surveillance systems [19], medical imaging [33] and au-
+tonomous driving [1].
+For great generalization ability
+across diverse scenes, researchers [6, 8, 29, 31, 32, 43, 45]
+*Corresponding authors
+Figure 1. (a) Illustration of prompt-enhanced MIL. In multi-modal
+feature space, text prompts integrate abnormal-aware semantic pri-
+ors into visual features. NCP incorporates normal semantic into
+ambiguous context feature. In such manner, our method learns
+a more discriminative representation to deliver a precise anomaly
+detection. (b) Anomaly detection examples of our method.
+turn to weakly-supervised VAD (wVAD) which only lever-
+ages video-level labels. Primarily, wVAD faces two key
+challenges: 1) detecting complex anomalous patterns in var-
+ied scenarios where temporal relationship and visual ap-
+pearance of anomalies exhibit substantial discrepancies; 2)
+generating clear abnormal event boundaries in the absence
+of fine-grained boundary annotations.
+To tackle wVAD, prior works [52, 55] generate noisy
+frame-level abnormal labels and reduce noise subsequently,
+but such manner limits the generalization ability to un-
+seen scenarios. Recently, Multi-Instance Learning (MIL) is
+leveraged by most methods [5, 6, 8, 23, 29, 45] to tackle
+wVAD due to its ability to model patterns under coarse-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+18319
+Abstract
+Segment Anything Model (SAM) has emerged as a trans-
+formative approach in image segmentation, acclaimed for
+its robust zero-shot segmentation capabilities and flexible
+prompting system. Nonetheless, its performance is chal-
+lenged by images with degraded quality. Addressing this
+limitation, we propose the Robust Segment Anything Model
+(RobustSAM), which enhances SAM’s performance on low-
+quality images while preserving its promptability and zero-
+shot generalization. Our method leverages the pre-trained
+SAM model with only marginal parameter increments and
+computational requirements.
+The additional parameters
+of RobustSAM can be optimized within 30 hours on eight
+GPUs, demonstrating its feasibility and practicality for typ-
+ical research laboratories. We also introduce the Robust-
+Seg dataset, a collection of 688K image-mask pairs with
+different degradations designed to train and evaluate our
+model optimally. Extensive experiments across various seg-
+mentation tasks and datasets confirm RobustSAM’s supe-
+rior performance, especially under zero-shot conditions,
+underscoring its potential for extensive real-world applica-
+tion. Additionally, our method has been shown to effectively
+improve the performance of SAM-based downstream tasks
+such as single image dehazing and deblurring.
+Project Page: https://robustsam.github.io
+† Part of the work done during internship at Snap Research.
+* Co-corresponding authors
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+4081
+Abstract
+We propose SceneTex, a novel method for effectively gen-
+erating high-quality and style-consistent textures for indoor
+scenes using depth-to-image diffusion priors. Unlike pre-
+vious methods that either iteratively warp 2D views onto
+a mesh surface or distillate diffusion latent features with-
+out accurate geometric and style cues, SceneTex formulates
+the texture synthesis task as an optimization problem in the
+RGB space where style and geometry consistency are prop-
+erly reflected. At its core, SceneTex proposes a multires-
+olution texture field to implicitly encode the mesh appear-
+ance. We optimize the target texture via a score-distillation-
+based objective function in respective RGB renderings. To
+further secure the style consistency across views, we intro-
+duce a cross-attention decoder to predict the RGB values
+by cross-attending to the pre-sampled reference locations
+in each instance. SceneTex enables various and accurate
+texture synthesis for 3D-FRONT scenes, demonstrating sig-
+nificant improvements in visual quality and prompt fidelity
+over the prior texture generation methods.
+1. Introduction
+Synthesizing high-quality 3D contents is an essential yet
+highly demanding task for numerous applications, includ-
+ing gaming, film making, robotic simulation, autonomous
+driving, and upcoming VR/AR scenarios. With an increas-
+ing number of 3D content datasets, the computer vision and
+graphics community has witnessed a soaring research inter-
+est in the field of 3D geometry generation [2, 12, 36, 38, 40,
+60, 68, 73]. Despite achieving a remarkable success in 3D
+geometry modeling, generating the object appearance, i.e.
+textures, is still bottlenecked by laborious human efforts.
+It typically requires a substantially long time for designing
+and adjustment, and immense 3D modelling expertise with
+tools such as Blender. As such, automatic designing and
+augmenting the textures has not yet been fully industrial-
+ized due to a huge demand for human expertise and finan-
+cial expenses.
+Leveraging the recent advances of 2D diffusion mod-
+els, tremendous progress has been made for text-to-3D
+generation, especially for synthesizing textures of given
+shapes [8, 39, 50]. Seminal work such as Text2Tex [8] and
+Latent-Paint [39] have achieved great success in generat-
+ing high-quality appearances for objects, facilitating high-
+fidelity texture synthesis from input prompts. Despite the
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+21081

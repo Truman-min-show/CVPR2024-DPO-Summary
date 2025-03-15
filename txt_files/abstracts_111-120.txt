@@ -1,0 +1,633 @@
+Abstract
+The rebroadcasting of screen-recaptured document im-
+ages introduces a signiﬁcant risk to the conﬁdential docu-
+ments processed in government departments and commer-
+cial companies. However, detecting recaptured document
+images subjected to distortions from online social networks
+(OSNs) is challenging since the common forensics cues,
+such as moir´e pattern, are weakened during transmission.
+In this work, we ﬁrst devise a pixel-level distortion model of
+the screen-recaptured document image to identify the robust
+features of color artifacts. Then, we extract a chromaticity
+map from the recaptured image to highlight the presence
+of color artifacts even under low-quality samples. Based
+on the prior understanding, we design a chromaticity map
+adapter (CMA) to efﬁciently extract the chromaticity map,
+and feed it into the transformer backbone as multi-modal
+prompt tokens.
+To evaluate the performance of the pro-
+posed method, we collect a recaptured ofﬁce document im-
+age dataset with over 10K diverse samples. Experimental
+results demonstrate that the proposed CMA method outper-
+forms a SOTA approach (with RGB modality only), reducing
+the average EER from 26.82% to 16.78%. Robustness eval-
+uation shows that our method achieves 0.8688 and 0.7554
+AUCs under samples with JPEG compression (QF=70) and
+resolution as low as 534×503 pixels.
+1. Introduction
+Document images, such as certiﬁcates, contracts, and iden-
+tity documents, are gaining popularity in e-business and
+e-government applications, which brings both convenience
+and threat to our applications. Traditionally, an organization
+controls the distribution of hard-copy documents to guard
+*B. Li is the corresponding author.
+Screen-
+recaptured
+Document 
+Image
+Genuine
+Document 
+Image
+(a) RGB image
+(d) Chromaticity
+(ours)
+(c) Spectrum
+(previous)
+(b) LBP
+(previous)
+Figure 1. Illustrations of the low-quality genuine (top row) and
+recaptured (bottom row) samples and their transformed domain
+representations. (a) Image patches in RGB space. The samples
+are collected by Canon C3530 (4800×1200 DPI) printer, OnePlus
+5T camera (resolution at 1280×960 pixels), Dell P2418D display
+(resolution at 2560×1440 pixels, size 23.8 inches), and subject to
+JPEG compression with a quality factor of 70. (b) LBP maps with
+a radius 1 containing 8 elements [40]. (c) Amplitude spectrum in
+the Fourier domain. (d) Chromaticity map extracted by Eq. (5) in
+our work. The color artifacts highlighted in (d) show clear differ-
+ences between the genuine and recaptured samples.
+against the leakage of conﬁdential information. Many of-
+ﬁce documents with conﬁdential information can be viewed
+on screen for a limited time but cannot be printed as hard
+copies [29]. However, illegal users could acquire the gen-
+uine document image shown on display with their smart-
+phones and distribute the recaptured document image
+without being noticed [2, 31]. Worse still, these images are
+usually transmitted through online social networks (OSN),
+e.g., WhatsApp, and WeChat, which introduces further dis-
+tortions (compression, resizing, etc.) to the document im-
+ages. Thus, there is a pressing need to develop a recaptured
+document detection scheme robust to various distortions.
+Existing works on recaptured image detection focus on
+face and natural images. For instance, literature exploits
+physical traces of distortion, e.g., specularity distribution
+[52], color saturation [7], edge blurriness [45] and moir´e
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+15577
+Abstract
+Passive depth estimation based on stereo or defocus re-
+lies on the presence of the texture on an object to resolve its
+depth. Hence, recovering the depth of a textureless object—
+for example, a large white wall—is not just hard but perhaps
+even impossible. Or is it? We show that spatial coherence,
+a property of natural light sources, can be used to resolve
+the depth of a scene point even when it is textureless. Our
+approach relies on the idea that natural light scattered off
+a scene point is locally coherent with itself, while incoher-
+ent with the light scattered from other surface points; we
+use this insight to design an optical setup that uses self-
+interference as a texture feature for estimating depth. Our
+lab prototype is capable of resolving depths of textureless
+objects in sunlight as well as indoor lights.
+1. Introduction
+Shape recovery is a problem of fundamental importance in
+computer vision, where the goal is to recover a 3D descrip-
+tion of a scene from one or more images. In passive settings,
+shape information can be recovered from disparity [13],
+shading [23, 24], focus [7], defocus [16], motion [15], or
+even polarization [19, 22]. All of these approaches, how-
+ever, rely on making certain assumptions about the scene,
+limiting the generality of each approach.
+Consider, for example, the scenario shown in Fig-
+ure 1(b), where a camera measures a textureless surface
+with a uniform albedo and lit by an unknown white light
+source. At ﬁrst glance, the 3D reconstruction problem ap-
+pears to be underconstrained. It has been widely accepted
+that it is impossible to passively reconstruct the depth of
+such a textureless plane through stereo imaging or depth
+from (de)focus; irrespective of the viewing angle and focus
+settings of the camera, the captured images will always be
+uniform in brightness, providing no visual information that
+can be used for 3D reconstruction.
+So when is it possible to see the shape of a textureless
+*Corresponding author: wyharveychen@gmail.com
+(a)
+2mm
+(b)
+(c)
+(d)
+x
+y
+z
+y
+Figure 1. Passive 3D reconstruction of a textureless plane un-
+der white, incoherent illumination. (a) A photo of the capture
+setup. A tilted plane target (enlarged in the inset) lies in front of
+the scanning lens of our setup. (b) Front view of the target. Within
+the sensor area, it is a uniform, textureless plane target. (c) Depth
+estimation with our approach, resolving the desired tilt. Note that
+we can measure the explicit depth, which can not be recovered by
+other passive methods that only measure normals. (d) A side view
+of the reconstructed target reveals it is a tilted plane.
+object, under unknown illumination? The classic aperture
+problem [14] tells us that correspondences cannot be found
+for textureless objects and hence, disparity across view-
+points is unobservable. Shape from shading [23, 24] and
+shape from polarization [19, 22] permit the recovery of the
+normal of a textureless plane, but not its depth. Sundaram
+et al. [20] conclude that the depth of a textureless plane can
+be reconstructed, but only if the plane is heavily tilted with
+respect to the camera viewpoint. To overcome the lack of
+texture, numerous works apply active imaging approaches
+such as structured light [2] or time-of-ﬂight cameras [5, 8].
+Kotwal et al. [10] have demonstrated that OCT based depth
+acquisition can be implemented under sunlight without co-
+herent laser illumination, yet their approach is not fully pas-
+sive because it uses optics to control and direct the sunlight
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+25058
+Abstract
+This paper proposes ConsistDreamer – a novel frame-
+work that lifts 2D diffusion models with 3D awareness
+and 3D consistency, thus enabling high-fidelity instruction-
+guided scene editing. To overcome the fundamental limi-
+tation of missing 3D consistency in 2D diffusion models,
+our key insight is to introduce three synergistic strategies
+that augment the input of the 2D diffusion model to be-
+come 3D-aware and to explicitly enforce 3D consistency
+during the training process. Specifically, we design sur-
+rounding views as context-rich input for the 2D diffusion
+model, and generate 3D-consistent structured noise instead
+of image-independent noise. Moreover, we introduce self-
+supervised consistency-enforcing training within the per-
+scene editing procedure. Extensive evaluation shows that
+our ConsistDreamer achieves state-of-the-art performance
+for instruction-guided scene editing across various scenes
+and editing instructions, particularly in complicated large-
+scale indoor scenes from ScanNet++, with significantly im-
+proved sharpness and fine-grained textures. Notably, Con-
+sistDreamer stands as the first work capable of success-
+fully editing complex (e.g., plaid/checkered) patterns. Our
+project page is at immortalco.github.io/ConsistDreamer.
+†Work started during an internship at Meta Reality Labs Zurich.
+1. Introduction
+With the emergence of instruction-guided 2D generative
+models as in [2], it has never been easier to generate or
+edit images. Extending this success to 3D, i.e., instruction-
+guided 3D scene editing, becomes highly desirable for
+artists, designers, and the movie and game industries. Nev-
+ertheless, editing 3D scenes or objects is inherently chal-
+lenging. The absence of large-scale, general 3D datasets
+makes it difficult to create a counterpart generative model
+similar to [2] that can support arbitrary 3D scenes. There-
+fore, state-of-the-art solutions [8, 25] circumvent this chal-
+lenge by resorting to generalizable 2D diffusion models.
+This approach, known as 2D diffusion distillation, renders
+the scene into multi-view images, applies an instruction-
+conditioned diffusion model in 2D, and then distills the edit-
+ing signal back to 3D, such as through a neural radiance
+field (NeRF) [6, 8, 15].
+However, a fundamental limitation of this solution is the
+lack of 3D consistency: a 2D diffusion model, acting in-
+dependently across views, is likely to produce inconsistent
+edits, both in color and shape. For example, a person in
+one view might be edited to be wearing a red shirt, while
+appearing in a green shirt in another view. Using these im-
+ages to train a NeRF can still produce reasonable edits, but
+the model will naturally converge towards an “averaged”
+representation of the inconsistent 2D supervision, and lose
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+21071
+Abstract
+In this paper, we democratise caricature generation, em-
+powering individuals to effortlessly craft personalised car-
+icatures with just a photo and a conceptual sketch. Our
+objective is to strike a delicate balance between abstraction
+and identity, while preserving the creativity and subjectiv-
+ity inherent in a sketch. To achieve this, we present Explicit
+Rank-1 Model Editing alongside single-image personalisa-
+tion, selectively applying nuanced edits to cross-attention
+layers for a seamless merge of identity and style. Addition-
+ally, we propose Random Mask Reconstruction to enhance
+robustness, directing the model to focus on distinctive iden-
+tity and style features. Crucially, our aim is not to replace
+artists but to eliminate accessibility barriers, allowing en-
+thusiasts to engage in the artistry.
+1. Introduction
+Ever wondered when you would finally decide to get that
+personalised caricature created, perhaps during a holiday?
+Look no further, this paper is for you – we strive to
+democratise caricature [6, 26, 27] generation for everyone!
+With a portrait of yourself and a conceptual sketch of how
+you envision your caricature, we will automatically gen-
+erate a high-fidelity caricature that unmistakably captures
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+8629
+Abstract
+We propose DiffSHEG, a Diffusion-based approach for
+Speech-driven Holistic 3D Expression and Gesture genera-
+tion with arbitrary length. While previous works focused on
+co-speech gesture or expression generation individually, the
+joint generation of synchronized expressions and gestures
+remains barely explored.
+To address this, our diffusion-
+based co-speech motion generation transformer enables
+uni-directional information flow from expression to gesture,
+facilitating improved matching of joint expression-gesture
+distributions. Furthermore, we introduce an outpainting-
+based sampling strategy for arbitrary long sequence gen-
+eration in diffusion models, offering flexibility and compu-
+tational efficiency.
+Our method provides a practical so-
+lution that produces high-quality synchronized expression
+and gesture generation driven by speech. Evaluated on two
+public datasets, our approach achieves state-of-the-art per-
+formance both quantitatively and qualitatively. Addition-
+ally, a user study confirms the superiority of DiffSHEG over
+prior approaches. By enabling the real-time generation of
+expressive and synchronized motions, DiffSHEG showcases
+its potential for various applications in the development of
+digital humans and embodied agents.
+1. Introduction
+Non-verbal cues such as facial expressions, body language,
+and hand gestures play a vital role in effective communi-
+cation alongside verbal language [13, 43]. Speech-driven
+gesture and expression generation has gained significant in-
+terest in applications like the metaverse, digital human de-
+velopment, gaming, and human-computer interaction. Gen-
+erating synchronized and realistic gestures and expressions
+based on speech is key to bringing virtual agents and digital
+humans to life in virtual environments.
+*The work was done during Junming’s internship at the International
+Digital Economy Academy.
+†Corresponding authors.
+…
+…
+…
+… journalist never tell lie …
+… want to be a journalist …
+Expression Generator
+Gesture Generator
+Diffusion
+Procedure
+Figure 1. DiffSHEG is a unified co-speech expression and gesture
+generation system based on diffusion models. It captures the joint
+expression-gesture distribution by enabling the uni-directional in-
+formation flow from expression to gesture inside the model.
+Existing research on co-speech motion synthesis has fo-
+cused on generating either expressions or gestures indepen-
+dently.
+Rule-based approaches [8, 18, 22, 38, 44] were
+prevalent initially, but recent advancements have leveraged
+data-driven techniques using deep neural networks. How-
+ever, co-speech gesture generation poses a challenge due
+to its inherently many-to-many mapping. State-of-the-art
+methods have explored generative models such as nor-
+malizing flow models [48], VQ-VAE [2], GAN [14] and
+Diffusion models [1, 3, 47, 54]. These approaches have
+made progress in improving synchronization and diversify-
+ing generated gestures. However, none of them specifically
+target the co-speech generation of both expressions and ges-
+tures simultaneously.
+Recently, some works have aimed to generate co-speech
+holistic 3D expressions and gestures [14, 49]. These meth-
+ods either combine independent co-speech expression and
+gesture models [49] or formulate the problem as a multi-
+task learning one [14]. However, these approaches separate
+the generation process of expressions and gestures, neglect-
+ing the potential relationship between them. This can lead
+to disharmony and deviation in the joint expression-gesture
+distribution. Additionally, deterministic CNN-based mod-
+els [14] may not be well-suited for approximating the many-
+to-many mapping inherent in co-speech gesture generation.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+7352
+Abstract
+We present a method for large-mask pluralistic image in-
+painting based on the generative framework of discrete la-
+tent codes. Our method learns latent priors, discretized as
+tokens, by only performing computations at the visible lo-
+cations of the image. This is realized by a restrictive partial
+encoder that predicts the token label for each visible block,
+a bidirectional transformer that infers the missing labels by
+only looking at these tokens, and a dedicated synthesis net-
+work that couples the tokens with the partial image priors
+to generate coherent and pluralistic complete image even
+under extreme mask settings. Experiments on public bench-
+marks validate our design choices as the proposed method
+outperforms strong baselines in both visual quality and di-
+versity metrics.
+1. Introduction
+Image inpainting is the task of filling the missing pixels of
+a masked image with appropriate contents that are coher-
+ent to its visible regions. As a long-studied topic in com-
+puter vision, image inpainting has evolved from a restora-
+tion technique solely relying on existing information from
+the input image (e.g. [3]) to data-driven generative methods
+(e.g. [23, 27, 36, 41, 44, 48]) that hallucinates detailed con-
+tents from not only the observable pixels but also learned,
+rich image priors.
+Pluralistic inpainting refers to the ability of a model to
+generate multiple plausible results that complete a partial
+image.
+It offers a view of image inpainting as a gener-
+ative method that models the smooth distributions of the
+complete images given the partial image as prior informa-
+tion [48]. However, modeling such distributions is challeng-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+7591
+Abstract
+We present DRESS , a large vision language model
+(LVLM) that innovatively exploits Natural Language feed-
+back (NLF) from Large Language Models to enhance its
+alignment and interactions by addressing two key limitations
+in the state-of-the-art LVLMs. First, prior LVLMs gener-
+ally rely only on the instruction ﬁnetuning stage to enhance
+alignment with human preferences. Without incorporating
+extra feedback, they are still prone to generate unhelpful,
+hallucinated, or harmful responses. Second, while the visual
+instruction tuning data is generally structured in a multi-
+turn dialogue format, the connections and dependencies
+among consecutive conversational turns are weak. This re-
+duces the capacity for effective multi-turn interactions. To
+tackle these, we propose a novel categorization of the NLF
+into two key types: critique and reﬁnement. The critique
+NLF identiﬁes the strengths and weaknesses of the responses
+and is used to align the LVLMs with human preferences.
+The reﬁnement NLF offers concrete suggestions for improve-
+ment and is adopted to improve the interaction ability of the
+LVLMs– which focuses on LVLMs’ ability to reﬁne responses
+by incorporating feedback in multi-turn interactions. To
+address the non-differentiable nature of NLF, we generalize
+conditional reinforcement learning for training. Our experi-
+mental results demonstrate that DRESS
+can generate more
+helpful (9.76%), honest (11.52%), and harmless (21.03%)
+responses, and more effectively learn from feedback during
+multi-turn interactions compared to SOTA LVLMs.
+1. Introduction
+Large vision-language models (LVLMs) can perceive the
+visual world and follow the instructions to generate user-
+friendly responses [6, 43, 90]. This is achieved by effectively
+combining large-scale visual instruction ﬁnetuning [78] with
+*Work done during internship at SRI International.
+Figure 1. We instruct DRESS
+to improve both alignment with
+human preferences and interaction ability via natural language
+feedback, which is categorized into critique and reﬁnement.
+large language models (LLMs) [5, 53].
+However, existing LVLMs solely leverage the LLMs-
+generated or hand-crafted datasets to achieve alignment
+via supervised ﬁne-tuning (SFT) [6, 43, 78]. While it’s
+effective at transforming LVLMs from caption generators
+to instruction-following models, LVLMs can still generate
+responses that are unhelpful, hallucinated, or even harm-
+ful (see Figure 4). This indicates that their present level of
+alignment with human preference is still relatively low [81].
+In addition, although existing work motivates to structure
+visual instruction tuning samples in multi-turn formats, the
+connection and dependencies among various turns are weak,
+which restricts the interaction ability of the LVLMs. Here the
+interaction ability measures whether LVLMs can effectively
+leverage the previous context in multi-turn interactions and
+reﬁne their responses [72]. These two limitations restrict the
+potential of LVLMs to serve as visual assistants in practice.
+In this work, we introduce DRESS , an LVLM
+distinctively trained through the application of Natural
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+14239
+Abstract
+Self-supervised denoising has attracted widespread at-
+tention due to its ability to train without clean images. How-
+ever, noise in real-world scenarios is often spatially cor-
+related, which causes many self-supervised algorithms that
+assume pixel-wise independent noise to perform poorly. Re-
+cent works have attempted to break noise correlation with
+downsampling or neighborhood masking. However, denois-
+ing on downsampled subgraphs can lead to aliasing effects
+and loss of details due to a lower sampling rate. Further-
+more, the neighborhood masking methods either come with
+high computational complexity or do not consider local
+spatial preservation during inference. Through the analy-
+sis of existing methods, we point out that the key to obtain-
+ing high-quality and texture-rich results in real-world self-
+supervised denoising tasks is to train at the original input
+resolution structure and use asymmetric operations during
+training and inference. Based on this, we propose Asymmet-
+ric Tunable Blind-Spot Network (AT-BSN), where the blind-
+spot size can be freely adjusted, thus better balancing noise
+correlation suppression and image local spatial destruction
+during training and inference. In addition, we regard the
+pre-trained AT-BSN as a meta-teacher network capable of
+generating various teacher networks by sampling different
+blind-spots. We propose a blind-spot based multi-teacher
+distillation strategy to distill a lightweight network, signif-
+icantly improving performance.
+Experimental results on
+multiple datasets prove that our method achieves state-of-
+the-art, and is superior to other self-supervised algorithms
+in terms of computational overhead and visual effects.
+1. Introduction
+Image denoising is an essential low-level computer vision
+problem. With the advancements in deep learning, an in-
+*Corresponding author.
+(a) Noisy Input
+(b) AP-BSN (R3)
+(c) LG-BPN
+ 
+(d) SDAP (E)
+(e) SpatiallyAdaptive
+(f) Ours  AT-BSN 
+Figure 1. Comparisons of our AT-BSN with other methods. Our
+method recovers more high frequency texture details.
+creasing number of studies are focused on supervised learn-
+ing using clean-noisy pairs [2, 17, 32, 47–49]. Typically,
+additive white Gaussian noise (AWGN) is introduced into
+clean datasets to synthesize clean-noisy denoising datasets.
+However, real-world noise is known to be spatially cor-
+related [7, 23, 37].
+Some generative-based methods at-
+tempt to synthesize real-world noise from existing clean
+data [5, 8, 18, 21, 43]. However, synthesizing real-world
+noise remains challenging, and suffers from generalization
+issues.
+To address the issue, some researchers attempt
+to capture clean-noisy pairs in real-world scenarios [1, 4].
+However, in certain scenarios, such as medical imaging and
+electron microscopy, constructing such datasets can be im-
+practical or even infeasible.
+Self-supervised denoising algorithms, represented by
+Noise2Noise [28], have brought new life to the denoising
+field.
+These methods only require noisy observations to
+train the denoising model. However, in real-world scenar-
+ios, noise often exhibits spatial correlation, which contra-
+dicts the pixel-wise independent noise assumption [25, 28]
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+2814
+Abstract
+In this paper we propose an efﬁcient data-driven solu-
+tion to self-localization within a ﬂoorplan. Floorplan data
+is readily available, long-term persistent and inherently ro-
+bust to changes in the visual appearance. Our method does
+not require retraining per map and location or demand a
+large database of images of the area of interest. We propose
+a novel probabilistic model consisting of an observation
+and a novel temporal ﬁltering module. Operating internally
+with an efﬁcient ray-based representation, the observation
+module consists of a single and a multiview module to pre-
+dict horizontal depth from images and fuses their results
+to beneﬁt from advantages offered by either methodology.
+Our method operates on conventional consumer hardware
+and overcomes a common limitation of competing meth-
+ods [16, 17, 20, 28] that often demand upright images. Our
+full system meets real-time requirements, while outperform-
+ing the state-of-the-art [20, 28] by a signiﬁcant margin.
+1. Introduction
+Camera localization is an essential research topic in com-
+puter vision.
+It is key to many AR/VR applications for
+head-mounted or handheld mobile devices and is of great
+practical interest to the robotics community. Most existing
+works localize the camera using a pre-collected database
+[40][1][2] or within a pre-built 3D model [24, 34, 37–
+39]. However, these representations of the environment are
+costly in terms of storage and maintenance. In contrast, in-
+door environments including most commercial real estate
+such as warehouses, ofﬁces and apartments already possess
+a ﬂoorplan. The ﬂoorplan is a generic representation for in-
+door environments that is easily accessible, lightweight, and
+preserves long-term scene structure independent of a chang-
+ing visual appearance, such as the furnishing of the scene. It
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+18029
+Abstract
+In this paper, we explore a novel challenging genera-
+tion task, i.e. Handwritten Mathematical Expression Gen-
+eration (HMEG) from symbolic sequences. Since symbolic
+sequences are naturally graph-structured data, we formu-
+late HMEG as a graph-to-image (G2I) generation problem.
+Unlike the generation of natural images, HMEG requires
+critic layout clarity for synthesizing correct and recogniz-
+able formulas, but has no real masks available to super-
+vise the learning process. To alleviate this challenge, we
+propose a novel end-to-end G2I generation pipeline (i.e.
+graph →layout →mask →image), which requires no
+real masks or nondifferentiable alignment between layouts
+and masks. Technically, to boost the capacity of predicting
+detailed relations among adjacent symbols, we propose a
+Less-is-More (LiM) learning strategy. In addition, we de-
+sign a differentiable layout refinement module, which maps
+bounding boxes to pixel-level soft masks, so as to further al-
+leviate ambiguous layout areas. Our whole model, includ-
+ing layout prediction, mask refinement, and image genera-
+tion, can be jointly optimized in an end-to-end manner. Ex-
+perimental results show that, our model can generate high-
+quality HME images, and outperforms previous generative
+methods. Besides, a series of ablations study demonstrate
+effectiveness of the proposed techniques. Finally, we vali-
+date that our generated images promisingly boosts the per-
+formance of HME recognition models, through data aug-
+mentation. Our code and results are available at: https:
+//github.com/AiArt-HDU/HMEG.
+1. Introduction
+Handwritten Mathematical Expressions (HMEs) are com-
+mon and play significant roles in our daily life, especially in
+the research and education areas. HMEs generally present
+complex structures, serious deformations, and diverse writ-
+∗Equal Contributions. † Corresponding Author.
+(a)
+(b)
+BBox-to-Mask
+Transformation
+End-to-end Training
+Layout
+Prediction
+Image 
+Decoder 
+real
+image
+Image
+Layout
+Discriminator
+BBox 
+Indices
+Input 
+Graph
+Layout
+Prediction
+Mask
+Prediction
+Image 
+Decoder 
+real
+layout
+real
+mask
+Image
+real
+image
+real
+layout
+ Stage-II
+Stage-I
+Scene
+Graph
+human
+horse
+ride
+Symbol
+Graph
+x
+2
+sup
+Figure 1.
+Differences between (a) typical two-stage graph-to-
+image generation pipeline and (b) our end-to-end pipeline.
+In
+previous methods, the real masks are available as the input. In
+contrast, we propose a novel end-to-end pipeline of graph →
+layout →mask →image, and requires no real masks or non-
+differentiable alignment between layouts and masks.
+ing styles. Such characteristics, along with data scarcity,
+make HME Recognition (HMER) a grand challenge in the
+OCR community. Despite the tremendous efforts that have
+been made to this task, the HMER performance is still un-
+satisfactory [14, 27, 62].
+Recently, synthetic data augmentation has shown inspir-
+ing performance in various recognition tasks [23, 51]. This
+is mainly achieved by the remarkable progress of condi-
+tional image generation [21] in the past few years [58]. The
+advances allow for creating realistic images through texts
+[39, 57, 66], scene graphs [24, 60], layouts [28, 69], seman-
+tic masks [37, 72], sketches [61, 67], and more [12, 65].
+However, there has been no effective generative model for
+generating high-quality HME images.
+Some previous works synthesize HMEs by recompos-
+ing real online HMEs [46, 59].
+Besides, FormulaGAN
+[41] generates HMEs from rendered images, via an Image-
+to-Image (I2I) Translation model. However, their gener-
+ated images are limited in either diversity or realism. Be-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+15675

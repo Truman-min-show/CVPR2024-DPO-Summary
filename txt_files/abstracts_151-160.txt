@@ -1,0 +1,742 @@
+Abstract
+Pretrained diffusion models and their outputs are widely
+accessible due to their exceptional capacity for synthe-
+sizing high-quality images and their open-source nature.
+The users, however, may face litigation risks owing to
+the models’ tendency to memorize and regurgitate train-
+ing data during inference. To address this, we introduce
+Anti-Memorization Guidance (AMG), a novel framework
+employing three targeted guidance strategies for the main
+causes of memorization: image and caption duplication,
+and highly specific user prompts. Consequently, AMG en-
+sures memorization-free outputs while maintaining high im-
+age quality and text alignment, leveraging the synergy of
+its guidance methods, each indispensable in its own right.
+AMG also features an innovative automatic detection sys-
+tem for potential memorization during each step of in-
+ference process, allows selective application of guidance
+strategies, minimally interfering with the original sampling
+process to preserve output utility. We applied AMG to pre-
+trained Denoising Diffusion Probabilistic Models (DDPM)
+and Stable Diffusion across various generation tasks. The
+results demonstrate that AMG is the first approach to suc-
+cessfully eradicates all instances of memorization with no
+or marginal impacts on image quality and text-alignment,
+as evidenced by FID and CLIP scores.
+1. Introduction
+Diffusion models [12, 23, 34] have attracted substantial in-
+terest, given their superiority in terms of diversity, fidelity,
+scalability [28] and controllability [24] over previous gener-
+ative models including VAEs [17], normalizing flows [29],
+and GANs [10, 14–16]. With guidance techniques [7, 11],
+diffusion models can be further improved by the strategical
+diversity-fidelity trade-off. State-of-the-art diffusion mod-
+els trained on vast web-scale datasets are widespreadly used
+and have seen deployment at a commercial scale [1, 30, 31].
+Such widespread adoption, however, has significantly
+heightened the litigation risks for companies using these
+models, particularly due to allegations that the models
+memorize and reproduce training data during inference
+without informing the data owners and the users of diffusion
+Figure 1. Stable Diffusion’s capacity to memorize training data,
+manifested as pixel-level memorization (left) and object-level
+memorization (right).
+Our approach successfully guides pre-
+trained diffusion models to produce memorization-free outputs.
+models. This potentially violates copyright laws and intro-
+duces ethical dilemmas, further complicated by the fact that
+the extensive size of training sets impedes detailed human
+review, leaving the intellectual property rights of the data
+sources largely undetermined. An ongoing example is that a
+legal action contends that Stable Diffusion is a 21st-century
+collage tool that remixes the copyrighted works of millions
+of artists whose work was used as training data [32].
+Prior studies [4, 35, 36] have observed memorization in
+pretrained diffusion models, particularly during uncondi-
+tional CIFAR-10 [18] and text-conditional LAION dataset
+[33] generations. While previous research proposed strate-
+gies to reduce memorization, these often lead to only mod-
+est improvements and fail to fully eliminate the issue. The
+effectiveness often come with reduced output quality and
+text-alignment [36], the need for retraining models [4], and
+extensive manual intervention [19]. Moreover, these strate-
+gies lack an automated way to differentiate potential mem-
+orization cases for targeted mitigation. For example, [19]
+relies on a predefined list of text prompts prone to causing
+memorization, and [36] applies randomization mechanisms
+uniformly without distinguishing between scenarios.
+In this paper, we undertake the following systematic ef-
+forts to address the issue of memorization. Firstly, we have
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+8425
+Abstract
+3D pose transfer that aims to transfer the desired pose
+to a target mesh is one of the most challenging 3D gener-
+ation tasks. Previous attempts rely on well-defined para-
+metric human models or skeletal joints as driving pose
+sources.
+However, to obtain those clean pose sources,
+cumbersome but necessary pre-processing pipelines are in-
+evitable, hindering implementations of the real-time appli-
+cations. This work is driven by the intuition that the robust-
+ness of the model can be enhanced by introducing adver-
+sarial samples into the training, leading to a more invulner-
+able model to the noisy inputs, which even can be further
+extended to directly handling the real-world data like raw
+point clouds/scans without intermediate processing. Fur-
+thermore, we propose a novel 3D pose Masked Autoencoder
+(3D-PoseMAE), a customized MAE that effectively learns
+3D extrinsic presentations (i.e., pose). 3D-PoseMAE facil-
+itates learning from the aspect of extrinsic attributes by si-
+multaneously generating adversarial samples that perturb
+the model and learning the arbitrary raw noisy poses via a
+multi-scale masking strategy. Both qualitative and quanti-
+tative studies show that the transferred meshes given by our
+network result in much better quality. Besides, we demon-
+strate the strong generalizability of our method on various
+poses, different domains, and even raw scans. Experimental
+results also show meaningful insights that the intermediate
+adversarial samples generated in the training can success-
+fully attack the existing pose transfer models.
+1. Introduction
+As a promising and challenging task, 3D pose transfer has
+been consistently drawing research attention from the com-
+puter vision community [10, 27, 37, 41]. The task aims
+at transferring a source pose to a target identity mesh and
+keeping the intrinsic attributes (i.e., shape) of the identity
+mesh. Aside from pure research interests, transferring de-
+sired poses to target 3D models has various potential appli-
+cations in the film industry, games, AR/VR, etc [8, 11, 12].
+To achieve data-driven learning, existing 3D pose trans-
+fer methods rely on different prerequisites to the data
+sources, which severely limits their further real-world im-
+plementations.
+Firstly, many existing 3D pose transfer
+methods [30, 45] cannot directly be generalized to unseen
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+2295
+Abstract
+Audio-visual segmentation (AVS) is a challenging task
+that involves accurately segmenting sounding objects based
+on audio-visual cues.
+The effectiveness of audio-visual
+learning critically depends on achieving accurate cross-
+modal alignment between sound and visual objects. Suc-
+cessful audio-visual learning requires two essential compo-
+nents: 1) a challenging dataset with high-quality pixel-level
+multi-class annotated images associated with audio files,
+and 2) a model that can establish strong links between au-
+dio information and its corresponding visual object. How-
+ever, these requirements are only partially addressed by cur-
+rent methods, with training sets containing biased audio-
+visual data, and models that generalise poorly beyond this
+biased training set. In this work, we propose a new cost-
+effective strategy to build challenging and relatively unbi-
+ased high-quality audio-visual segmentation benchmarks.
+We also propose a new informative sample mining method
+for audio-visual supervised contrastive learning to leverage
+discriminative contrastive samples to enforce cross-modal
+understanding. We show empirical results that demonstrate
+the effectiveness of our benchmark. Furthermore, experi-
+ments conducted on existing AVS datasets and on our new
+benchmark show that our method achieves state-of-the-art
+(SOTA) segmentation accuracy1.
+1. Introduction
+The human nervous system exhibits multi-modal percep-
+tion [44], combining input signals from different modali-
+ties to improve the detection and classification of multiple
+stimuli [44]. Such functionality has been emulated by re-
+cent papers [1–3, 5, 18, 32, 33] that aim to associate visual
+objects with their corresponding audio sequences, in a task
+known as audio-visual correspondence (AVC) [2, 3].
+*First two authors contributed equally to this work.
+1This work was supported by Australian Research Council through
+grant FT190100525.
+Bird
+Ours
+TPAVI
+Image
+Male
+Helic.
+Noise
+Figure 1. Current AVS datasets [54] tend to assume specific ob-
+jects as consistent sound sources. Such a bias influences AVS
+methods, like TPAVI [54] (2nd row), to favour segmenting the pre-
+sumed sound source, even when replacing the original audio with
+different sound types such as a person speaking (2nd column), bird
+chirping (3rd column), or background noise (4th row). Our paper
+proposes a new cost-effective strategy to build a relatively unbi-
+ased audio-visual segmentation benchmark and a supervised con-
+trastive learning method that mines informative samples to better
+constrain the learning of audio-visual embeddings (last row).
+A particularly interesting AVC task is the audio-visual
+segmentation (AVS) [54, 55] that aims to segment all pix-
+els of the sounding visual objects using a fully supervised
+model. A major challenge in AVS is achieving cross-modal
+alignment between sound and visual objects [43]. Current
+datasets poorly establish and evaluate this alignment, lead-
+ing to undesired system behaviour and less effective eval-
+uation.
+For instance, the dataset in [54] shows a “com-
+monsense” bias because it assumes that certain objects are
+always the sound source in some scenarios. Fig. 1 shows
+an example of a scene from [54] with a bias toward the
+segmentation of the helicopter, even though other sound
+sources (e.g., person’s speech or bird’s singing) are plau-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+26497
+Abstract
+Significant progress in image deblurring has been
+achieved by deep learning methods, especially the remark-
+able performance of supervised models on paired synthetic
+data. However, real-world quality degradation is more com-
+plex than synthetic datasets, and acquiring paired data in
+real-world scenarios poses significant challenges. To ad-
+dress these challenges, we propose a novel unsupervised
+image deblurring framework based on self-enhancement.
+The framework progressively generates improved pseudo-
+sharp and blurry image pairs without the need for real paired
+datasets, and the generated image pairs with higher qualities
+can be used to enhance the performance of the reconstruc-
+tor. To ensure the generated blurry images are closer to
+the real blurry images, we propose a novel re-degradation
+principal component consistency loss, which enforces the
+principal components of the generated low-quality images to
+be similar to those of re-degraded images from the original
+sharp ones. Furthermore, we introduce the self-enhancement
+strategy that significantly improves deblurring performance
+without increasing the computational complexity of network
+during inference. Through extensive experiments on multiple
+real-world blurry datasets, we demonstrate the superiority
+of our approach over other state-of-the-art unsupervised
+methods.
+1. Introduction
+Image deblurring is a classical problem in the field of com-
+puter vision, which aims to recover a clear image from its
+blurred version. The image deblurring tasks can be divided
+into blind and non-blind deblurring, where the blind image
+deblurring with unknown degradation is more challenging in
+general. Conventional model-based methods for blind image
+deblurring typically involve two main steps: estimating the
+blur kernel, and then reconstructing the sharp image from
+the blurred input [10, 26, 40, 42]. These methods’ perfor-
+mance is largely constrained by the accuracy of blur kernal
+*Corresponding author
+CycleGAN
+UAUD
+USR-DA
+UIDGAN
+USDF
+FCLGAN
+SEMGUD 
+(Ours)
+GoPro
+HIDE
+RealBlur-J
+RealBlur-R
+Figure 1. Performance comparison of our proposed SEMGUD with
+other unsupervised methods [12, 23, 36, 39, 48, 50] on different
+datasets.
+estimation. For instance, in [27], the dark channel prior is
+used to estimate the blur kernel and reconstruct the sharp
+image. However, the blurry characteristics in real-world sce-
+narios are quite complex, making it challenging to accurately
+estimate the optimal blur kernel. In addition, these meth-
+ods often require complex iterative optimisation processes,
+which may lead to long inference time.
+In recent years, with the rapid development of deep learn-
+ing technology, convolutional neural networks (CNNs) have
+been widely used in deblurring tasks, achieving significant
+success. The supervised methods [4–6, 15, 16, 19, 29, 34, 44–
+46] focus on training deep neural network models using a
+large number of paired sharp and blurry images. This en-
+ables the network to learn the mapping from blurry images
+to sharp images without the need for blur kernel estima-
+tion, achieving end-to-end reconstruction of the blurry and
+sharp images. For example, DeepDeblur [24] proposes a
+multi-scale CNN to implement a coarse-to-fine processing
+pipeline and directly restores sharp images. However, in
+the real world cases, for the supervised learning methods,
+collecting paired datasets from the real world is challenging,
+and manually synthesized datasets are difficult to simulate
+the complex real image degradation processes.
+Compared to supervised deep learning methods, unsuper-
+vised deep learning methods [3, 25, 49, 50] for real world
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+25691
+Abstract
+Phase unwrapping (PU) is a technique to reconstruct
+original phase images from their noisy wrapped counter-
+parts, finding many applications in scientific imaging. Al-
+though supervised learning has shown promise in PU, its
+utility is limited in ground-truth (GT) scarce scenarios.
+This paper presents an unsupervised learning approach that
+eliminates the need for GTs during end-to-end training.
+Our approach leverages the insight that both the gradients
+and wrapped gradients of wrapped phases serve as noisy
+labels for GT phase gradients, along with sparse outliers
+induced by the wrapping operation. A recorruption-based
+self-reconstruction loss in the gradient domain is proposed
+to mitigate the adverse effects of label noise, complemented
+with a self-distillation loss for improved generalization. Ad-
+ditionally, by unfolding a variational model of PU that uti-
+lizes wrapped gradients of wrapped phases for its data-
+fitting term, we develop a deep unrolling network that en-
+codes physics of phase wrapping and incorporates special
+treatments on outliers. In the experiments on three types
+of phase data, our approach outperforms existing GT-free
+methods and competes well against the supervised ones.
+1. Introduction
+In many imaging systems, the direct acquisition of original
+phases of a target signal is both challenging and costly. Typ-
+ically, initial measurement yields a phase image wrapped in
+[−π, π). Let X ∈RM×N and Y ∈[−π, π)M×N denote
+the true phase image and its noisy wrapped counterpart, re-
+spectively. The wrapping process can be formulated as:
+Y = W(X + N),
+W : RM×N →[−π, π)M×N,
+(1)
+*Corresponding author: Yuhui Quan.
+This work is supported by National Natural Science Foundation of
+China (Grant No. 62372186), Natural Science Foundation of Guangdong
+Province (Grant No. 2022A1515011755, 2023A1515012841), Fundamen-
+tal Research Funds for Central Universities (Grant No. x2jsD2230220),
+and Singapore MOE AcRF Tier 1 (Grant No. A-8000981-00-00).
+where W denotes the wrapping operator with its entry-wise
+operation defined as W(θ) =
+ (θ + π) mod 2π
+
+−π for
+θ ∈R, and N ∈RM×N denotes the measurement noise,
+typically assumed to be Gaussian [22]. Consequently, the
+original phase image, which exhibits strong smoothness, is
+degraded to a wrapped version with both incorrect values
+and artificial discontinuities induced by the modulo opera-
+tion, which adversely affects subsequent processing.
+Phase unwrapping (PU) is about recovering the origi-
+nal unwrapped phase image X (up to an additive constant)
+from its noisy wrapped counterpart Y . Serving as a crit-
+ical step in many optical imaging techniques for generat-
+ing clear and coherent phase images, PU finds extensive
+applications in diverse domains such as quantitative phase
+imaging, magnetic resonance imaging, synthetic aperture
+radar interferometry, 3D depth sensing, phase contrast mi-
+croscopy, fringe projection, and digital holographic inter-
+ferometry; see e.g. [10, 14, 16, 23, 41, 47, 56, 57].
+The model (1) is also usually formulated as follows:
+Y = X −2πK + N ′, K ∈ZM×N,
+(2)
+where K ∈ZM×N denotes the map of wrap counts, indi-
+cating the number of times a phase value has been wrapped
+around by 2π, and N ′ denotes the noise dependent on both
+X and N, whose distribution can be complex even when
+N follows a simple distribution such as the normal distribu-
+tion. It can be seen that PU is a challenging ill-posed inverse
+problem involving a continuous variable X and a discrete
+variable K. Direct solutions by integrating wrapped phase
+differences are insufficient for ensuring spatial consistency
+in all directions of the unwrapped phases and may accumu-
+late significant errors due to substantial noise.
+Limitations of existing works: Conventional approaches
+for PU include reliability-guided methods (e.g. [3, 9, 11,
+23, 36]), filtering-based methods (e.g. [2, 45]), and model-
+driven methods (e.g. [1, 12, 15]). These approaches are ei-
+ther sensitive to measurement noise, due to their heuristic
+rules, or overly simplistic for complex phase structures, due
+to their handcrafted image priors. In contrast, deep learning
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+25182
+Abstract
+Recent Large Language Models (LLMs) have been en-
+hanced with vision capabilities, enabling them to compre-
+hend images, videos, and interleaved vision-language con-
+tent. However, the learning methods of these large multi-
+modal models (LMMs) typically treat videos as predeter-
+mined clips, rendering them less effective and efficient at
+handling streaming video inputs.
+In this paper, we pro-
+pose a novel Learning-In-Video-Stream (LIVE) framework,
+which enables temporally aligned, long-context, and real-
+time dialogue within a continuous video stream. Our LIVE
+framework comprises comprehensive approaches to achieve
+video streaming dialogue, encompassing: (1) a training ob-
+jective designed to perform language modeling for contin-
+uous streaming inputs, (2) a data generation scheme that
+converts offline temporal annotations into a streaming di-
+alogue format, and (3) an optimized inference pipeline to
+speed up interactive chat in real-world video streams. With
+BCorresponding Author.
+our LIVE framework, we develop a simplified model called
+VideoLLM-online and demonstrate its significant advan-
+tages in processing streaming videos.
+For instance, our
+VideoLLM-online-7B model can operate at over 10 FPS
+on an A100 GPU for a 5-minute video clip from Ego4D
+narration.
+Moreover, VideoLLM-online also showcases
+state-of-the-art performance on public offline video bench-
+marks, such as recognition, captioning, and forecasting.
+The code, model, data, and demo have been made available
+at showlab.github.io/videollm-online.
+1. Introduction
+Building the future of always-on contextual AI agent that
+can promptly answer any human question, digitizing inputs
+as episodic memories and forecasting future plans given any
+query in online continuous setting represents a “holy grail”
+mission in AI research. Powered by advancements in large
+language models (LLMs) [8, 34, 60, 61, 63, 72], recent large
+multimodal models (LMMs) have unveiled impressive ca-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+18407
+Abstract
+Recent breakthroughs in vision-language models (VLMs)
+start a new page in the vision community.
+The VLMs
+provide stronger and more generalizable feature embed-
+dings compared to those from ImageNet-pretrained models,
+thanks to the training on the large-scale Internet image-text
+pairs. However, despite the amazing achievement from the
+VLMs, vanilla Vision Transformers (ViTs) remain the de-
+fault choice for the image encoder. Although pure trans-
+former proves its effectiveness in the text encoding area,
+it remains questionable whether it is also the case for im-
+age encoding, especially considering that various types of
+networks are proposed on the ImageNet benchmark, which,
+unfortunately, are rarely studied in VLMs. Due to small
+data/model scale, the original conclusions of model design
+on ImageNet can be limited and biased. In this paper, we
+aim at building an evaluation protocol of vision models
+in the vision-language era under the contrastive language-
+image pretraining (CLIP) framework. We provide a com-
+prehensive way to benchmark different vision models, cov-
+ering their zero-shot performance and scalability in both
+model and training data sizes. To this end, we introduce
+ViTamin, a new vision models tailored for VLMs. ViTamin-
+L significantly outperforms ViT-L by 2.0% ImageNet zero-
+shot accuracy, when using the same publicly available
+DataComp-1B dataset and the same OpenCLIP training
+scheme.
+ViTamin-L presents promising results on 60 di-
+verse benchmarks, including classification, retrieval, open-
+vocabulary detection and segmentation, and large multi-
+modal models. When further scaling up the model size, our
+ViTamin-XL with only 436M parameters attains 82.9% Im-
+ageNet zero-shot accuracy, surpassing 82.0% achieved by
+EVA-E that has ten times more parameters (4.4B).
+1. Introduction
+The past decades have witnessed significant progress in
+computer vision, like visual recognition tasks. The advent
+of AlexNet [53] marked a significant milestone, catalyz-
+ing the extensive evolution and dominance of Convolutional
+text model
+“a photo of cat”
+contrastive loss
+vision model
+Data Scalability
+Model Scalability
+CNN+Transformer
+Feature Resolution
+designing
+benchmark modern 
+backbones in CLIP
+ImageNet
+avg. 38 dataset
+retrieval
+81.8
+80.3
+67.2
+64.7
+65.7
+VTAB
+dist. shift
+62.5
+72.4
+70.2
+61.8
+61.1
+LMM
+(VQAv2)
+LMM
+(LLAVA-Bench)
+78.9
+75.9
+66.1
+60.6
+OV pan. seg 
+(ADE)
+OV sem. seg 
+(A-150)
+OV detection
+(OV-LVIS)
+27.3
+24.6
+31.8
+35.6
+32.5
+35.6
+ViTamin-L
+ViT-L/14
+ViTamin
+38 zero-shot 
+classification/
+retrieval tasks
+10 open-vocab dense tasks
+12 LMM tasks (e.g., VQA)
+Figure 1.
+Practices of designing scalable vision models in
+the vision-language era.
+We benchmark modern vision mod-
+els with various model and data scales under CLIP setting using
+DataComp-1B [30], leading to findings about data and model scal-
+ability, feature resolution, and hybrid architecture, which motivate
+us to develop ViTamin for VLM. ViTamin-L achieves superior
+zero-shot performance over ViT-L/14 [60] on ImageNet [86] and
+average 38 datasets [30], and advances a suite of 22 downstream
+tasks for Open-Vocabulary (OV) detection [111] and segmenta-
+tion [124], and Large Multi-modal Model (LMM) tasks [67].
+Neural Networks (ConvNets) [8, 32, 37, 38, 46, 55, 72, 73]
+in computer vision. More recently, with the debut of Vision
+Transformer [23, 104], a growing number of transformer-
+based architectures [18, 71, 103, 108, 116, 121] have shown
+great potential to surpass the prior ConvNet counterparts.
+The rapid advancement of neural network design in com-
+puter vision can be attributed to a combination of factors.
+Among them, an important factor is the well-established
+benchmarks, allowing the community to examine the devel-
+opments in a standardized way. Particularly, ImageNet [86]
+has become the de facto testing ground for new vision
+models.
+It not only sets a standard benchmark for vi-
+sual recognition, but also serves as a mature pre-training
+dataset for transferring the network backbone to a vari-
+ety of downstream tasks (e.g., detection and segmenta-
+tion) [9, 10, 15, 38, 51, 66, 73, 95, 107, 117, 122, 123].
+Recently, the emergence of vision-language models
+(VLMs) [50, 82] has changed the paradigm by leveraging
+the pre-training schedule on the extremely large scale noisy
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+12954
+Abstract
+Recent innovations on text-to-3D generation have fea-
+tured Score Distillation Sampling (SDS), which enables the
+zero-shot learning of implicit 3D models (NeRF) by directly
+distilling prior knowledge from 2D diffusion models. How-
+ever, current SDS-based models still struggle with intricate
+text prompts and commonly result in distorted 3D models
+with unrealistic textures or cross-view inconsistency issues.
+In this work, we introduce a novel Visual Prompt-guided
+text-to-3D diffusion model (VP3D) that explicitly unleashes
+the visual appearance knowledge in 2D visual prompt to
+boost text-to-3D generation. Instead of solely supervising
+SDS with text prompt, VP3D first capitalizes on 2D dif-
+fusion model to generate a high-quality image from input
+text, which subsequently acts as visual prompt to strengthen
+SDS optimization with explicit visual appearance. Mean-
+while, we couple the SDS optimization with additional dif-
+ferentiable reward function that encourages rendering im-
+ages of 3D models to better visually align with 2D visual
+prompt and semantically match with text prompt. Through
+extensive experiments, we show that the 2D Visual Prompt
+in our VP3D significantly eases the learning of visual ap-
+pearance of 3D models and thus leads to higher visual fi-
+delity with more detailed textures. It is also appealing in
+view that when replacing the self-generating visual prompt
+with a given reference image, VP3D is able to trigger a new
+task of stylized text-to-3D generation. Our project page is
+available at https://vp3d-cvpr24.github.io.
+1. Introduction
+Generative Artificial Intelligence (especially for vision con-
+tent generation) has aroused great attention in computer
+vision field [5, 6, 20, 26], leading to impressive advance-
+ments in text-to-image [30–32] and text-to-video generation
+[10, 14, 34]. These accomplishments can be attributed to
+the availability of large-scale image-text and video-text pair
+data [1, 33] and the emergence of robust diffusion-based
+generative models [12, 13, 25, 35]. Recently, researchers
+Text prompt: “A florist is making a bouquet with fresh flowers”
+(a) Magic3D
+(b) ProlificDreamer
+(c) VP3D (Ours)
+Visual prompt
+Figure 1.
+Exisiting text-to-3D generation techniques (e.g.,
+Magic3D [17] and ProlificDreamer [39]) often suffer from de-
+generated results (e.g., over-saturated appearances or inaccurate
+geometries).
+Our VP3D novelly integrates a visual prompt to
+strength score distillation sampling, leading to better 3D results.
+have gone beyond text-driven image/video generation, and
+begun exploring diffusion models for text-driven content
+creation of 3D assets (e.g., text-to-3D generation). This di-
+rection paves a new way for practical 3D content creation
+and has a great potential impact for numerous applications
+like virtual reality, gaming and Metaverse. Compared to
+image generation, text-to-3D generation, however, is more
+challenging, due to the complexities associated with intri-
+cate 3D geometry and appearance (i.e., object shapes and
+textures). Moreover, the collection and annotation of 3D
+data are somewhat resourcefully expensive and thus cannot
+be easily scaled up to billion level as image data.
+To tackle this issue, a pioneering text-to-3D work
+(DreamFusion [27]) presents the first attempt of exploit-
+ing an off-the-shelf text-to-image diffusion model to gen-
+erate promising 3D assets in a zero-shot fashion. The key
+design behind such success is Score Distillation Sampling
+(SDS), which directly optimizes the implicit 3D model of
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+4896
+Abstract
+Spatio-temporal grounding describes the task of local-
+izing events in space and time, e.g., in video data, based
+on verbal descriptions only. Models for this task are usu-
+ally trained with human-annotated sentences and bound-
+ing box supervision. This work addresses this task from
+a multimodal supervision perspective, proposing a frame-
+work for spatio-temporal action grounding trained on loose
+video and subtitle supervision only, without human annota-
+tion. To this end, we combine local representation learn-
+ing, which focuses on leveraging ﬁne-grained spatial in-
+formation, with a global representation encoding that cap-
+tures higher-level representations and incorporates both in
+a joint approach. To evaluate this challenging task in a real-
+life setting, a new benchmark dataset is proposed, provid-
+ing dense spatio-temporal grounding annotations in long,
+untrimmed, multi-action instructional videos for over 5K
+events. We evaluate the proposed approach and other meth-
+ods on the proposed and standard downstream tasks, show-
+ing that our method improves over current baselines in var-
+ious settings, including spatial, temporal, and untrimmed
+multi-action spatio-temporal grounding.
+1. Introduction
+Spatio-temporal grounding (STG) describes the challenging
+task of locating events in space and time within video data
+based on text referential expressions. Methods in this ﬁeld
+usually rely on a combination of spatio-temporal bound-
+ing box annotation, together with a human-generated cap-
+tion, describing the visual content of the bounding box
+[23, 54], which limits their generalizability beyond the
+given training scenario. Compared to that, as a second line
+of work, multimodal self-supervised learning tries to lever-
+age “free” data sources, such as video and automatic speech
+Task: Spatio-Temporal Grounding - Find the temporal boundary of a 
+queried action in an untrimmed video and spatially localize the action. 
+"Crack egg"
+…
+background
+background
+…
+…
+…
+Evaluation Setup: Referential queries - "Crack egg", "Mix egg", etc.
+Training Setup:  Unlabeled videos with narrated instructions
+"To this we will add 
+one carrot chopped 
+into jong jullien …"
+"… you can use the 
+forks to pull it a bit 
+appart…"
+"… stir it a bit so it mixes 
+well…"
+background
+"Mix egg"
+Figure 1. Learning Spatio-temporal grounding in untrimmed
+videos. In training, we learn from unlabeled videos without human
+annotation. In evaluation, we perform spatio-temporal grounding
+using an action description such as “crack egg” as a query. The
+model needs to localize both the action’s temporal boundary and
+spatial region in the long untrimmed video. We visualize the heat-
+map from the annotation points as well as derived bounding boxes.
+recognition (ASR) captions from large-scale instructional
+videos to learn representations without human annotation
+[3, 4, 8, 35, 36]. The resulting models achieve state-of-
+the-art performance on zero-shot tasks such as cross-modal
+video retrieval or classiﬁcation and also for zero-shot tem-
+poral action segmentation and detection based on free text
+queries [8, 28, 42, 47, 66], but usually lack spatial local-
+ization abilities.
+A third line of work focuses on label-
+free spatial grounding, e.g. by training on image-caption
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+18419
+Abstract
+Existing methods for synthesizing 3D human gestures
+from speech have shown promising results, but they do not
+explicitly model the impact of emotions on the generated
+gestures. Instead, these methods directly output animations
+from speech without control over the expressed emotion. To
+address this limitation, we present AMUSE, an emotional
+speech-driven body animation model based on latent dif-
+fusion. Our observation is that content (i.e., gestures re-
+lated to speech rhythm and word utterances), emotion, and
+personal style are separable. To account for this, AMUSE
+maps the driving audio to three disentangled latent vec-
+tors: one for content, one for emotion, and one for personal
+style. A latent diffusion model, trained to generate gesture
+motion sequences, is then conditioned on these latent vec-
+tors. Once trained, AMUSE synthesizes 3D human gestures
+directly from speech with control over the expressed emo-
+tions and style by combining the content from the driving
+speech with the emotion and style of another speech se-
+quence. Randomly sampling the noise of the diffusion model
+further generates variations of the gesture with the same
+emotional expressivity. Qualitative, quantitative, and per-
+ceptual evaluations demonstrate that AMUSE outputs real-
+istic gesture sequences. Compared to the state of the art, the
+generated gestures are better synchronized with the speech
+content, and better represent the emotion expressed by the
+input speech. Our code is available at amuse.is.tue.mpg.de.
+1. Introduction
+Animating 3D bodies from speech has a wide range of ap-
+plications, such as telepresence in AR/VR, avatar animation
+in games and movies, and to embody interactive digital as-
+sistants. While methods for speech-driven 3D body anima-
+tion have recently shown great progress [5, 7, 31, 56, 101],
+existing methods do not adequately address one crucial fac-
+tor: the impact of emotion from the driving speech signal on
+the generated gestures. Emotions and their expressions play
+*Now at Google.
+... choose a major that is easy to ﬁnd a good job in the future... 
+... choose a major that is easy to ﬁnd a good job in the future... 
+Gestures from neutral speech input.
+Gestures from surprise synchronized with neutral speech input.
+Figure 1. Goal. AMUSE generates realistic emotional 3D body
+gestures directly from a speech sequence (top). It provides user
+control over the generated emotion by combining the driving
+speech sequence with a different emotional audio (bottom).
+a fundamental role in human communication [29, 35, 65]
+and have become an important consideration when design-
+ing computer systems that interact with humans in a nat-
+ural manner [78, 79]. They are of central concern when
+synthesizing human animations for a wide variety of appli-
+cation contexts, such as Socially Interactive Agents [61].
+Because of this, speech-driven animation systems must not
+only align movement with the rhythm of the speech, but
+should also be capable of generating gestures that are per-
+ceived as expressing the suitable emotion.
+Many factors contribute to the perception of emotion
+and personal idiosyncrasies, such as facial expressions [19],
+gaze and eye contact [42], physiological responses [47],
+tone of voice [87], body language [66], and gestures [39].
+When it comes to 3D animation, the most relevant factors
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+1942

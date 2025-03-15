@@ -1,0 +1,721 @@
+Abstract
+Despite noise and caption quality having been acknowl-
+edged as important factors impacting vision-language con-
+trastive pre-training, in this paper, we show that the full
+potential of improving the training process by addressing
+such issues is yet to be realized.
+Specifically, we firstly
+study and analyze two issues affecting training: incorrect
+assignment of negative pairs, and low caption quality and
+diversity. Then, we devise effective solutions for address-
+ing both problems, which essentially require training with
+multiple true positive pairs. Finally, we propose training
+with sigmoid loss to address such a requirement. We show
+very large gains over the current state-of-the-art for both
+image recognition (∼+6% on average over 11 datasets)
+and image retrieval (∼+19% on Flickr30k and ∼+15%
+on MSCOCO).
+1. Introduction
+Large-scale contrastive image-text pre-training has emerged
+as the prevalent method for vision-language representation
+learning [14, 21, 27, 29, 38, 51, 52].
+The majority of
+datasets employed for pre-training are web-collected [4, 10,
+34, 40–43, 45]. They offer a varied data distribution and
+are sufficiently large to effectively train high-performing
+vision-language models. However, since the raw captions
+for each image are typically extracted from associated tags
+or descriptions, they often exhibit low quality, being noisy
+and suboptimal for training purposes [21, 27]. Although
+some attempts to fix such issues have been already de-
+scribed, to some extent, in literature (e.g.
+ALIP [50],
+BLIP [27]), in this work, we show that the full potential of
+improving the quality of the training process is far from be-
+ing fully realized. Specifically, by studying and addressing
+specific issues related to noise and low data quality, in this
+work, we show that our improved vision-language training
+pipeline can achieve massive gains over the current state-
+of-the-art methods for both image recognition (∼+6% on
+Figure 1. Our approach, FFF, achieves state-of-the-art accuracy
+across multiple datasets, largely outperforming prior methods.
+average over 11 datasets) and image retrieval (∼+19% on
+Flickr30k [53] and ∼+15% on MSCOCO [30]).
+The first issue we study is related to noise impacting con-
+trastive learning: near-duplicate samples which are incor-
+rectly treated as negative pairs. Even within a batch, it is not
+uncommon to find images and/or captions that are seman-
+tically similar or even identical. Since standard contrastive
+learning assumes one positive pair, this significantly hinders
+the training process and the quality of the trained models.
+The second issue we study is related to low caption qual-
+ity and diversity. Captions can be short and lacking detail,
+noisy, or even entirely irrelevant to the image. Moreover,
+since the mapping process between image and text is one-
+to-many, more than one caption is needed to provide an ap-
+proximate description of the image.
+To fix issue one, we propose an algorithm that mines new
+positive pairs based on image-text, image-image, and text-
+text similarities, aiming to decrease the number of false neg-
+atives in the training data arising due to semantically similar
+images and/or captions.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+14172
+Abstract
+We consider a critical issue of false negatives in Vision-
+Language Pre-training (VLP), a challenge that arises from
+the inherent many-to-many correspondence of image-text
+pairs in large-scale web-crawled datasets. The presence of
+false negatives can impede achieving optimal performance
+and even lead to a significant performance drop. To address
+this challenge, we propose MAFA (MAnaging FAlse nega-
+tives), which consists of two pivotal components building
+upon the recently developed GRouped mIni-baTch sampling
+(GRIT) strategy: 1) an efficient connection mining process
+that identifies and converts false negatives into positives, and
+2) label smoothing for the image-text contrastive (ITC) loss.
+Our comprehensive experiments verify the effectiveness of
+MAFA across multiple downstream tasks, emphasizing the
+crucial role of addressing false negatives in VLP, potentially
+even surpassing the importance of addressing false posi-
+tives. In addition, the compatibility of MAFA with the recent
+BLIP-family model is also demonstrated. Code is available
+at https://github.com/jaeseokbyun/MAFA.
+1. Introduction
+With large-scale web-crawled datasets [3, 50–52], majorities
+of vision-language pre-training (VLP) models are trained
+in a self-supervised learning manner using the combina-
+tion of several pre-tasks and losses [2, 33, 34, 63, 65]: e.g.,
+masked language modeling (MLM), image-text contrastive
+(ITC), and image-text matching (ITM) losses. Despite their
+promising results, one of the pressing challenges they face
+is the presence of noisy captions in image-text pairs that
+often provide incomplete or even incorrect descriptions
+[9, 13, 41, 44, 47, 59, 64]. Several recent works have fo-
+cused on addressing such issue of noisy correspondence in
+image-text pairs [11, 18, 19, 21, 34, 47]. Notably, BLIP [34]
+introduced a caption refinement process by leveraging an
+*Equal contribution
+†Corresponding author
+Figure 1. Examples of positives, negatives, and false negatives
+among image-text pairs.
+image captioning model and a filter to generate synthetic
+clean captions and remove noisy captions. Such process can
+be seen as correcting the false positives that were injected
+by the noisy captions.
+Contrastively, we note that there is another type of chal-
+lenge for VLP that stems from the nature of many-to-many
+correspondence of image-text pairs. Namely, it is common
+for an image (resp. text) to have additional positive con-
+nections (blue lines in Figure 1) with another texts (resp.
+images), which are paired with their corresponding images
+(resp. texts). This is due to the fact that the existing image-
+text datasets are constructed by only collecting paired image-
+text instances, hence the information regarding non-paired
+but semantically close image-text combination can be missed.
+Consequently, for each image (resp. text), the text (resp. im-
+age) that is given as the pair with the image (resp. text)
+is treated as the only positive sample during pre-training,
+while the other texts (resp. images) are all treated as nega-
+tives. This setup inevitably leads to the prevalence of false
+negatives during computing ITC and ITM losses and con-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+27314
+Abstract
+Nonlinearities are decisive in neural representation
+learning.
+Traditional Activation (Act) functions im-
+pose fixed inductive biases on neural networks with ori-
+ented biological intuitions. Recent methods leverage self-
+gated curves to compensate for the rigid traditional Act
+paradigms in fitting flexibility.
+However, substantial im-
+provements are still impeded by the norm-induced mis-
+matched feature re-calibrations (see Section 1), i.e., the ac-
+tual importance of a feature can be inconsistent with its
+explicit intensity such that violates the basic intention of
+a direct self-gated feature re-weighting.
+To address this
+problem, we propose to learn discriminative neural feature
+Act with a novel prototype, namely, AdaShift, which en-
+hances typical self-gated Act by incorporating an adaptive
+shift factor into the re-weighting function of Act. AdaShift
+casts dynamic translations on the inputs of a re-weighting
+function by exploiting comprehensive feature-filter context
+cues of different ranges in a simple yet effective manner.
+We obtain the new intuitions of AdaShift by rethinking the
+feature-filter relationships from a common Softmax-based
+classification and by generalizing the new observations to
+a common learning layer that encodes features with updat-
+able filters. Our practical AdaShifts, built upon the new
+Act prototype, demonstrate significant improvements to the
+popular/SOTA Act functions on different vision benchmarks.
+By simply replacing ReLU with AdaShifts, ResNets can
+match advanced Transformer counterparts (e.g., ResNet-50
+vs. Swin-T) with lower cost and fewer parameters.
+1. Introduction
+Nonlinear Act functions are indispensable for the learning
+of discriminative neural features [2, 7, 11, 17, 33, 39, 39,
+42]. Neuronal behaviors [24, 40] originate traditional Act
+models, e.g., Softplus [15] and ReLU [34], which are fixed
+and monotonic in calculations. To realize finer rectifica-
+tions, recent works investigated self-gated-style Act func-
+Top-1 Accuracy (%)
+81.2(+2.3)
+81.2(+2.3)
+80.3(+3.1)
+80.3(+3.1)
+80.6(+1.7)
+80.6(+1.7)
+68
+70
+72
+74
+76
+78
+79
+80
+81
+82
+75
+76
+77
+78
+79
+77
+78
+79
+80
+81
+78.9
+78.9
+77.2
+79.9(+2.7)
+79.9(+2.7)
+77.5
+78.0
+78.1(+3.2)
+78.1(+3.2)
+77.2(+2.3)
+77.2(+2.3)
+74.9
+76.5
+76.1
+73.9(+5.2)
+73.9(+5.2)
+72.2(+3.5)
+72.2(+3.5)
+68.7
+70.4
+70.0
+69.4
+75.7
+N/A
+N/A
+N/A
+ResNet-26
+ResNet-14
+ResNet-50
+ResNet-101
+ResNet-26
+ResNet-14
+ResNet-50
+ResNet-101
+Pserf
+SMU
+Meta-Acon
+ReLU
+AdaShift-B
+AdaShift-MA
+Pserf
+SMU
+Meta-Acon
+ReLU
+AdaShift-B
+AdaShift-MA
+Figure 1. Comparison of our AdaShift-B and AdaShift-MA to
+the ReLU [34] baseline and popular/SOTA Act models [4, 5, 30]
+on ImageNet [13] with ResNet backbones, where the areas of the
+circular patterns represent the relative amount of parameters com-
+pared to the corresponding ReLU baselines. Our AdaShift-B and
+AdaShift-MA improve different activation functions consistently
+and remarkably on different backbones varying by size with neg-
+ligible parameters added to the ReLU baselines.
+tions based on the general prototype
+ \la b e l { b ase_form} \phi \left (x\right )=\varsigma \left (x\right )x\,, 
+(1)
+where x P R is a given feature unit (i.e., scalar), ϕ : R Ñ R
+denotes the applied Act function of x, and ς : R Ñ R
+defines the re-weighting function of ϕ . As a special case,
+ReLU can be included in this prototype by specifying ς pxq
+as a binary masking of 0 and 1 for x ď 0 and x ą 0, re-
+spectively. Despite the broad applicability, ReLU leaves
+two practical constraints on neural Act from (1) its rigid
+masking on positive features, i.e., unified weight assign-
+ments that possibly neutralize the discriminativeness, and
+(2) hard-zero-truncation on negative features that possibly
+leads to the “dead tensors” problem.
+Recent methods addressed these by introducing smooth
+re-weighting functions with two assumed properties:
+1. ς pxq is bounded (typically, ς pxq P p0, 1q);
+2. ς pxq is monotonically non-decreasing about x .
+These properties theoretically ensure the stability and con-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+5947
+Abstract
+Representing signals using coordinate networks domi-
+nates the area of inverse problems recently, and is widely
+applied in various scientific computing tasks. Still, there
+exists an issue of spectral bias in coordinate networks, lim-
+iting the capacity to learn high-frequency components. This
+problem is caused by the pathological distribution of the
+neural tangent kernel’s (NTK’s) eigenvalues of coordinate
+networks. We find that, this pathological distribution could
+be improved using the classical batch normalization (BN),
+which is a common deep learning technique but rarely used
+in coordinate networks. BN greatly reduces the maximum
+and variance of NTK’s eigenvalues while slightly modifies
+the mean value, considering the max eigenvalue is much
+larger than the most, this variance change results in a shift
+of eigenvalues’ distribution from a lower one to a higher
+one, therefore the spectral bias could be alleviated (see
+Fig. 1). This observation is substantiated by the significant
+improvements of applying BN-based coordinate networks to
+various tasks, including the image compression, computed
+tomography reconstruction, shape representation, magnetic
+resonance imaging and novel view synthesis.
+1. Introduction
+Coordinate networks, which take the coordinates as inputs
+and output the signal attributes using multi-layer perceptron
+(MLP) models, have become a promising framework for
+solving various inverse problems. Different from the clas-
+sical convolution-based networks which could only support
+up to 3D patterns as input [20, 57], the input coordinates are
+organized as 1D vectors in coordinate networks, enabling
+the advantage of a general framework for solving inverse
+problems with any dimensions. Therefore, coordinate net-
+works have been widely applied in different areas of sci-
+entific computing [30], such as the hologram/tomography
+*This work was supported by the National Natural Science Foundation
+of China under Grants T2221003, 62071216 and the Leading Technology
+of Jiangsu Basic Research Plan (BK20192003).
+Eigenvalues
+Count
+Eigenvalues
+Eigenvalues
+(a) Histograms of NTK Eigenvalues
+(b) Reconstructed images
+23.25 dB
+27.18 dB
+28.79 dB
+30.05 dB
+30.84 dB
+31.31 dB
+without BN
+with BN
+MLP
+PEMLP-1
+PEMLP-5
+Figure 1. Batch normalization significantly alleviates the spectral
+bias of coordinate networks. (a) Batch normalization shifts the
+NTK’s eigenvalues distribution from a lower one to a higher one,
+thus (b) the spectral bias is alleviated and better performance is
+achieved compared with the one without batch normalization (e.g.,
+the texture on the lion’s left paw). From left to right, each column
+refers to the coordinate networks with ReLU activations, and po-
+sitional encoding [78] with 1 and 5 Fourier bases, respectively.
+imaging in microscopy [39, 83], 3D reconstruction and free-
+viewpoint roaming in computer vision/graphics [37, 48],
+physical simulation in material design and hydrodynam-
+ics [8, 59] and medical imaging [67, 68].
+Yet, due to the spectral bias [58] of ReLU-based MLP,
+coordinate networks prefer to learn the low-frequency com-
+ponents of the signal, while the high-frequency compo-
+nents are learned at an extremely slow convergence. Sev-
+eral works have been proposed to alleviate the spectral bias,
+such as the positional encoding [78] or frequency-related
+activation functions [60, 72]. However, these explorations
+introduce the ‘frequency-specified spectral bias’ [81], i.e.,
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+25160
+Abstract
+In this work, we present Digital Life Project, a frame-
+work utilizing language as the universal medium to build
+autonomous 3D characters, who are capable of engaging
+in social interactions and expressing with articulated body
+motions, thereby simulating life in a digital environment.
+Our framework comprises two primary components: 1) So-
+cioMind: a meticulously crafted digital brain that models
+personalities with systematic few-shot exemplars, incorpo-
+rates a reflection process based on psychology principles,
+and emulates autonomy by initiating dialogue topics; 2)
+MoMat-MoGen: a text-driven motion synthesis paradigm
+for controlling the character’s digital body. It integrates
+motion matching, a proven industry technique to ensure mo-
+tion quality, with cutting-edge advancements in motion gen-
+eration for diversity.
+Extensive experiments demonstrate
+that each module achieves state-of-the-art performance in
+its respective domain.
+Collectively, they enable virtual
+characters to initiate and sustain dialogues autonomously,
+while evolving their socio-psychological states.
+Concur-
+rently, these characters can perform contextually relevant
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+582
+Abstract
+Traditional 3D content creation tools empower users to
+bring their imagination to life by giving them direct control
+over a scene’s geometry, appearance, motion, and camera
+path. Creating computer-generated videos, however, is a
+tedious manual process, which can be automated by emerg-
+ing text-to-video diffusion models. Despite great promise,
+video diffusion models are difficult to control, hindering a
+user to apply their own creativity rather than amplifying it.
+To address this challenge, we present a novel approach that
+combines the controllability of dynamic 3D meshes with the
+expressivity and editability of emerging diffusion models. For
+this purpose, our approach takes an animated, low-fidelity
+rendered mesh as input and injects the ground truth cor-
+respondence information obtained from the dynamic mesh
+into various stages of a pre-trained text-to-image genera-
+tion model to output high-quality and temporally consistent
+frames. We demonstrate our approach on various examples
+where motion can be obtained by animating rigged assets or
+changing the camera path. Project page: primecai.github.io/
+generative rendering.
+△: Part of this work was done during an internship at Adobe Research.
+* : Equal contribution.
+1. Introduction
+Artists, designers, architects, and other creators rely on
+traditional 3D content creation tools to render computer-
+generated videos. Unfortunately, existing 3D workflows are
+laborious, time consuming, and require expertise. Emerging
+generative artificial intelligence tools, such as text-to-image
+(T2I) and text-to-video (T2V) models, solve these issues by
+automating many of the manual steps of traditional work-
+flows. Video generation, however, is difficult to control
+in that it is not easily possible to specify scene layout and
+motion in a temporally consistent manner.
+Recent approaches have attempted to control diffusion
+models. For example, ControlNet [39] uses a pre-trained
+T2I diffusion model and finetunes an adapter network that
+is conditioned on depth, pose, or edge images to control the
+layout. This strategy is successful for generating individual
+frames, but results in flicker for video generation. Other
+approaches aim at learning the complex types of motions
+encountered in natural videos directly [3, 9, 11–13, 21, 33,
+35,38,40]. While successful in generating smooth motions,
+these approaches are not easily controllable. Finally, video-
+to-video diffusion models [6,10,20,37] enable video editing
+and stylization, but they require a high-fidelity video as input,
+which is not always available.
+In this paper, we aim to combine the power of 3D work-
+flows with T2I models for generating 4D-guided stylized
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+7611
+Abstract
+In the current era of generative AI breakthroughs, gener-
+ating panoramic scenes from a single input image remains
+a key challenge. Most existing methods use diffusion-based
+iterative or simultaneous multi-view inpainting. However,
+the lack of global scene layout priors leads to subpar out-
+puts with duplicated objects (e.g., multiple beds in a bed-
+room) or requires time-consuming human text inputs for
+each view. We propose L-MAGIC, a novel method leverag-
+ing large language models for guidance while diffusing mul-
+tiple coherent views of 360◦panoramic scenes. L-MAGIC
+harnesses pre-trained diffusion and language models with-
+out ﬁne-tuning, ensuring zero-shot performance. The output
+quality is further enhanced by super-resolution and multi-
+view fusion techniques. Extensive experiments demonstrate
+that the resulting panoramic scenes feature better scene lay-
+outs and perspective view rendering quality compared to re-
+lated works, with >70% preference in human evaluations.
+Combined with conditional diffusion models, L-MAGIC can
+accept various input modalities, including but not limited
+to text, depth maps, sketches, and colored scripts. Apply-
+ing depth estimation further enables 3D point cloud gen-
+eration and dynamic scene exploration with ﬂuid camera
+motion. Code is available at https://github.com/
+ZhipengCai/L-MAGIC-code-release.
+1. Introduction
+Diffusion models have achieved state-of-the-art perfor-
+mance in image generation. However, generating a 360◦
+panoramic scene from a single perspective image remains
+a challenge, which is an important problem in many com-
+puter vision applications, such as architecture design, movie
+scene creation, and virtual reality (VR).
+Training a model to directly generate panoramic im-
+ages is challenging due to the lack of diverse large-scale
+datasets. Hence, most existing works separate panoramic
+scenes into multiple perspective views, and inpaint them us-
+*Corresponding author (zhipeng.cai@intel.com)
+L-MAGIC
+Depth 
+estimation
+Figure 1. Teaser. L-MAGIC is a novel method to generate a 360◦
+panoramic scene from a single input image. L-MAGIC utilizes
+large language models to control perspective diffusion models to
+generate multiple views with coherent 360◦layout. L-MAGIC is
+also compatible with images synthesized by conditional genera-
+tive models, making it capable of creating panoramic scenes from
+various input modalities. A set of perspective images rather than
+a single panoramic image also allows our method to leverage off-
+the-shelf monocular depth estimation models to enable immersive
+experiences, e.g., scene ﬂy-through or 3D point cloud generation.
+ing pre-trained diffusion models. To ensure generalization,
+the diffusion model is either frozen without any architec-
+ture change [11] or combined with extra modules trained on
+small datasets for integrating multi-view information [25].
+A common approach to encode the scene informa-
+tion during multi-view inpainting is to provide a text-
+conditioned diffusion model with the description of the in-
+put image, which is generated by a user or an image cap-
+tioning model [13]. Though effective for extending local
+scene content, such approaches suffer from incoherence
+in the overall scene layout. Speciﬁcally, using the same
+text description for diffusing different views along the 360◦
+panorama leads to artifacts and unnecessarily repeated ob-
+jects. Current inpainting methods have no mechanism to
+leverage global scene information in individual views.
+In this work, we show that state-of-the-art (vision) lan-
+guage models, without ﬁne-tuning, can be used to control
+multi-view diffusion and effectively address the above prob-
+lem. We propose L-MAGIC (Fig. 1), a novel framework
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+7049
+Abstract
+Camera-parameter-free multi-view pose estimation is an
+emerging technique for 3D human pose estimation (HPE).
+They can infer the camera settings implicitly or explicitly
+to mitigate the depth uncertainty impact, showcasing sig-
+nificant potential in real applications. However, due to the
+limited camera setting diversity in the available datasets,
+the inferred camera parameters are always simply hard-
+coded into the model during training and not adaptable to
+the input in inference, making the learned models cannot
+generalize well under unseen camera settings. A natural
+solution is to artificially synthesize some samples, i.e., 2D-
+3D pose pairs, under massive new camera settings. Un-
+fortunately, to prevent over-fitting the existing camera set-
+ting, the number of synthesized samples for each new cam-
+era setting should be comparable with that for the existing
+one, which multiplies the scale of training and even makes
+it computationally prohibitive. In this paper, we propose a
+novel HPE approach under the invariant risk minimization
+(IRM) paradigm. Precisely, we first synthesize 2D poses
+from myriad camera settings. We then train our model un-
+der the IRM paradigm, which targets at learning a common
+optimal model across all camera settings and thus enforces
+the model to automatically learn the camera parameters
+based on the input data. This allows the model to accurately
+infer 3D poses on unseen data by training on only a hand-
+ful of samples from each synthesized setting and thus avoid
+the unbearable training cost increment. Another appealing
+feature of our method is that benefited from the capability
+of IRM in identifying the invariant features, its performance
+on the seen camera settings is enhanced as well. Compre-
+hensive experiments verify the superiority of our approach.
+1. Introduction
+3D multi-view Human Pose Estimation (HPE) leverages the
+camera relationship between multiple viewpoint to mitigate
+*Corresponding authors
+the impact of depth uncertainty. Existing methods primar-
+ily rely on camera parameters to construct epipolar geomet-
+ric constraints between camera viewpoints. Unlike camera-
+parameter-required methods, camera-parameter-free meth-
+ods can explicitly or implicitly recover camera parameters
+during training, thus making them applicable in broader
+scenarios where camera parameters are unavailable, such
+as HPE in uncontrolled environments or dynamic HPE with
+moving cameras. HPCP [21] leverages human pose prior
+such as bone length to optimize potential camera parame-
+ters. Flex [4] models viewpoint-consistent 3D poses by hi-
+erarchical skeletal representation. MTF-Transformer [20]
+leverages temporal information to obtain more accurate
+camera parameters. Probabilistic Triangulation [11] adopts
+Monte Carlo sampling to select the camera parameters.
+These methods have achieved commendable results, closely
+matching the performance of camera-parameter-free meth-
+ods under seen camera setting.
+However, when generalized to unseen camera settings,
+camera-parameter-free methods exhibit a great performance
+drop, in contrast the drop in the camera-parameter-required
+methods is negligible [20]. We argue that this discrepancy
+primarily stems from the reason that the inferred camera
+parameters in the camer-parameter-free methods are always
+simply hardcoded into the models during training, i.e., they
+are not adaptable to the input in inference. To be precise,
+the number of camera viewpoints within existing datasets
+is rather limited (typically four or eight), whereas previous
+mainstream models require at least four camera viewpoints
+as input to address the challenges such as self-occlusion
+of the human body or inaccuracies in 2D pose estimation,
+making the number of available camera settings no larger
+than two. With such extremely limited diversity of cam-
+era settings, because of the training imbalance, camera-
+parameter-free methods tend to memorize the specific cam-
+era settings rather than to generalize to arbitrary settings,
+thus significantly hindering their generalization capabilities
+across varied camera settings. Our experiments have sub-
+stantiated this conjecture. Please refer to Tab. 5 for details.
+A natural solution to address the above challenge is to ar-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+2124
+Abstract
+Synthesizing realistic videos of talking faces under cus-
+tom lighting conditions and viewing angles benefits various
+downstream applications like video conferencing. However,
+most existing relighting methods are either time-consuming
+or unable to adjust the viewpoints. In this paper, we present
+the first real-time 3D-aware method for relighting in-the-
+wild videos of talking faces based on Neural Radiance
+Fields (NeRF). Given an input portrait video, our method
+can synthesize talking faces under both novel views and
+novel lighting conditions with a photo-realistic and disen-
+tangled 3D representation. Specifically, we infer an albedo
+tri-plane, as well as a shading tri-plane based on a de-
+sired lighting condition for each video frame with fast dual-
+encoders. We also leverage a temporal consistency network
+to ensure smooth transitions and reduce flickering artifacts.
+Our method runs at 32.98 fps on consumer-level hardware
+and achieves state-of-the-art results in terms of reconstruc-
+tion quality, lighting error, lighting instability, temporal
+consistency and inference speed. We demonstrate the effec-
+tiveness and interactivity of our method on various portrait
+videos with diverse lighting and viewing conditions.
+1. Introduction
+Portrait videos are widely used in various scenarios, such as
+video conferencing, video editing, entertainment, virtual re-
+ality, etc. However, many portrait videos are captured under
+unsatisfactory conditions, such as environments that are ei-
+ther too dark or too bright, or with virtual backgrounds that
+do not match the lighting of the foreground. These factors
+degrade the visual quality and realism of videos and affect
+the user experience.
+Of particular significance is the context of augmented re-
+*Corresponding author is Lin Gao
+Yaw = 0.3
+Front
+Albedo
+Geometry
+Lighting
+Lighting
+Figure 1. Given a portrait video shown in the leftmost column, our
+method reconstructs a 3D relightable face for each video frame.
+Users can then adjust their viewpoints and lighting conditions in-
+teractively. The second column displays relighted video frames
+with a head pose yaw of 0.3, while the third column presents faces
+relighted under an alternative lighting condition with a frontal head
+pose. The rightmost column provides the predicted albedo and ge-
+ometry of the reconstructed face. Please see the supplementary
+video for the full results.
+ality (AR) and virtual reality (VR) applications, where users
+often seek to create 3D faces that can be dynamically re-
+lighted to fit the environment. This dynamic relighting ca-
+pability becomes possible only when the underlying method
+is inherently 3D-aware and operates in real time.
+However, 3D-aware portrait video relighting is a chal-
+lenging task, since it involves modeling the complex inter-
+actions between the light, geometry, and appearance of hu-
+man faces, as well as ensuring the temporal coherence and
+naturalness of synthesized videos. It is even more challeng-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+6221
+Abstract
+While existing large vision-language multimodal mod-
+els focus on whole image understanding, there is a promi-
+nent gap in achieving region-specific comprehension. Cur-
+rent approaches that use textual coordinates or spatial en-
+codings often fail to provide a user-friendly interface for
+visual prompting.
+To address this challenge, we intro-
+duce a novel multimodal model capable of decoding arbi-
+trary (free-form) visual prompts. This allows users to intu-
+itively mark images and interact with the model using nat-
+ural cues like a “red bounding box” or “pointed arrow”.
+Our simple design directly overlays visual markers onto the
+RGB image, eliminating the need for complex region encod-
+ings, yet achieves state-of-the-art performance on region-
+understanding tasks like Visual7W, PointQA, and Visual
+Commonsense Reasoning benchmark.
+Furthermore, we
+present ViP-Bench, a comprehensive benchmark to assess
+the capability of models in understanding visual prompts
+across multiple dimensions, enabling future research in this
+domain. Code, data, and model are publicly available.
+1. Introduction
+Large language models (LLMs) like ChatGPT [21],
+GPT4 [22], and Bard [9] have recently gained significant
+attention for their strong reasoning and generalization capa-
+bilities, and their ability to chat in a human-like manner.
+In particular, models such as GPT-4V(ision) [20], which
+incorporate visual information, have demonstrated human-
+level perception and reasoning capabilities [36]. This has
+spurred the development of similar open-source models that
+aim to replicate or even surpass the proprietary models’ per-
+formance.
+Despite their capabilities, current models, including
+seminal ones like LLaVA [14, 15] and MiniGPT-4 [42], fo-
+cus predominantly on whole-image understanding; in other
+words, they lack the capability to process region-specific in-
+formation in complex scenes. This limitation becomes par-
+Visual Prompt
+Text Prompt
+: What is the 
+person marked 
+with the red arrow 
+holding?
+Large Multimodal Model
+: The person marked with the red arrow is holding a 
+green flag. This flag is used for …
+Figure 1. Main Idea of ViP-LLaVA. We directly overlay diverse
+visual prompts (e.g., arrows, boxes, circles, scribbles) onto the
+original image, and then feed the corresponding visual features
+along with text embeddings into the large multimodal model for
+conversational assistance. Here we show an example using a red
+arrow.
+ticularly apparent when attempting to describe specific ob-
+jects within an image using only language prompts, which
+can be difficult when there is ambiguity (e.g., when there
+are multiple people in the image, and the question relates to
+a specific person), as shown in Figure 1.
+To address this issue, recent work explores spatial ref-
+erences in multimodal models. Existing efforts have pri-
+marily focused on using textual representations of coordi-
+nates [3, 4, 7, 39], learned positional embeddings [23, 38,
+41], or ROI features [26, 38]. However, they often lack user-
+friendliness, as they are limited to fixed-format visual ref-
+erences like bounding boxes and the spatial coordinates of
+a mask contour. Most of these approaches, including those
+by Zhang et al. [38] and Chen et al. [4], only employ bound-
+ing box inputs for visual referrals. While effective in struc-
+tured scenarios, this method proves less versatile in natural,
+user-driven interactions where the visual prompts may not
+conform to clean geometric shapes.
+In this paper, we propose a simple yet highly effective
+solution to this problem: a large multimodal model that can
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+12914

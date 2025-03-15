@@ -1,0 +1,647 @@
+Abstract
+In subject-driven text-to-image synthesis, the synthesis
+process tends to be heavily inﬂuenced by the reference im-
+ages provided by users, often overlooking crucial attributes
+detailed in the text prompt.
+In this work, we propose
+Subject-Agnostic Guidance (SAG), a simple yet effective
+solution to remedy the problem.
+We show that through
+constructing a subject-agnostic condition and applying our
+proposed dual classiﬁer-free guidance, one could obtain
+outputs consistent with both the given subject and input text
+prompts. We validate the efﬁcacy of our approach through
+both optimization-based and encoder-based methods. Ad-
+ditionally, we demonstrate its applicability in second-order
+customization methods, where an encoder-based model is
+ﬁne-tuned with DreamBooth. Our approach is conceptually
+simple and requires only minimal code modiﬁcations, but
+leads to substantial quality improvements, as evidenced by
+our evaluations and user studies.
+1. Introduction
+Subject-driven text-to-image synthesis focuses on generat-
+ing diverse image samples, conditioned on user-given text
+descriptions and subject images. This domain has witnessed
+a surge of interest and signiﬁcant advancements in recent
+years. Optimization-based methods [16, 37, 41] tackle the
+problem by overﬁtting pre-trained text-to-image synthesis
+models [36, 38] and text tokens to the given subject. Re-
+cently, encoder-based approaches [10, 24, 49] propose to
+train auxiliary encoders to generate subject embeddings, by-
+passing the necessity of per-subject optimization.
+In the aforementioned approaches, both the embeddings
+and networks are intentionally tailored to closely ﬁt the tar-
+get subject. As a consequence, these learnable conditions
+tend to dominate the synthesis process, often obscuring the
+attributes speciﬁed in the text prompt.
+For instance, as
+shown in Fig. 1, when employing S∗1 alongside the style
+1S∗denotes a pseudo-word, where its embedding is substituted by a
+learnable subject embedding.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+6733
+Abstract
+Single-photon Light Detection and Ranging (LiDAR)
+systems are often equipped with an array of detectors for
+improved spatial resolution and sensing speed. However,
+given a fixed amount of flux produced by the laser trans-
+mitter across the scene, the per-pixel Signal-to-Noise Ra-
+tio (SNR) will decrease when more pixels are packed in a
+unit space. This presents a fundamental trade-off between
+the spatial resolution of the sensor array and the SNR re-
+ceived at each pixel. Theoretical characterization of this
+fundamental limit is explored. By deriving the photon ar-
+rival statistics and introducing a series of new approxi-
+mation techniques, the Mean Squared Error (MSE) of the
+maximum-likelihood estimator of the time delay is derived.
+The theoretical predictions align well with simulations and
+real data.
+1. Introduction
+Single-photon LiDAR has a wide range of applications in
+navigation and object identification [21, 24–26, 30, 32].
+By actively illuminating the scene with a laser pulse of a
+known shape, we measure the time delays of single pho-
+tons upon their return, which correspond to the distance of
+the object [4, 19, 36]. The advancement of photo detectors
+has significantly improved the resolution of today’s LiDAR
+[8, 15, 17, 33, 39–41]. Moreover, algorithms have shown
+how to reconstruct both the scene reflectivity and 3D struc-
+ture [2, 6, 16, 20, 22, 23, 29, 36, 38, 42, 43].
+As an imaging device, a photodetector used in LiDAR
+faces similar problems as any other CCD or CMOS pixels.
+Packing more pixels into a unit space decreases the SNR be-
+cause the amount of photon flux seen by each pixel dimin-
+ishes [12]. This fundamental limit is linked to the stochas-
+tic nature of the underlying Poisson arrival process of the
+photons [11, 37]. Unless noise mitigation schemes are em-
+ployed [2, 14, 22, 31], there is a trade-off between the num-
+ber of pixels one can pack in a unit space and the SNR we
+will observe at each pixel. The situation can be visualized
+in Fig. 1, where we highlight the phenomenon that if we
+Figure 1. As we pack more pixels in a unit space, we gain the
+spatial resolution with a reduction in the SNR. The goal of this
+paper is to understand the trade-off between the two factors.
+use many small pixels, the spatial resolution is good but the
+per pixel noise caused by the random fluctuation of photons
+will be high. The bias and variance trade-off will then lead
+to a performance curve that tells us how the accuracy of the
+depth estimate will behave as we vary the spatial resolution.
+The goal of this paper is to rigorously derive the above
+phenomenon. In particular, we want to answer the follow-
+ing question:
+Can we theoretically derive, ideally in closed-form, the
+mean squared error of the LiDAR depth estimate as a
+function of the number of pixels per unit space?
+The theoretical analysis presented in this paper is unique
+from several perspectives:
+• Beyond Single Pixel. The majority of the computer vi-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+25307
+Abstract
+We introduce pixelSplat, a feed-forward model that learns
+to reconstruct 3D radiance fields parameterized by 3D Gaus-
+sian primitives from pairs of images. Our model features
+real-time and memory-efficient rendering for scalable train-
+ing as well as fast 3D reconstruction at inference time. To
+overcome local minima inherent to sparse and locally sup-
+ported representations, we predict a dense probability dis-
+tribution over 3D and sample Gaussian means from that
+probability distribution. We make this sampling operation
+differentiable via a reparameterization trick, allowing us to
+back-propagate gradients through the Gaussian splatting
+representation. We benchmark our method on wide-baseline
+novel view synthesis on the real-world RealEstate10k and
+ACID datasets, where we outperform state-of-the-art light
+field transformers and accelerate rendering by 2.5 orders
+of magnitude while reconstructing an interpretable and ed-
+itable 3D radiance field. Additional materials can be found
+on the project website. 1
+1. Introduction
+We investigate the problem of generalizable novel view
+synthesis from sparse image observations. This line of
+work has been revolutionized by differentiable render-
+ing [29, 40, 41, 50] but has also inherited its key weak-
+ness: training, reconstruction, and rendering are notoriously
+memory- and time-intensive because differentiable render-
+ing requires evaluating dozens or hundreds of points along
+each camera ray [58].
+This has motivated light-field transformers [10, 37, 43,
+47], where a ray is rendered by embedding it into a query to-
+ken and a color is obtained via cross-attention over image to-
+kens. While significantly faster than volume rendering, such
+methods are still far from real-time. Additionally, they do
+not reconstruct 3D scene representations that can be edited
+or exported for downstream tasks in vision and graphics.
+1dcharatan.github.io/pixelsplat
+Figure 1. Overview. Given a pair of input images, pixelSplat recon-
+structs a 3D radiance field parameterized via 3D Gaussian primi-
+tives. This yields an explicit 3D representation that is renderable in
+real time, remains editable, and is cheap to train.
+Meanwhile, recent work on single-scene novel view syn-
+thesis has shown that it is possible to use 3D Gaussian prim-
+itives to enable real-time rendering with little memory cost
+via rasterization-based volume rendering [19].
+We present pixelSplat, which brings the benefits of
+a primitive-based 3D representation—fast and memory-
+efficient rendering as well as interpretable 3D structure—
+to generalizable view synthesis. This is no straightforward
+task. First, in real-world datasets, camera poses are only
+reconstructed up to an arbitrary scale factor. We address
+this by designing a multi-view epipolar transformer that re-
+liably infers this per-scene scale factor. Next, optimizing
+primitive parameters directly via gradient descent suffers
+from local minima. In the single-scene case, this can be
+addressed via non-differentiable pruning and division heuris-
+tics [19]. In contrast, in the generalizable case, we need
+to back-propagate gradients through the representation and
+thus cannot rely on non-differentiable operations. We thus
+propose a method by which Gaussian primitives can im-
+plicitly be spawned or deleted during training, avoiding lo-
+cal minima, but which nevertheless maintains gradient flow.
+Specifically, we parameterize the positions (i.e., means) of
+Gaussians implicitly via dense probability distributions pre-
+dicted by our encoder. In each forward pass, we sample
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+19457
+Abstract
+This paper introduces the first text-guided work for
+generating the sequence of hand-object interaction in 3D. The
+main challenge arises from the lack of labeled data where
+existing ground-truth datasets are nowhere near generalizable
+in interaction type and object category, which inhibits the
+modeling of diverse 3D hand-object interaction with the correct
+physical implication (e.g., contacts and semantics) from text
+prompts. To address this challenge, we propose to decompose
+the interaction generation task into two subtasks: hand-object
+contact generation; and hand-object motion generation. For
+contact generation, a VAE-based network takes as input a
+text and an object mesh, and generates the probability of
+contacts between the surfaces of hands and the object during
+the interaction. The network learns a variety of local geometry
+structure of diverse objects that is independent of the objects’
+category, and thus, it is applicable to general objects. For
+motion generation, a Transformer-based diffusion model utilizes
+this 3D contact map as a strong prior for generating physically
+This research was conducted when Jihyeon Kim was a graduate student
+(Master candidate) at UNIST†. Co-last authors∗.
+plausible hand-object motion as a function of text prompts
+by learning from the augmented labeled dataset; where we
+annotate text labels from many existing 3D hand and object
+motion data. Finally, we further introduce a hand refiner
+module that minimizes the distance between the object surface
+and hand joints to improve the temporal stability of the object-
+hand contacts and to suppress the penetration artifacts. In the
+experiments, we demonstrate that our method can generate
+more realistic and diverse interactions compared to other
+baseline methods. We also show that our method is applicable
+to unseen objects. We will release our model and newly labeled
+data as a strong foundation for future research. Codes and data
+are available in: https://github.com/JunukCha/Text2HOI.
+1. Introduction
+Imagine handing over an apple on a table to your friends:
+you might first grab it and convey this to them. During a social
+interaction, the hand pose and motion are often defined as a
+function of object’s pose, shape, and category. While existing
+works [3, 8, 9, 15, 21, 27, 30, 31] have been successful in mod-
+eling diverse and realistic 3D human body motions from a text
+prompt (where there exists no text-guided hand motion genera-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+1577
+Abstract
+We propose a hierarchical correlation clustering method
+that extends the well-known correlation clustering to pro-
+duce hierarchical clusters applicable to both positive and
+negative pairwise dissimilarities. Then, in the following, we
+study unsupervised representation learning with such hier-
+archical correlation clustering. For this purpose, we first in-
+vestigate embedding the respective hierarchy to be used for
+tree preserving embedding and feature extraction. There-
+after, we study the extension of minimax distance measures
+to correlation clustering, as another representation learn-
+ing paradigm. Finally, we demonstrate the performance of
+our methods on several datasets.
+1. Introduction
+Data clustering plays an essential role in unsupervised
+learning and exploratory data analysis. It is used in a va-
+riety of applications including web mining, network analy-
+sis, image segmentation, bioinformatics, user analytics and
+knowledge management. Its goal is to partition the data into
+groups in a way that the objects in the same cluster are more
+similar according to some criterion, compared to the objects
+in different clusters.
+Many clustering methods partition the data into K flat
+clusters for example, K-means [55], spectral clustering
+[62,68] and correlation clustering [8]. In many applications,
+however, the clusters are preferred to be presented at differ-
+ent levels, encompassing both high-level and detailed infor-
+mation. Hierarchical clustering is useful to produce such
+structures, usually encoded by a dendrogram. A dendro-
+gram is a tree data structure where each node corresponds
+to a cluster, with the leaf nodes (those at the bottom of the
+tree) containing only one object. Higher-level clusters are
+formed by aggregating lower-level clusters and the inter-
+cluster dissimilarity between them.
+Hierarchical clustering can be performed either in an ag-
+glomerative (i.e., bottom-up) or in a divisive (i.e., top-down)
+manner [56]. Agglomerative methods are often computa-
+tionally more efficient, making them more popular in prac-
+tice [64]. In both approaches, the clusters are aggregated or
+split based on various criteria, such as single, average, cen-
+troid, complete and Ward. Several studies aim to improve
+these methods. The works in [49,52] focus on the statistical
+significance of hierarchical clustering. [24,25,65] formulate
+this problem as an optimization problem and propose ap-
+proximate solutions. [82] considers multiple dissimilarities
+for a pair of clusters, and [11, 17] suggest merging multi-
+ple clusters at each step instead of one. [6] employs global
+information to eliminate the influence of noisy similarities,
+and [19] proposes to apply agglomerative methods to small
+subsets of the data instead of individual data objects. [33,38]
+augment agglomerative methods with probabilistic models,
+and finally, [23,60] propose efficient but approximate meth-
+ods for hierarchical clustering.
+On the other hand,
+most clustering methods,
+ei-
+ther flat or hierarchical, assume non-negative pairwise
+(dis)similarities. However, in several practical applications,
+pairwise similarities can be any real number, positive or
+negative. For example, it could be preferable for a user or
+oracle to indicate whether two objects are similar (consid-
+ered a positive relation) or dissimilar (considered a nega-
+tive relation), rather than solely providing a positive (non-
+negative) pairwise similarity, even if the two objects are dis-
+similar. The former approach yields more precise informa-
+tion because, in the latter scenario, the dissimilarity between
+two objects (i.e., zero similarity) could be confused with a
+lack of available information. Some relevant applications
+for this setting include image segmentation with higher or-
+der correlation information [47,48], webpage segmentation
+[12], community detection over graphs [67], social media
+mining [73], analysis of connections over web [43], dealing
+with attraction/rejection data [26], automated label genera-
+tion from clicks [3] and entity resolution [7,34].
+Hence, a specialized clustering model known as correla-
+tion clustering has been developed to work with such data.
+This model was first introduced on the graphs with only
++1 or −1 pairwise similarities [7, 8], and then was gen-
+eralized to the graphs with arbitrary positive or negative
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+23083
+Abstract
+Vision-language models (VLMs) have recently shown
+promising results in traditional downstream tasks. Evalu-
+ation studies have emerged to assess their abilities, with the
+majority focusing on the third-person perspective, and only
+a few addressing specific tasks from the first-person per-
+spective. However, the capability of VLMs to “think” from
+a first-person perspective, a crucial attribute for advanc-
+ing autonomous agents and robotics, remains largely unex-
+plored. To bridge this research gap, we introduce EgoThink,
+a novel visual question-answering benchmark that encom-
+passes six core capabilities with twelve detailed dimensions.
+The benchmark is constructed using selected clips from ego-
+centric videos, with manually annotated question-answer
+pairs containing first-person information. To comprehen-
+sively assess VLMs, we evaluate twenty-one popular VLMs
+on EgoThink. Moreover, given the open-ended format of the
+answers, we use GPT-4 as the automatic judge to compute
+single-answer grading. Experimental results indicate that
+although GPT-4V leads in numerous dimensions, all evalu-
+ated VLMs still possess considerable potential for improve-
+ment in first-person perspective tasks. Meanwhile, enlarg-
+ing the number of trainable parameters has the most signif-
+icant impact on model performance on EgoThink. In con-
+clusion, EgoThink serves as a valuable addition to existing
+evaluation benchmarks for VLMs, providing an indispens-
+able resource for future research in the realm of embodied
+artificial intelligence and robotics.
+*Equal contribution, ‡ Project lead, B Corresponding author
+Project page: https://adacheng.github.io/EgoThink/
+GitHub page: https://github.com/AdaCheng/EgoThink/
+Dataset page: https://huggingface.co/datasets/EgoThink/EgoThink/
+EgoThink
+Object
+What is around me?
+Activity
+What am I doing?
+Localization
+Where am I?
+Reasoning
+What about the situation around me?
+Forecasting
+What will happen to me?
+Planning  
+How will I do?  
+Figure 1. The main categories of our EgoThink benchmark to
+comprehensively assess the capability of thinking from a first-
+person perspective.
+1. Introduction
+Benefiting from the rapid development of large lan-
+guage models (LLMs) [8, 60, 73], vision-language models
+(VLMs) [2, 15, 43, 80] have shown remarkable progress in
+both conventional vision-language downstream tasks [2, 15,
+43, 80] and following diverse human instructions [13, 42,
+48, 81, 89]. Their application has expanded into broader
+domains such as robotics [21, 31, 40] and embodied arti-
+ficial intelligence (EAI) [71, 78]. As a result, the thorough
+evaluation of VLMs has become increasingly important and
+challenging. Observing and understanding the world from
+a first-person perspective is a natural approach for both hu-
+mans and artificial intelligence agents. We propose that the
+ability to “think” from a first-person perspective, especially
+when interpreting egocentric images, is crucial for VLMs.
+However, as shown in Table 1, the ability to think from a
+first-person perspective is not adequately addressed by cur-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+14291
+Abstract
+This paper proposes a novel task named ”3D part group-
+ing”.
+Suppose there is a mixed set containing scattered
+parts from various shapes. This task requires algorithms
+to find out every possible combination among all the parts.
+To address this challenge, we propose the so called Gradi-
+ent Field-based Auto-Regressive Sampling framework (G-
+FARS) tailored specifically for the 3D part grouping task. In
+our framework, we design a gradient-field-based selection
+graph neural network (GNN) to learn the gradients of a log
+conditional probability density in terms of part selection,
+where the condition is the given mixed part set. This in-
+novative approach, implemented through the gradient-field-
+based selection GNN, effectively captures complex relation-
+ships among all the parts in the input. Upon completion
+of the training process, our framework becomes capable
+of autonomously grouping 3D parts by iteratively selecting
+them from the mixed part set, leveraging the knowledge ac-
+quired by the trained gradient-field-based selection GNN.
+Our code is available at: https://github.com/J-
+F-Cheng/G-FARS-3DPartGrouping.
+1. Introduction
+Assuming that you purchase multiple unassembled IKEA
+chairs and carelessly mix all the parts together, it can
+quickly become a nightmare to sort through and assemble
+each chair. The task can be especially daunting if the pieces
+from different chairs are mixed together, making it chal-
+lenging to identify the correct components for each chair.
+Similarly, in the field of archaeology, recovering broken
+cultural relics can be incredibly difficult, as the fragments
+are often intermingled with the pieces from other relics.
+In such cases, archaeologists must carefully separate the
+mixed fragments and piece them together to reconstruct the
+original relics. In a similar vein, the field of LEGO auto-
+matic assembly requires AI agents to select different com-
+binations of parts from massive LEGO blocks and assemble
+them into a shape. All of these examples contain two goals:
+The first goal is to identify the correct combinations from
+the mixed part set (i.e. part grouping) and the second one
+is to assemble them into reasonable shapes (i.e. part assem-
+bly). To achieve these two objectives, algorithms must first
+be capable of comprehending the geometric relationships
+among all the parts. Next, they should be able to separate
+the parts by their shapes, and finally, assemble the chosen
+parts into reasonable shapes.
+For the part assembly, previous works have researched
+some methods for assembling a given group of parts. DGL-
+Net [15] is the first work to explore the assembly problem
+without prior instruction. The DGL-Net algorithm can pre-
+dict the 6-DoF poses for each input part, enabling trans-
+lation and rotation of the parts to their expected positions.
+RGL-Net [27] is another part assembly work that utilizes
+sequential information among all the input parts. By assem-
+bling shapes in a specific order (e.g., top-to-bottom), RGL-
+Net achieves more accurate assembly. IET [41] is a recently
+proposed algorithm that utilizes an instance encoded trans-
+former and self-attention mechanisms [30, 32, 36, 37, 40]
+to enhance the network’s assembly ability.
+However, part grouping still remains an unsolved prob-
+lem. As previously mentioned, the goal of part grouping is
+to use algorithms to identify all possible combinations in a
+mixed part set. To address this, we introduce the 3D part
+grouping task. The definition of this task is presented in
+Fig. 1. Suppose we have a set of mixed parts from N dif-
+ferent shapes. The 3D part grouping task mandates the al-
+gorithms to process all these parts and categorize them into
+groups based on their originating shapes.
+Our proposed task 3D part grouping is challenging for
+two main reasons. First, the algorithms must understand the
+relationships among all the parts. Second, the exact number
+of potential groups, N, is unknown. This uncertainty com-
+plicates both the problem formulation and the creation of
+effective algorithms. To tackle these challenges, we intro-
+duce Gradient-Field-based Auto-Regressive Sampling (G-
+FARS) framework in this paper. This framework integrates
+a gradient-field-based graph neural network for the encoded
+parts, aiding in understanding the relationships among all
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+27652
+Abstract
+Backdoor attack poses a significant security threat to
+Deep Learning applications. Existing attacks are often not
+evasive to established backdoor detection techniques. This
+susceptibility primarily stems from the fact that these attacks
+typically leverage a universal trigger pattern or transfor-
+mation function, such that the trigger can cause misclas-
+sification for any input. In response to this, recent papers
+have introduced attacks using sample-specific invisible trig-
+gers crafted through special transformation functions. While
+these approaches manage to evade detection to some extent,
+they reveal vulnerability to existing backdoor mitigation
+techniques. To address and enhance both evasiveness and
+resilience, we introduce a novel backdoor attack LOTUS.
+Specifically, it leverages a secret function to separate sam-
+ples in the victim class into a set of partitions and applies
+unique triggers to different partitions. Furthermore, LOTUS
+incorporates an effective trigger focusing mechanism, en-
+suring only the trigger corresponding to the partition can
+induce the backdoor behavior. Extensive experimental re-
+sults show that LOTUS can achieve high attack success rate
+across 4 datasets and 7 model structures, and effectively
+evading 13 backdoor detection and mitigation techniques.
+The code is available at https://github.com/Megum1/LOTUS.
+1. Introduction
+Backdoor attack is a prominent security threat to Deep Learn-
+ing applications, evidenced by the large body of existing
+attacks [5, 19, 37, 51, 64] and defense techniques [20, 32,
+35, 67, 72]. It injects malicious behaviors to a model such
+that the model operates normally on clean samples but mis-
+classifies inputs that are stamped with a specific trigger. A
+typical way of injecting such malicious behaviors is through
+data poisoning [1, 19, 39]. This approach introduces a small
+set of trigger-stamped images paired with the target label
+into the training data. Attackers may also manipulate the
+training procedure [10, 45, 46], and tamper with the model’s
+internal mechanisms [37, 41].
+The majority of existing attacks rely on a uniform pat-
+tern [5, 19, 39, 64] or a transformation function [6, 51] as
+the trigger. The uniform trigger tends to be effective on any
+input, which can be detected by existing techniques. For
+instance, trigger inversion methods [20, 38, 67, 68] aim to
+reverse engineer a small trigger that can induce the target pre-
+diction on a set of inputs. According to the results reported
+in the literature [20, 61, 67], for a number of attacks, it is
+feasible to invert a pattern that closely resembles the ground-
+truth trigger and has a substantially high attack success rate
+(ASR), hence detecting backdoored models.
+Recent studies introduce sample-specific invisible at-
+tacks [10, 33, 45, 46] that encourage the model to emphasize
+the correlation between the trigger and the input sample.
+Although these attacks effectively evade certain detection
+methods [20, 67], they are not resilient to backdoor mitiga-
+tion techniques [32, 35, 72]. For instance, a straightforward
+approach such as fine-tuning the backdoored model using
+only 5% of the training data can significantly reduce ASR.
+This is due to the fact that imperceptible trigger patterns are
+not persistent during the retraining process. Moreover, the
+sample-specific characteristic of these attacks make them
+less robust to backdoor mitigation methods.
+In this paper, we introduce an innovative attack that not
+only evades backdoor detection approaches but also exhibits
+resilience against backdoor mitigation techniques. It is a
+label-specific attack, aiming to misclassify the samples of
+a victim class to a target class. For the victim-class sam-
+ples, we divide them into sub-partitions and use a unique
+trigger for each partition. With such an attack design, ex-
+isting defense such as trigger inversion is unlikely to find a
+uniform trigger. This is because the available set of samples
+used by trigger inversion is likely from different partitions,
+which makes the detection fail. In addition, we develop a
+novel trigger focusing technique to ensure that a partition
+can only be attacked by its designated trigger, not by any
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+24798
+Abstract
+We present Cutie, a video object segmentation (VOS) net-
+work with object-level memory reading, which puts the object
+representation from memory back into the video object seg-
+mentation result. Recent works on VOS employ bottom-up
+pixel-level memory reading which struggles due to matching
+noise, especially in the presence of distractors, resulting
+in lower performance in more challenging data. In con-
+trast, Cutie performs top-down object-level memory reading
+by adapting a small set of object queries. Via those, it in-
+teracts with the bottom-up pixel features iteratively with a
+query-based object transformer (qt, hence Cutie). The ob-
+ject queries act as a high-level summary of the target object,
+while high-resolution feature maps are retained for accu-
+rate segmentation. Together with foreground-background
+masked attention, Cutie cleanly separates the semantics of
+the foreground object from the background. On the challeng-
+ing MOSE dataset, Cutie improves by 8.7 J &F over XMem
+with a similar running time and improves by 4.2 J &F over
+DeAOT while being three times faster. Code is available at:
+hkchengrex.github.io/Cutie.
+1. Introduction
+Video Object Segmentation (VOS), specifically the “semi-
+supervised” setting, requires tracking and segmenting objects
+from an open vocabulary specified in a first-frame annota-
+tion. VOS methods are broadly applicable in robotics [1],
+video editing [2], reducing costs in data annotation [3],
+and can also be combined with Segment Anything Models
+(SAMs) [4] for universal video segmentation (e.g., Tracking
+Anything [5–7]).
+Recent VOS approaches employ a memory-based
+paradigm [8–11]. A memory representation is computed
+from past segmented frames (either given as input or seg-
+mented by the model), and any new query frame “reads”
+from this memory to retrieve features for segmentation. Im-
+portantly, these approaches mainly use pixel-level matching
+for memory reading, either with one [8] or multiple matching
+layers [10], and generate the segmentation bottom-up from
+Figure 1. Comparison of pixel-level memory reading v.s. object-
+level memory reading. In each box, the left is the reference frame,
+and the right is the query frame to be segmented. Red arrows indi-
+cate wrong matches. Low-level pixel matching (e.g., XMem [9])
+can be noisy in the presence of distractors. We propose object-level
+memory reading for more robust video object segmentation.
+the pixel memory readout. Pixel-level matching maps every
+query pixel independently to a linear combination of memory
+pixels (e.g., with an attention layer). Consequently, pixel-
+level matching lacks high-level consistency and is prone
+to matching noise, especially in the presence of distractors.
+This leads to lower performance in challenging scenarios
+with occlusions and frequent distractors. Concretely, the
+performance of recent approaches [9, 10] is more than 20
+points in J &F lower when evaluating on the recently pro-
+posed challenging MOSE [12] dataset rather than the simpler
+DAVIS-2017 [13] dataset.
+We think this unsatisfactory result in challenging sce-
+narios is caused by the lack of object-level reasoning. To
+address this, we propose object-level memory reading, which
+effectively puts the object from a memory back into the query
+frame (Figure 1). Inspired by recent query-based object de-
+tection/segmentation [14–18] that represent objects as “ob-
+ject queries,” we implement our object-level memory reading
+with an object transformer. This object transformer uses a
+small set of end-to-end trained object queries to 1) iteratively
+probe and calibrate a feature map (initialized by a pixel-level
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+3151
+Abstract
+The problem of calibrating deep neural networks
+(DNNs) for multi-label learning is considered. It is well-
+known that DNNs trained by cross-entropy for single-label,
+or one-hot, classification are poorly calibrated. Many cali-
+bration techniques have been proposed to address the prob-
+lem. However, little attention has been paid to the cali-
+bration of multi-label DNNs. In this literature, the focus
+has been on improving labeling accuracy in the face of se-
+vere dataset unbalance. This is addressed by the introduc-
+tion of asymmetric losses, which have became very popular.
+However, these losses do not induce well calibrated clas-
+sifiers. In this work, we first provide a theoretical expla-
+nation for this poor calibration performance, by showing
+that these loses losses lack the strictly proper property, a
+necessary condition for accurate probability estimation. To
+overcome this problem, we propose a new Strictly Proper
+Asymmetric (SPA) loss. This is complemented by a Label
+Pair Regularizer (LPR) that increases the number of cali-
+bration constraints introduced per training example. The
+effectiveness of both contributions is validated by extensive
+experiments on various multi-label datasets. The resulting
+training method is shown to significantly decrease the cal-
+ibration error while maintaining state-of-the-art accuracy.
+1. Introduction
+Deep neural networks (DNNs) including convolutional neu-
+ral networks (CNNs) [27, 35] and vision transformers
+(ViTs) [13] have demonstrated great capacity for solving su-
+pervised learning tasks in computer vision. However, many
+applications require trust-worthy machine learning systems,
+which are not only accurate but also probability calibrated,
+i.e. able to produce accurate estimates of the posterior prob-
+abilities of the various classes. A classifier is calibrated if
+it predicts a posterior class probability of p when the se-
+lection of the class is correct p × 100% of the time. The
+importance of calibration has been noted for many appli-
+cations. For example, in medical diagnosis [44, 82], prob-
+abilities can be used to determine which examples require
+human inspection, thus avoiding the cost of manually in-
+specting all images.
+However, the process can only be
+trusted if the DNN provides accurate posterior estimates.
+The safety-critical nature of the application makes proba-
+bility calibration a critical requirement to enable this func-
+tionality. Cost-sensitive applications [15], e.g. fraud detec-
+tion [2, 50] or business decision making [56, 75], involve
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+27589

@@ -1,0 +1,10 @@
+Benson Multi-modal Learning for Geospatial Vegetation Forecasting
+Berton EarthLoc Astronaut Photography Localization by Indexing Earth from Space
+Bhattad StyLitGAN Image-Based Relighting via Latent Control
+Bialer RadSimReal Bridging the Gap Between Synthetic and Real Data in
+Bianchi The Devil is in the Fine-Grained Details Evaluating Open-Vocabulary Object
+Biondi Stationary Representations Optimally Approximating Compatibility and Implications for Improved Model
+Bi Text Grouping Adapter Adapting Pre-trained Text Detector for Layout Analysis
+Blau GRAM Global Reasoning for Multi-Page VQA
+Blayney Bezier Everywhere All at Once Learning Drivable Lanes as Bezier
+Bokman Steerers A Framework for Rotation Equivariant Keypoint Descriptors

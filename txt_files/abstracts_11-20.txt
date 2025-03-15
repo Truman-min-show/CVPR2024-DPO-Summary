@@ -1,0 +1,638 @@
+Abstract
+Human perception and understanding is a major domain
+of computer vision which, like many other vision subdo-
+mains recently, stands to gain from the use of large mod-
+els pre-trained on large datasets. We hypothesize that the
+most common pre-training strategy of relying on general
+purpose, object-centric image datasets such as ImageNet,
+is limited by an important domain shift.
+On the other
+hand, collecting domain-specific ground truth such as 2D
+or 3D labels does not scale well. Therefore, we propose
+a pre-training approach based on self-supervised learning
+that works on human-centric data using only images. Our
+method uses pairs of images of humans: the first is par-
+tially masked and the model is trained to reconstruct the
+masked parts given the visible ones and a second image. It
+relies on both stereoscopic (cross-view) pairs, and tempo-
+ral (cross-pose) pairs taken from videos, in order to learn
+priors about 3D as well as human motion. We pre-train a
+model for body-centric tasks and one for hand-centric tasks.
+With a generic transformer architecture, these models out-
+perform existing self-supervised pre-training methods on a
+wide set of human-centric downstream tasks, and obtain
+state-of-the-art performance for instance when fine-tuning
+for model-based and model-free human mesh recovery.
+1. Introduction
+The main catalyst of performance improvement in computer
+vision tasks in the last decade has arguably been the training
+of large models on large datasets [11, 23, 45, 49, 51, 64, 80].
+For human-centric vision tasks, the standard approach is to
+pre-train models on ImageNet classification tasks and then
+fine-tune them on downstream tasks with specific datasets
+[31, 35, 55, 74]. This has at least three drawbacks: a) the
+size of the pre-training dataset is limited by label acquisi-
+tion, b) there can be a large domain shift between ImageNet
+and downstream images, c) object-centric classification is
+different from human understanding, which may hinder the
+relevance of pre-trained features. Collecting large annotated
+datasets for human centric vision tasks is hard: target sig-
+nal is costly and hard to acquire in the wild, e.g. relying on
+motion capture systems to obtain 3D pose.
+To leverage large amounts of data and scale to large mod-
+els, self-supervised pre-training methods such as contrastive
+learning [8, 10, 14, 30, 77] and masked signal modeling
+[24, 33] – have been developed. In these paradigms, a pre-
+text task is constructed from the data itself so that no manual
+labeling is required. The epitome of this philosophy is that
+of foundation models, such as GPT [7], trained on a large
+corpus of data with no manual annotation and fine-tuned
+to perform efficiently various downstream tasks. In com-
+puter vision, most self-supervised learning methods have
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+1512
+Abstract
+We introduce the video detours problem for navigating
+instructional videos. Given a source video and a natural
+language query asking to alter the how-to video’s current
+path of execution in a certain way, the goal is to find a re-
+lated “detour video” that satisfies the requested alteration.
+To address this challenge, we propose VidDetours, a novel
+video-language approach that learns to retrieve the targeted
+temporal segments from a large repository of how-to’s us-
+ing video-and-text conditioned queries. Furthermore, we
+devise a language-based pipeline that exploits how-to video
+narration text to create weakly supervised training data.
+We demonstrate our idea applied to the domain of how-to
+cooking videos, where a user can detour from their current
+recipe to find steps with alternate ingredients, tools, and
+techniques. Validating on a ground truth annotated dataset
+of 16K samples, we show our model’s significant improve-
+ments over best available methods for video retrieval and
+question answering, with recall rates exceeding the state of
+the art by 35%.
+1. Introduction
+Instructional or “how-to” videos are a compelling
+medium for people to share and learn new skills. From
+everyday home fix-it projects, cooking, sports, to aspira-
+tional goals like playing piano beautifully, there are so many
+things that people of all ages and backgrounds want to learn
+or do a bit better. Indeed, online how-to’s are among the
+top few dominating categories of all content on YouTube,
+alongside entertainment and music. Advances in computer
+vision for keystep recognition [6, 21, 45, 55, 56, 90, 91],
+procedural task understanding [11, 12, 89], and video sum-
+marization [5, 60] have the potential to make such content
+more searchable and accessible.
+However, while today’s how-to content is a vast re-
+source, it is nonetheless disconnected. Human learners ac-
+cess how-to’s in doses of one video at a time, studying the
+advice and visual demonstrations of one expert at a time.
+Website: https://vision.cs.utexas.edu/projects/detours
+126s
+How to make Chicken Quesadillas 
+Response:
+180s
+225s
+Query     : How to do this
+without an electric grill?
+Detour window:
+Figure 1. An example video detour. In the Chicken Quesadillas
+recipe, the source video Vs (top) shows the use of an electric grill
+at time instant ts. A user watching this video does not have a grill
+and asks a query Q “how to do this without an electric grill?”. In
+response, the system identifies a detour video Vd and timepoint Td
+showing a similar recipe but using a heating pan instead of a grill.
+While there are thousands and thousands of videos address-
+ing, for example, “how to repair a bike” or “how to make
+a samosa”, any given video offers only a single execution
+of a task using a fixed set of ingredients, tools, approach,
+and assuming a certain skill level. When those criteria do
+not align, users face a dilemma whether to improvise, risk-
+ing “breaking” the final output, or to find and watch another
+video hoping it better matches their constraints. Manually
+synthesizing the information across videos is time consum-
+ing if not prohibitively taxing.
+What if the wealth of knowledge in online instructional
+videos was not an array of isolated lessons, but instead an
+interconnected network of information? What would it take
+to transform a pile of videos into a how-to knowledge base?
+Towards this vision, we explore how to intelligently nav-
+igate between related how-to videos, conditioned on a natu-
+ral language query. Suppose a user watching a given video
+discovers they do not have the desired ingredients, tools,
+or skill-level. They may ask, “can I do this step without
+a wrench?” or “I am on a diet, can I skip adding cheese
+here?” or “how could I prepare the mix from scratch in-
+stead of using a pre-made one?” or “is there a simpler way
+to do the corners?” and so on. Conditioned on the con-
+tent watched so far in the source video, the goal is to iden-
+tify a detour video—and a temporal segment within it—that
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+18804
+Abstract
+Generative AI (GenAI) is transforming creative work-
+flows through the capability to synthesize and manipulate
+images via high-level prompts. Yet creatives are not well
+supported to receive recognition or reward for the use of
+their content in GenAI training. To this end, we propose
+ProMark, a causal attribution technique to attribute a syn-
+thetically generated image to its training data concepts like
+objects, motifs, templates, artists, or styles. The concept
+information is proactively embedded into the input train-
+ing images using imperceptible watermarks, and the diffu-
+sion models (unconditional or conditional) are trained to
+retain the corresponding watermarks in generated images.
+We show that we can embed as many as 216 unique water-
+marks into the training data, and each training image can
+contain more than one watermark. ProMark can maintain
+image quality whilst outperforming correlation-based attri-
+bution. Finally, several qualitative examples are presented,
+providing the confidence that the presence of the watermark
+conveys a causative relationship between training data and
+synthetic images.
+1. Introduction
+GenAI is able to create high-fidelity synthetic images span-
+ning diverse concepts, largely due to advances in diffusion
+models, e.g. DDPM [18], DDIM [23], LDM [28]. GenAI
+models, particularly diffusion models, have been shown to
+closely adopt and sometimes directly memorize the style
+and the content of different training images – defined as
+“concepts” in the training data [11, 21]. This leads to con-
+cerns from creatives whose work has been used to train
+GenAI. Concerns focus upon the lack of a means for attribu-
+tion, e.g. recognition or citation, of synthetic images to the
+training data used to create them and extend even to calls for
+a compensation mechanism (financial, reputational, or oth-
+erwise) for GenAI’s derivative use of concepts in training
+images contributed by creatives.
+We refer to this problem as concept attribution – the abil-
+ity to attribute generated images to the training concept/s
+which have most directly influenced their creation. Several
+Figure 1. Causative vs. correlation-based matching for concept
+attribution. ProMark identifies the training data most responsible
+for a synthetic image (‘attribution’). Correlation-based matching
+doesn’t always perform the data attribution properly. We propose
+ProMark, which is a proactive approach involving adding water-
+marks to training data and recovering them from the synthetic im-
+age to perform attribution in a causative way.
+passive techniques have recently been proposed to solve the
+attribution problem [5, 30, 34]. These approaches use vi-
+sual correlation between the generated image and the train-
+ing images for attribution. Whilst they vary in their method
+and rationale for learning the similarity embedding – all use
+some forms of contrastive training to learn a metric space
+for visual correlation.
+We argue that although correlation can provide visually
+intuitive results, a measure of similarity is not a causative
+answer to whether certain training data is responsible for the
+generation of an image or not. Further, correlation-based
+techniques can identify close matches with images that were
+not even present in the training data.
+Keeping this in mind, we explore an intriguing field
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+10802
+Abstract
+Determining the location of an image anywhere on Earth
+is a complex visual task, which makes it particularly rel-
+evant for evaluating computer vision algorithms. Yet, the
+absence of standard, large-scale, open-access datasets with
+reliably localizable images has limited its potential. To ad-
+dress this issue, we introduce OpenStreetView-5M, a large-
+scale, open-access dataset comprising over 5.1 million geo-
+referenced street view images, covering 225 countries and
+territories. In contrast to existing benchmarks, we enforce
+a strict train/test separation, allowing us to evaluate the
+relevance of learned geographical features beyond mere
+memorization. To demonstrate the utility of our dataset,
+we conduct an extensive benchmark of various state-of-the-
+art image encoders, spatial representations, and training
+strategies. All associated codes and models can be found at
+github.com/gastruc/osv5m.
+1. Introduction
+While natural image classification is the standard for evaluat-
+ing computer vision methods [11, 49, 59], global geolocation
+offers a compelling alternative task. In contrast to classifi-
+cation, where the focus is often a single object, geolocation
+involves detecting and combining various visual clues, like
+road signage, architectural patterns, climate, and vegeta-
+tion. Predicting a single GPS coordinate or location label
+from these observations necessitates a rich representation
+of both the Earth’s culture and geography; see Figure 1 for
+some examples. Furthermore, the abundance of geo-tagged
+street-view images depicting complex scenes with a clear
+and consistent point of view makes this task appropriate for
+training and evaluating modern vision models.
+Despite this potential, few supervised approaches are
+*Denotes equal contributions.
+drivephotograph, and eng, gclem, bootprint, Mapillary, licensed under CC-BY-SA.
+climate/vegetation
+traffic markers
+architecture
+culture/script
+Figure 1. Global Visual Geolocation. Predicting the location of
+an image taken anywhere in the world from just pixels requires
+detecting a combination of clues of various abstraction levels [36].
+Can you guess where these images were taken?1
+trained and evaluated for the task of geolocation. We at-
+tribute this to the limitations of existing geolocation datasets:
+(i) Large and open geolocation datasets contain a significant
+portion of noisy and non-localizable images [19, 25, 60]; (ii)
+Street view datasets are better suited for the task but are both
+proprietary and expensive to download [7, 10, 16, 18, 33, 53].
+To address these issues, we introduce OpenStreetView-5M
+(OSV-5M), an open-access dataset of 5.1 million high-
+1
+From top left to bottom right: Nagoya, Japan; Ontario, Canada; Mato
+Grosso, Brazil; Lofoten, Norway.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+21967
+Abstract
+We introduce SAOR, a novel approach for estimating the
+3D shape, texture, and viewpoint of an articulated object
+from a single image captured in the wild.
+Unlike prior
+approaches that rely on pre-defined category-specific 3D
+templates or tailored 3D skeletons, SAOR learns to ar-
+ticulate shapes from single-view image collections with a
+skeleton-free part-based model without requiring any 3D
+object shape priors. To prevent ill-posed solutions, we pro-
+pose a cross-instance consistency loss that exploits disen-
+tangled object shape deformation and articulation. This is
+helped by a new silhouette-based sampling mechanism to
+enhance viewpoint diversity during training. Our method
+only requires estimated object silhouettes and relative depth
+maps from off-the-shelf pre-trained networks during train-
+ing. At inference time, given a single-view image, it effi-
+ciently outputs an explicit mesh representation. We obtain
+improved qualitative and quantitative results on challeng-
+ing quadruped animals compared to relevant existing work.
+1. Introduction
+Considered as one of the first PhD theses in computer vi-
+sion, Roberts [49] aimed to reconstruct 3D objects from
+single-view images. Despite significant progress in the pre-
+ceding sixty years [5, 6, 19, 20], the problem remains very
+challenging, especially for highly deformable categories
+photographed in the wild, e.g., animals. In contrast, humans
+can infer the 3D shape of an object from a single image by
+making use of priors about the natural world and familiarity
+with the object category present. Some of these natural-
+world low-level priors can be explicitly defined (e.g., sym-
+metry or smoothness), but manually encoding and utilizing
+high-level priors (e.g., 3D category shape templates) for all
+categories of interest is not a straightforward task.
+Recently, multiple methods have attempted to learn 3D
+shape by making use of advances in deep learning and
+progress in differentiable rendering [21, 36, 38]. This has
+resulted in impressive results for synthetic man-made cate-
+gories [7, 21, 59] and humans [12, 37], where full or par-
+tial 3D supervision is readily available.
+However, when
+3D supervision is not available, the reconstruction of ar-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+10382
+Abstract
+In this work, we study a novel problem which focuses
+on person identification while performing daily activities.
+Learning biometric features from RGB videos is challeng-
+ing due to spatio-temporal complexity and presence of ap-
+pearance biases such as clothing color and background. We
+propose ABNet, a novel framework which leverages dis-
+entanglement of biometric and non-biometric features to
+perform effective person identification from daily activi-
+ties. ABNet relies on a bias-less teacher to learn biometric
+features from RGB videos and explicitly disentangle non-
+biometric features with the help of biometric distortion. In
+addition, ABNet also exploits activity prior for biometrics
+which is enabled by joint biometric and activity learning.
+We perform comprehensive evaluation of the proposed ap-
+proach across five different datasets which are derived from
+existing activity recognition benchmarks. Furthermore, we
+extensively compare ABNet with existing works in person
+identification and demonstrate its effectiveness for activity-
+based biometrics across all five datasets.
+The code and
+dataset can be accessed at: https://github.com/
+sacrcv/Activity-Biometrics/
+1. Introduction
+Person identification is an important task with a wide range
+of applications in security, surveillance, and various do-
+mains where recognizing individuals across different lo-
+cations or time frames is essential [41]. We have seen a
+great progress in face recognition [2, 31], however sce-
+narios exist where faces may not be visible, such as at
+long distances, with uncooperative subjects, under occlu-
+sion, or due to mask-wearing.
+This limitation prompts
+the exploration of whole-body-based person identification
+methods where most of the existing works are often re-
+stricted to image-based approaches [4, 14, 43], overlooking
+crucial motion patterns. Video-based methods for person
+identification is comparatively recent area where most of
+the work is focused on gait recognition; mostly silhouette-
+Figure 1. Different approaches for person identification: (left)
+samples for existing person identification problems such as face
+recognition (top: Celeb-A[30]), whole body recognition (mid-
+dle: Market-1501[45]), and gait recognition (bottom: CASIA-
+B[42]). (right) we focus on person identification from daily ac-
+tivities which presents more challenges beyond learning walking
+or facial patterns. We show some samples from datasets we used
+to study this problem; (top: NTU RGB-AB, middle: Charades-
+AB, bottom: ACC-MM1-Activities1).
+based [12, 13, 27] with some recent works on RGB frames
+[26, 44]. However these works are mainly focused on walk-
+ing style of individuals (see Figure 1).
+In this work, we study a novel problem which focuses on
+face-restricted person identification during routine activi-
+ties. The current landscape of image-based and video-based
+whole-body person identification methods predominantly
+centers around analyzing human walking patterns from im-
+ages or videos [15, 20, 33, 40]. However, in real-world sce-
+narios, the individual requiring identification might not al-
+ways be engaged in walking; instead, they could be involved
+in various daily activities. It is crucial to acknowledge the
+significance of capturing and understanding motion cues
+that extend beyond simple walking patterns to ensure accu-
+rate and reliable identification in diverse and complex situa-
+tions. These activities may offer unique cues that can prove
+instrumental in identifying individuals even without explicit
+facial information, paving the way for diverse applications
+in real-world scenarios, like increased surveillance in public
+spaces, workplace security and productivity, assistance for
+people requiring special needs, and smart home automation.
+1The subjects consented to publication
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+287
+Abstract
+Despite the growing demand for accurate surface nor-
+mal estimation models, existing methods use general-
+purpose dense prediction models, adopting the same induc-
+tive biases as other tasks. In this paper, we discuss the
+inductive biases needed for surface normal estimation and
+propose to (1) utilize the per-pixel ray direction and (2) en-
+code the relationship between neighboring surface normals
+by learning their relative rotation. The proposed method
+can generate crisp — yet, piecewise smooth — predictions
+for challenging in-the-wild images of arbitrary resolution
+and aspect ratio. Compared to a recent ViT-based state-
+of-the-art model, our method shows a stronger generaliza-
+tion ability, despite being trained on an orders of magni-
+tude smaller dataset. The code is available at https:
+//github.com/baegwangbin/DSINE.
+1. Introduction
+We address the problem of estimating per-pixel surface nor-
+mal from a single RGB image. This task, unlike monocu-
+lar depth estimation, is not affected by scale ambiguity and
+has a compact output space (a unit sphere vs. positive real
+value), making it feasible to collect data that densely cov-
+ers the output space. As a result, learning-based surface
+normal estimation methods show strong generalization ca-
+pability for out-of-distribution images, despite being trained
+on relatively small datasets [2].
+Despite their essentially local property, predicted sur-
+face normals contain rich information about scene geom-
+etry.
+In recent years, their usefulness has been demon-
+strated for various computer vision tasks, including im-
+age generation [62], object grasping [60], multi-task learn-
+ing [36], depth estimation [3, 41], simultaneous localization
+and mapping [63], human body shape estimation [5, 54, 55],
+and CAD model alignment [33].
+However, despite the
+growing demand for accurate surface normal estimation
+models, there has been little discussion on the right induc-
+tive biases needed for the task.
+State-of-the-art surface normal estimation methods [2,
+14, 29, 56] use general-purpose dense prediction models,
+adopting the same inductive biases as other tasks (e.g.
+depth estimation and semantic segmentation). For example,
+CNN-based models [2, 14] assume translation equivariance
+and use the same set of weights for different parts of the
+image. While such weight-sharing can improve sample ef-
+ficiency [34], it is sub-optimal for surface normal estima-
+tion as a pixel’s ray direction provides important cues and
+constraints for its surface normal. This has limited the accu-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+9535
+Abstract
+Recent breakthroughs in text-to-4D generation rely on
+pre-trained text-to-image and text-to-video models to gener-
+ate dynamic 3D scenes. However, current text-to-4D meth-
+ods face a three-way tradeoff between the quality of scene
+appearance, 3D structure, and motion. For example, text-
+to-image models and their 3D-aware variants are trained
+on internet-scale image datasets and can be used to pro-
+duce scenes with realistic appearance and 3D structure—but
+no motion. Text-to-video models are trained on relatively
+smaller video datasets and can produce scenes with motion,
+but poorer appearance and 3D structure. While these mod-
+els have complementary strengths, they also have opposing
+weaknesses, making it difficult to combine them in a way
+that alleviates this three-way tradeoff. Here, we introduce
+hybrid score distillation sampling, an alternating optimiza-
+tion procedure that blends supervision signals from multiple
+pre-trained diffusion models and incorporates benefits of
+each for high-fidelity text-to-4D generation. Using hybrid
+SDS, we demonstrate synthesis of 4D scenes with compelling
+appearance, 3D structure, and motion.
+1. Introduction
+The advent of internet-scale image–text datasets [54] and
+advances in diffusion models [20, 58, 60] have led to new
+capabilities in stable, high-fidelity image generation from
+text prompts [6, 51, 52]. Recent methods have also shown
+that large-scale text-to-image or text-to-video [56] diffusion
+models learn useful priors for 3D [25, 44] and 4D scene
+generation [57]. Our work focuses on text-to-4D scene gen-
+eration (Fig. 1), which promises exciting new capabilities
+for applications in augmented and virtual reality, computer
+animation, and industrial design.
+Current techniques for generating 3D or 4D scenes from
+text prompts typically iteratively optimize a representation
+of the scene using supervisory signals from a diffusion
+model [44, 67, 71]. Specifically, these methods render an
+image of a 3D scene, add noise to the rendered image, use a
+pre-trained diffusion model to denoise the rendered image,
+and estimate gradients used to update the 3D representa-
+tion [44, 67]. This procedure, known as score distillation
+sampling (SDS) [44], underpins most recent methods for
+text-conditioned scene generation.
+Using SDS for text-to-4D generation requires navigating
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+7996
+Abstract
+Automating visual inspection in industrial production
+lines is essential for increasing product quality across var-
+ious industries.
+Anomaly detection (AD) methods serve
+as robust tools for this purpose. However, existing pub-
+lic datasets primarily consist of images without anomalies,
+limiting the practical application of AD methods in pro-
+duction settings. To address this challenge, we present (1)
+the Valeo Anomaly Dataset (VAD), a novel real-world in-
+dustrial dataset comprising 5000 images, including 2000
+instances of challenging real defects across more than 20
+subclasses.
+Acknowledging that traditional AD methods
+struggle with this dataset, we introduce (2) Segmentation-
+based Anomaly Detector (SegAD). First, SegAD leverages
+anomaly maps as well as segmentation maps to compute
+local statistics. Next, SegAD uses these statistics and an
+optional supervised classifier score as input features for a
+Boosted Random Forest (BRF) classifier, yielding the final
+anomaly score. Our SegAD achieves state-of-the-art perfor-
+mance on both VAD (+2.1% AUROC) and the VisA dataset
+(+0.4% AUROC). The code and the models are publicly
+available1.
+1. Introduction
+Within the manufacturing process, industrial visual inspec-
+tion plays a crucial role in identifying defects in produced
+components. This operation holds significant importance in
+minimizing costs by identifying and removing faulty parts
+early in the production stages and, more importantly, in pre-
+venting the dispatch of defective components to customers.
+Traditionally, this task has relied on human operators; how-
+ever, the likelihood of overlooking certain defects can be as
+high as 25% for specific defect types [9].
+When the inspected product comprises numerous com-
+ponents, its examination may create a bottleneck in the pro-
+duction process, causing delays across the entire line. While
+1https://github.com/abc-125/segad
+conventional computer vision methods applied to this task
+demonstrate superior speed and lower error rates compared
+to human operators [16], their inflexibility and lack of sat-
+isfactory accuracy [15] limit their effectiveness.
+Industrial deep learning anomaly detection has been an
+active research field in recent years. Most of anomaly de-
+tection methods use only good images for training and try
+to detect deviations from the training data [1, 7, 23, 29].
+Development of the new methods is restrained by pub-
+licly available datasets. Recent industrial anomaly detec-
+tion datasets typically contain approximately one hundred
+(or even fewer) abnormal images, showcasing defects in the
+testing set only [2, 32]. This poses a challenge for super-
+vised anomaly detection methods aiming to utilize both nor-
+mal and defective parts during training. Supervised models
+often undergo training with just ten abnormal images from
+the testing set, resulting in overfitting and reduced sensitiv-
+ity to previously unseen defects [28].
+In response to the limitations of current datasets, we
+introduce and publicly release VAD (Valeo Anomaly
+Dataset), which contains 1000 bad and 2000 good parts in
+the training set and 1000 bad and 1000 good parts in the
+test set, see Fig. 1(a). Among the defective parts used for
+testing, 165 contain specific defect types not present in the
+training data; these parts are explicitly labeled in the re-
+leased dataset. All images in VAD are captured from an
+actual production line, showcasing a diverse range of de-
+fects, from highly obvious to extremely subtle. This dataset
+bridges the gap between the academic community and the
+industry, offering researchers the chance to advance the per-
+formance of methods in tackling more intricate real-world
+challenges.
+Current approaches to supervised anomaly detection ei-
+ther yield unsatisfactory results; see Tab. 3, or demand
+pixel-level labels for defective parts, as seen in [28, 31].
+Consequently, we introduce a novel method named SegAD
+(Segmentation-based Anomaly Detector), which is de-
+scribed in Fig. 1(b). The employed approach eliminates the
+need for pixel-level labels, requiring only a flag for each
+image. Anomaly map scores from each segment are used
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+17754
+Abstract
+Contrastive Vision-Language Pre-training, known as
+CLIP, has shown promising effectiveness in addressing
+downstream image recognition tasks.
+However, recent
+works revealed that the CLIP model can be implanted with a
+downstream-oriented backdoor. On downstream tasks, one
+victim model performs well on clean samples but predicts a
+specific target class whenever a specific trigger is present.
+For injecting a backdoor, existing attacks depend on a large
+amount of additional data to maliciously fine-tune the entire
+pre-trained CLIP model, which makes them inapplicable to
+data-limited scenarios. In this work, motivated by the re-
+cent success of learnable prompts, we address this problem
+by injecting a backdoor into the CLIP model in the prompt
+learning stage. Our method named BadCLIP is built on a
+novel and effective mechanism in backdoor attacks on CLIP,
+i.e., influencing both the image and text encoders with the
+trigger. It consists of a learnable trigger applied to images
+and a trigger-aware context generator, such that the trigger
+can change text features via trigger-aware prompts, result-
+ing in a powerful and generalizable attack. Extensive ex-
+periments conducted on 11 datasets verify that the clean ac-
+curacy of BadCLIP is similar to those of advanced prompt
+learning methods and the attack success rate is higher than
+99% in most cases. BadCLIP is also generalizable to un-
+seen classes, and shows a strong generalization capability
+under cross-dataset and cross-domain settings. The code is
+available at https://github.com/jiawangbai/BadCLIP.
+1. Introduction
+Recently, contrastive vision-language models [61] have
+shown a great potential in visual representation learning.
+They utilize contrastive learning [12, 14, 29] to pull to-
+*Equal contribution.
+†Corresponding author.
+gether images and their language descriptions while push-
+ing away unmatched pairs in the representation space, re-
+sulting in aligned features of images and texts. Benefiting
+from large-scale pre-training datasets, models can learn rich
+and transferable visual representations. Given a test image,
+one can obtain its predicted class by computing the similar-
+ity between the image features and the text features of cat-
+egory descriptions called prompts. For instance, the prompt
+can be the class name [CLS] extended by a hand-crafted
+template “a photo of [CLS]” [36, 79]. Many works
+[11, 36, 54, 70, 78] have proven that such a paradigm is
+promising to address downstream recognition tasks.
+Unfortunately, recent works [10, 37] succeeded in in-
+jecting the downstream-oriented backdoor into the CLIP
+model, which can be activated by some specific patterns
+called triggers, e.g., a square image patch [10, 27, 37, 74].
+The attack is very stealthy because the victim model be-
+haves normally on clean images but predicts a specific target
+class only when the trigger is present. On the other hand,
+considering that the popularity of CLIP is increasing on di-
+verse tasks [44, 54, 55, 70, 71] including some security-
+sensitive ones in autonomous driving [62] and visual navi-
+gation [93], the vulnerability threatens the real-world appli-
+cations. Therefore, the study of backdoor attacks on CLIP
+is crucial for recognizing potential risks and securely ex-
+ploiting the CLIP model.
+Carlini et al.
+[10] first explored the backdoor attack
+on CLIP in the training stage. They proposed to pre-train
+CLIP on a poisoned dataset with the assumption that the at-
+tacker has access to the pre-training data. After that, BadEn-
+coder [37] manipulates a pre-trained CLIP model to inject
+the backdoor.
+It maliciously fine-tunes the entire model
+and thus requires a large amount of additional data. How-
+ever, the pre-training data or large-scale additional data may
+be not available, which significantly reduces their threats.
+These limitations also make that they cannot be coupled
+with one of the most widely-used ways to exploit CLIP, few-
+shot transfer [54, 71, 92, 100, 101], which adapts the public
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+24239

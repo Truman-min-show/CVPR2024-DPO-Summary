@@ -1,0 +1,10 @@
+Cheng Transfer CLIP for Generalizable Image Denoising
+Cheng Unleashing the Potential of SAM for Medical Adaptation via Hierarchical
+Cheng What Do You See in Vehicle Comprehensive Vision Solution for
+Chen Align Before Adapt Leveraging Entity-to-Region Alignments for Generalizable Video Action
+Chen Animating General Image with Large Visual Motion Model
+Chen AnyScene Customized Image Synthesis with Composited Foreground
+Chen ArtAdapter Text-to-Image Style Transfer using Multi-Level Style Encoder and Explicit
+Chen Beyond Average Individualized Visual Scanpath Prediction
+Chen Bidirectional Multi-Scale Implicit Neural Representations for Image Deraining
+Chen Building a Strong Pre-Training Baseline for Universal 3D Large-Scale Perception

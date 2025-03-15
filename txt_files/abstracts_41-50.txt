@@ -1,0 +1,715 @@
+Abstract
+Precise geospatial vegetation forecasting holds potential
+across diverse sectors, including agriculture, forestry, hu-
+manitarian aid, and carbon accounting. To leverage the
+vast availability of satellite imagery for this task, various
+works have applied deep neural networks for predicting
+multispectral images in photorealistic quality.
+However,
+the important area of vegetation dynamics has not been
+thoroughly explored. Our study introduces GreenEarthNet,
+the first dataset specifically designed for high-resolution
+vegetation forecasting, and Contextformer, a novel deep
+learning approach for predicting vegetation greenness from
+Sentinel 2 satellite images with fine resolution across Eu-
+rope. Our multi-modal transformer model Contextformer
+leverages spatial context through a vision backbone and
+predicts the temporal dynamics on local context patches
+incorporating meteorological time series in a parameter-
+efficient manner.
+The GreenEarthNet dataset features a
+learned cloud mask and an appropriate evaluation scheme
+for vegetation modeling.
+It also maintains compatibil-
+ity with the existing satellite imagery forecasting dataset
+EarthNet2021, enabling cross-dataset model comparisons.
+Our extensive qualitative and quantitative analyses reveal
+that our methods outperform a broad range of baseline
+techniques. This includes surpassing previous state-of-the-
+art models on EarthNet2021, as well as adapted models
+from time series forecasting and video prediction. To the
+best of our knowledge, this work presents the first mod-
+els for continental-scale vegetation modeling at fine reso-
+lution able to capture anomalies beyond the seasonal cycle,
+thereby paving the way for predicting vegetation health and
+behaviour in response to climate variability and extremes.
+We provide open source code and pre-trained weights to re-
+produce our experimental results under https://gith
+ub.com/vitusbenson/greenearthnet [10].
+Past Satellite Data
+Meteorology
+Elevation
+Future Vegetation State
+■ Training       ■ OOD-t Test       ■ OOD-st Test
+Multi-modal deep learning:
+global pyramid vision transformer encoder
++ patchwise meteo-guided temporal transformer
++ delta prediction scheme
+Model
+Inputs
+Contextformer
+Outputs
+Figure 1. GreenEarthNet approach (map shows sample locations).
+1. Introduction
+Optical satellite images have been proven useful for mon-
+itoring vegetation status. This is essential for a variety of
+applications in agricultural planning, forestry advisory, hu-
+manitarian assistance or carbon monitoring.
+In all these
+cases, prognostic information is relevant: Farmers want to
+know how their farmland may react to a given weather sce-
+nario [83]. Humanitarian organisations need to understand
+the localized impact of droughts on pastoral communities
+for mitigation of famine with anticipatory action [49]. Af-
+forestation efforts need to consider how their forests react
+to future climate [71]. However, providing such prognostic
+information through fine resolution vegetation forecasts is
+challenging due to ecological memory effects [35], spatial
+interactions and the influence of weather variations. Deep
+neural networks can model relationships in space, time or
+across modalities. Hence, their application to vegetation
+forecasting given a sufficiently large dataset seems natural.
+1
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+27788
+Abstract
+Astronaut photography, spanning six decades of human
+spaceflight, presents a unique Earth observations dataset
+with immense value for both scientific research and disaster
+response. Despite their significance, accurately localizing
+the geographical extent of these images, which is crucial
+for effective utilization, poses substantial challenges. Cur-
+rent, manual localization efforts are time-consuming, mo-
+tivating the need for automated solutions. We propose a
+novel approach – leveraging image retrieval – to address
+this challenge efficiently. We introduce innovative training
+techniques which contribute to the development of a high-
+performance model, EarthLoc. We develop six evaluation
+datasets and perform a comprehensive benchmark compar-
+ing EarthLoc to existing methods, showcasing its superior
+efficiency and accuracy.
+Our approach marks a signifi-
+cant advancement in automating the localization of astro-
+naut photography, which will help bridge a critical gap in
+Earth observations data. Code and datasets are available
+at https://github.com/gmberton/EarthLoc.
+1. Introduction
+Astronaut photography of Earth is a unique remote sensing
+dataset that spans 60 years of human spaceflight, offering a
+rare perspective on our planet to the public and valuable
+data to Earth and atmospheric science researchers.
+This
+dataset contains over 4.5 million images and is growing by
+the tens of thousands per month, as astronauts are contin-
+ually tasked with taking new photographs that enable sci-
+entific research as well as assist in natural disaster response
+efforts in the wake of events like floods and wildfires. To ef-
+fectively use these images, the geographical area depicted in
+them needs to be identified. Unfortunately, this task - Astro-
+naut Photography Localization (APL) - is very challenging.
+For each photo, only a coarse estimate of location is known,
+given by the point on Earth directly under the International
+Space Station (ISS) at the time the photo is taken. This
+point – called the nadir – can be easily computed using the
+image’s timestamp and the ISS’s orbit path. However, two
+Figure 1. Overview of the astronaut photography localization
+task. Astronauts take hundreds of photos a day from the Interna-
+tional Space Station (ISS) cupola (top-left) with hand-held cam-
+eras. For each image (example bottom right), the geographic lo-
+cation depicted is not known, and needs to be searched for across
+a huge area centered at the ISS’s (known) nadir point at the mo-
+ment that the photo is taken. A simulated view of the astronaut’s
+perspective when the ISS is above Europe is shown. The goal of
+our paper is to automate the task of localizing these images, which
+could be anywhere within the view. In the figure’s example, the
+photo the astronaut took is indicated by the green line and shown
+in inset – other possible photo extents are in red, illustrating the
+wide array of potential locations to search.
+images taken with the same nadir can be thousands of kilo-
+meters apart, as even a slight inclination of the astronaut’s
+hand-held camera can move the image’s location hundreds
+of kilometers in any direction, as depicted in Fig. 1. Lo-
+calization must thus be performed over a wide area, and is
+additionally complicated by (i) astronauts using hand-held
+cameras and a variety of zoom lenses, (ii) the large, 2500
+kilometer (km) visibility range in all directions, (iii) most
+photographs being oblique, and (iv) the Earth’s appearance
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+12754
+Abstract
+We describe a novel method, StyLitGAN, for relighting
+and resurfacing images in the absence of labeled data. StyL-
+itGAN generates images with realistic lighting effects, includ-
+ing cast shadows, soft shadows, inter-reflections, and glossy
+effects, without the need for paired or CGI data. StyLit-
+GAN uses an intrinsic image method to decompose an image,
+followed by a search of the latent space of a pretrained Style-
+GAN to identify a set of directions. By prompting the model
+to fix one component (e.g., albedo) and vary another (e.g.,
+shading), we generate relighted images by adding the identi-
+fied directions to the latent style codes. Quantitative metrics
+of change in albedo and lighting diversity allow us to choose
+effective directions using a forward selection process. Qual-
+itative evaluation confirms the effectiveness of our method.
+1. Introduction
+Scene appearance shifts dramatically with varying lighting
+conditions - a sunlit room takes on a different character as
+daylight fades, and interior spaces transform with the flick of
+a switch. Similarly, surface changes, like a wall’s paint color,
+change not only the wall’s appearance but also the overall
+image due to light reflection. Despite the impressive realism
+achieved by current generative models like StyleGAN [22–
+24], they fall short in dynamically controlling scene lighting,
+a key aspect of realistic image generation.
+In this work, we present StyLitGAN, a novel approach
+that extends the editing capabilities of StyleGAN [38, 45,
+46, 53]. StyLitGAN uniquely manipulates style codes to
+selectively change lighting while preserving other image
+attributes like albedo and geometry. This selective editing
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+4231
+Abstract
+Object detection in radar imagery with neural networks
+shows great potential for improving autonomous driving.
+However, obtaining annotated datasets from real radar im-
+ages, crucial for training these networks, is challenging,
+especially in scenarios with long-range detection and ad-
+verse weather and lighting conditions where radar perfor-
+mance excels. To address this challenge, we present Rad-
+SimReal, an innovative physical radar simulation capable
+of generating synthetic radar images with accompanying
+annotations for various radar types and environmental con-
+ditions, all without the need for real data collection. Re-
+markably, our findings demonstrate that training object de-
+tection models on RadSimReal data and subsequently eval-
+uating them on real-world data produce performance lev-
+els comparable to models trained and tested on real data
+from the same dataset, and even achieves better perfor-
+mance when testing across different real datasets.
+Rad-
+SimReal offers advantages over other physical radar sim-
+ulations that it does not necessitate knowledge of the radar
+design details, which are often not disclosed by radar sup-
+pliers, and has faster run-time. This innovative tool has the
+potential to advance the development of computer vision al-
+gorithms for radar-based autonomous driving applications.
+Our GitHub: https://yuvalhg.github.io/RadSimReal.
+1. Introduction
+Automotive radar plays an important role in autonomous
+driving systems, offering long-range object detection ca-
+pabilities and robustness against challenging weather and
+lighting conditions. The radar emits radio frequency (RF)
+signals and, through the processing of reflected echoes from
+the surrounding environment, creates a radar reflection in-
+tensity image [6]. The image contains reflection intensities
+*Both authors contributed equally to this work.
+Both authors are with General Motors, Yuval Haitman is also with the
+School of Electrical and Computer Engineering in Ben Gurion University
+of the Negev.
+-30
+0  
+30 
+90 
+Azimuth [deg]
+10
+15
+20
+25
+30
+35
+Range [m]
+-53
+-37
+-24
+-12
+0  
+12 
+24 
+37 
+53 
+90 
+Azimuth [deg]
+10
+15
+20
+25
+30
+35
+Range [m]
+Image 
+Simulation
+Radar Image 
+Simulation
+Radar Image 
+RadDet
+Image 
+RadDet
+-30
+0  
+30 
+90 
+Azimuth [deg]
+5
+10
+15
+20
+Range [m]
+-53
+-37
+-24
+-12
+0  
+12 
+24 
+37 
+53 
+90 
+Azimuth [deg]
+4
+6
+8
+10
+12
+14
+16
+18
+20
+Range [m]
+(c)
+(d)
+(a)
+(b)
+Figure 1. Comparison between synthetic and real radar images
+from four different scenarios. Each scenario shows the camera
+image and the corresponding radar image. (a) and (b) simulation
+scenarios. (c) and (d) real scenarios.
+corresponding to range and angle coordinates, providing a
+visual representation of the scene. Afterwards, computer vi-
+sion algorithms are employed to identify objects within this
+visual image.
+Numerous Deep Neural Network (DNN) methods have
+emerged for detecting objects in radar images [11, 22, 25,
+30, 44, 45]. These techniques involve training the DNN
+using annotated real data. Several datasets containing real
+annotated radar images have been introduced [27–29, 36,
+40, 44]. These datasets vary in terms of the radar type and
+environmental conditions. However, the primary challenge
+with object detection DNNs trained on real data lies in the
+considerable effort required to collect and annotate the data.
+This challenge is particularly hard in the case of radar since
+it is used to detect objects at long range, adverse weather
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+15407
+Abstract
+Recent advancements in large vision-language models
+enabled visual object detection in open-vocabulary scenar-
+ios, where object classes are defined in free-text formats
+during inference. In this paper, we aim to probe the state-
+of-the-art methods for open-vocabulary object detection to
+determine to what extent they understand fine-grained prop-
+erties of objects and their parts.
+To this end, we intro-
+duce an evaluation protocol based on dynamic vocabulary
+generation to test whether models detect, discern, and as-
+sign the correct fine-grained description to objects in the
+presence of hard-negative classes.
+We contribute with a
+benchmark suite of increasing difficulty and probing dif-
+ferent properties like color, pattern, and material. We fur-
+ther enhance our investigation by evaluating several state-
+of-the-art open-vocabulary object detectors using the pro-
+posed protocol and find that most existing solutions, which
+shine in standard open-vocabulary benchmarks, struggle to
+accurately capture and distinguish finer object details. We
+conclude the paper by highlighting the limitations of current
+methodologies and exploring promising research directions
+to overcome the discovered drawbacks. Data and code are
+available at https://lorebianchi98.github.io/FG-OVD/ .
+1. Introduction
+Open-vocabulary object detection (OVD) consists of recog-
+nizing objects not present at training time, therefore solving
+the limitations imposed by traditional detectors that could
+only recognize a fixed pool of object classes. In the last
+years, open-vocabulary detectors have captured large re-
+search attention thanks to their wide flexibility in many
+potential downstream applications like autonomous driv-
+ing [20], extended reality [19], and robotics [9, 10, 16].
+The core idea behind open-vocabulary detectors is to es-
+tablish a semantic connection between object regions and
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+22520
+Abstract
+Learning compatible representations enables the inter-
+changeable use of semantic features as models are updated
+over time. This is particularly relevant in search and re-
+trieval systems where it is crucial to avoid reprocessing of
+the gallery images with the updated model. While recent
+research has shown promising empirical evidence, there
+is still a lack of comprehensive theoretical understanding
+about learning compatible representations. In this paper, we
+demonstrate that the stationary representations learned by
+the d-Simplex fixed classifier optimally approximate compat-
+ibility representation according to the two inequality con-
+straints of its formal definition. This not only establishes a
+solid foundation for future works in this line of research but
+also presents implications that can be exploited in practical
+learning scenarios. An exemplary application is the now-
+standard practice of downloading and fine-tuning new pre-
+trained models. Specifically, we show the strengths and criti-
+cal issues of stationary representations in the case in which
+a model undergoing sequential fine-tuning is asynchronously
+replaced by downloading a better-performing model pre-
+trained elsewhere. Such a representation enables seamless
+delivery of retrieval service (i.e., no reprocessing of gallery
+images) and offers improved performance without opera-
+tional disruptions during model replacement. Code available
+at: https://github.com/miccunifi/iamcl2r.
+1. Introduction
+By learning powerful internal feature representations from
+data, Deep Neural Networks (DNNs) [1–4] have made
+tremendous progress in some of the most challenging
+search tasks such as face recognition [5–9], person re-
+identification [10–12], image retrieval [13–15] and this sig-
+nificance also extends to a variety of other data modalities
+[16, 17]. Although all of the works mentioned above have
+focused on learning feature representations from static and,
+𝜙𝑇
+ 
+task 2
+task 𝑇
+task 1
+𝜙2
+ 
+𝜙1
+ 
+Stationary 
+Representation
+(⟹ Compatible)
+𝜙 
+Figure 1. Improved Asynchronous Model Compatible Lifelong
+Learning Representation (IAM-CL2R pronounced “I am clear”). In
+the process of lifelong learning, a model is sequentially fine-tuned
+and asynchronously replaced with improved third-party models
+that are pre-trained externally. Stationary representations ensure
+seamless retrieval services and better performance, without the
+need to reprocess gallery images.
+more recently, dynamic datasets [18–21], the now-standard
+practice is downloading and fine-tuning representations from
+models pre-trained elsewhere [22, 23]. These “third-party”
+pre-trained models often incorporate new data, utilize alter-
+native architectures, adopt different loss functions or more
+in general provide novel methodologies. Whether applied
+individually or combined, these advancements aim to en-
+capsulate the field’s rapid progress within a single unified
+model [24]. This greatly facilitates the exploitation of in-
+ternally learned semantic representations, particularly as
+models, datasets, and computational infrastructure continue
+to expand in size, complexity, and cost [25, 26].
+The challenge of fully exploiting such standard practice
+in retrieval/search systems has to deal with the underlying
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+28793
+Abstract
+Significant progress has been made in scene text detec-
+tion models since the rise of deep learning, but scene text
+layout analysis, which aims to group detected text instances
+as paragraphs, has not kept pace. Previous works either
+treated text detection and grouping using separate mod-
+els, or train a model from scratch while using a unified
+one. All of them have not yet made full use of the already
+well-trained text detectors and easily obtainable detection
+datasets. In this paper, we present Text Grouping Adapter
+(TGA), a module that can enable the utilization of various
+pre-trained text detectors to learn layout analysis, allowing
+us to adopt a well-trained text detector right off the shelf
+or just fine-tune it efficiently. Designed to be compatible
+with various text detector architectures, TGA takes detected
+text regions and image features as universal inputs to as-
+semble text instance features. To capture broader contex-
+tual information for layout analysis, we propose to predict
+text group masks from text instance features by one-to-many
+assignment. Our comprehensive experiments demonstrate
+that, even with frozen pre-trained models, incorporating our
+TGA into various pre-trained text detectors and text spotters
+can achieve superior layout analysis performance, simul-
+taneously inheriting generalized text detection ability from
+pre-training. In the case of full parameter fine-tuning, we
+can further improve layout analysis performance.
+1. Introduction
+With the rise of deep learning, text detection [17, 18, 22,
+44], text recognition [3, 8, 16, 34], and end-to-end text spot-
+ting [19, 20, 38, 39] models have greatly improved the accu-
+racy and efficiency of identifying text instances like words
+*Work done during the internship at Microsoft Research Asia.
+‡Corresponding authors.
+(a)
+Backbone
+Layout
+Branch
+🔥
+Detection
+Branch
+text
+regions
+affinity 
+matrix
+learnable query
+(b)
+Image
+text 
+regions
+affinity
+matrix
+🔥
+Text Grouping
+Adapter
+group 
+masks
+Backbone
+Detection
+Branch
+Text Detection
+layout
+Layout Analysis
+image
+image
+layout
+Text Detector
+Figure 1. Top: Visualization of the scene text detection and layout
+analysis tasks. The mask with the same color denotes detected as a
+group. Bottom: Comparison between (a) the previous work Uni-
+fied Detector [23] and (b) proposed TGA. TGA also provides the
+flexibility of freezing or fine-tuning the pre-trained text detector.
+or text lines. To fully understand the text semantics in vari-
+ous applications [1, 2, 30, 41, 45], it is essential to determine
+how to organize these text instances into coherent semantic
+entities, e.g., determining which detected words constitute a
+line and which detected lines form a paragraph. This prob-
+lem, as visualized in the top of Figure 1, named scene text
+layout analysis [23], has not been advanced at the same pace
+as other scene text understanding tasks.
+Previous layout analysis works [13, 29, 46] adopt sep-
+arate semantic segmentation models to localize different
+high-level entities in scanned and digital document images,
+which only focus on limited scenarios instead of general-
+scope natural scenes and ignore low-level text instances like
+words and text lines. Recent design on a Unified Detec-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+28150
+Abstract
+The increasing use of transformer-based large lan-
+guage models brings forward the challenge of processing
+long sequences.
+In document visual question answering
+(DocVQA), leading methods focus on the single-page set-
+ting, while documents can span hundreds of pages.
+We
+present GRAM, a method that seamlessly extends pre-
+trained single-page models to the multi-page setting, with-
+out requiring computationally-heavy pretraining.
+To do
+so, we leverage a single-page encoder for local page-level
+understanding, and enhance it with document-level desig-
+nated layers and learnable tokens, facilitating the flow of
+information across pages for global reasoning. To enforce
+our model to utilize the newly introduced document tokens,
+we propose a tailored bias adaptation method.
+For ad-
+ditional computational savings during decoding, we intro-
+duce an optional compression stage using our compression-
+transformer(C-Former ),reducing the encoded sequence
+length, thereby allowing a tradeoff between quality and
+latency.
+Extensive experiments showcase GRAM’s state-
+of-the-art performance on the benchmarks for multi-page
+DocVQA, demonstrating the effectiveness of our approach.
+1. Introduction
+Document understanding, particularly in the context of
+DocVQA, has gained substantial research interest [5, 6,
+16, 25, 36, 37] and offers a wide array of practical appli-
+cations, focusing on data extraction and analysis of sin-
+gle page documents. However, Multi-Page DocVQA (MP-
+DocVQA) poses a more realistic challenge, considering that
+the majority of documents, including contracts, manuals
+*Work conducted during an internship at Amazon.
+†Corresponding author: alongolt@amazon.com
+‡Corresponding author: litmanr@amazon.com
++
+How many 
+diagrams
+are there?
+Multi Page Encoder 
+Global-Local Encoder Block
+Page Sub-Layer
+Doc Sub-Layer 
+Page Sub-Layer
+Doc Sub-Layer 
+C-Former
+Page 
+Attention
+Doc 
+Attention
+Compression Transformer
+Decoder
+Figure 1. An Overview of GRAM. We suggest an interleaved en-
+coder architecture combining page- with document-attention lay-
+ers, allowing information to propagate between different pages.
+An optional compression transformer (C-former) is introduced to
+allow a trade-off between quality and latency.
+and scientific papers, often extend well beyond a single
+page. Despite the practical relevance of MPDocVQA, it
+has received limited attention, primarily due to the absence
+of suitable datasets. Two recently introduced datasets, MP-
+DocVQA [33] and DUDE [18], have opened up new av-
+enues for MP-DocVQA research.
+Recent DocVQA approaches rely on transformers [35],
+at the heart of their architecture. While transformers are a
+powerful tool, they face challenges when dealing with long
+input sequences [4, 7, 10–12, 27, 38]. This difficulty stems
+from the self-attention mechanism, which scales quadrati-
+cally in terms of computation and memory, with respect to
+the input sequence length. Addressing this limitation has
+attracted significant research efforts, primarily in the field
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+15598
+Abstract
+Knowledge of lane topology is a core problem in au-
+tonomous driving. Aerial imagery can provide high res-
+olution, quickly updatable lane source data but detecting
+lanes from such data has so far been an expensive man-
+ual process or, where automated solutions exist, undriv-
+able and requiring of downstream processing.
+We pro-
+pose a method for large-scale lane topology extraction from
+aerial imagery while ensuring that the resulting lanes are
+realistic and drivable by introducing a novel B´ezier Graph
+shared parameterisation of B´ezier curves. We develop a
+transformer-based model to predict these B´ezier Graphs
+from input aerial images, demonstrating competitive results
+on the UrbanLaneGraph dataset. We demonstrate that our
+method generates realistic lane graphs which require both
+minimal input, and minimal downstream processing. We
+make our code publicly available at https://github.
+com/driskai/BGFormer
+1. Introduction
+Autonomous Vehicles (AVs) require knowledge of their sur-
+roundings to operate. So far, all systems not reliant on a
+safety driver have required pre-built High Deﬁnition maps
+(HD maps). HD maps can deliver a strong prior about the
+road and lane topology, e.g. so the AV can navigate amid
+occlusions. But creation of HD maps is time-consuming
+and expensive, typically requiring a ﬂeet of road vehicles
+equipped with LiDAR and cameras followed by extensive
+manual curation and human annotation [18].
+One of the core components of an HD map is precise
+lane geometry and topology data. Previous works have at-
+For the purpose of open access, the author has applied a Creative Com-
+mons Attribution (CC BY) license to any Author Accepted Manuscript
+version arising. This work was funded by the Centre for Connected and
+Autonomous Vehicles, delivered by Innovate UK, part of UK Research
+and Innovation.
+Figure 1. Our trained model detecting a lane B´ezier Graph on an
+intersection. B´ezier endpoints P 0,3 shown in cyan, control points
+P 1,2 in white, resulting curves in red.
+tempted to automate the generation of this data from on-
+board sensors [4, 5, 10] or - recently - from aerial imagery
+[3, 9, 30, 31]. Generating lane-level data from aerial im-
+agery is of particular interest since this can be efﬁciently
+obtained at large scale using Unmanned Aerial Vehicles
+(UAVs) or satellites. In this way, AVs could be equipped
+with regularly updated HD maps that cover a large area.
+However, these approaches are not without their chal-
+lenges. Lane geometry and topology is typically predicted
+in the form of a lane graph: a graph in which nodes repre-
+sent a discrete sampling of lane centre lines, with edges rep-
+resenting connectivity. Existing methods typically predict
+the position of each node in 2D space, but this frequently
+results in noisy, non-physical lane centre lines requiring ex-
+tensive downstream processing and human oversight.
+We improve on these methods by introducing a shared
+parameterisation of cubic B´ezier curves in a graph struc-
+ture that we refer to as a B´ezier Graph.
+By associating
+B´ezier direction vectors with nodes, we enforce a strong
+prior that lane direction should be continuous at boundaries.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+15365
+Abstract
+Image keypoint descriptions that are discriminative and
+matchable over large changes in viewpoint are vital for 3D
+reconstruction. However, descriptions output by learned
+descriptors are typically not robust to camera rotation.
+While they can be made more robust by, e.g., data aug-
+mentation, this degrades performance on upright images.
+Another approach is test-time augmentation, which incurs
+a significant increase in runtime. Instead, we learn a lin-
+ear transform in description space that encodes rotations
+of the input image. We call this linear transform a steerer
+since it allows us to transform the descriptions as if the im-
+age was rotated. From representation theory, we know all
+possible steerers for the rotation group. Steerers can be
+optimized (A) given a fixed descriptor, (B) jointly with a de-
+scriptor or (C) we can optimize a descriptor given a fixed
+steerer. We perform experiments in these three settings and
+obtain state-of-the-art results on the rotation invariant im-
+age matching benchmarks AIMS and Roto-360. We publish
+code and model weights at this https url.
+1. Introduction
+Discriminative local descriptions are vital for multiple 3D
+vision tasks, and learned descriptors have recently been
+shown to outperform traditional handcrafted local fea-
+tures [17, 19, 23, 43].
+One major weakness of learned
+descriptors compared to handcrafted features such as
+SIFT [35] is the relative lack of robustness to non-upright
+images [55]. While images taken from ground level can
+sometimes be made upright by aligning with gravity as the
+canonical orientation, this is not always possible. For exam-
+ple, descriptors robust to rotation are vital in space applica-
+tions [49], as well as medical applications [42], where no
+such canonical orientation exists. Even when a canonical
+orientation exists, it may be difficult or impossible to esti-
+mate. Rotation invariant matching is thus a key challenge.
+The most straightforward manner to get rotation invari-
+ant matching is to train or design a descriptor to be rotation
+invariant [17, 35]. However, this sacrifices distinctiveness
+in matching images with small relative rotations [41]. An
+alternative approach is to train a rotation-sensitive descrip-
+tor and perform test-time-augmentation, selecting the pair
+that produces the most matches. The obvious downside of
+TTA is computational cost. For example, testing all 45◦ro-
+tations requires running the model eight times.
+In this paper, we present an approach that maintains dis-
+tinctiveness for small rotations and allows for rotation in-
+variant matching when we have images with large rota-
+tions. We do this while adding only negligible additional
+runtime, running the descriptor only a single time.
+The
+main idea is to learn a linear transform in description space
+that corresponds to a rotation of the input image; see Fig-
+ure 2. We call this linear transform a steerer as it allows
+us to modify keypoint descriptions as if they were describ-
+ing rotated images—we can steer the descriptions without
+having to rerun the descriptor network. We show empiri-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+4885

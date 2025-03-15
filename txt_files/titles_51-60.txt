@@ -1,0 +1,10 @@
+Bolanos Gaussian Shadow Casting for Neural Characters
+Bono Learning to Navigate Efficiently and Precisely in Real Environments
+Bora SLICE Stabilized LIME for Consistent Explanations for Image Classification
+Bourouis Open Vocabulary Semantic Scene Sketch Understanding
+Bousselham Grounding Everything Emerging Localization Properties in Vision-Language Transformers
+Brack LEDITS Limitless Image Editing using Text-to-Image Models
+Brahimi Sparse Views Near Light A Practical Paradigm for Uncalibrated Point-light
+Brument RNb-NeuS Reflectance and Normal-based Multi-View 3D Reconstruction
+Brynte Learning Structure-from-Motion with Graph Attention Networks
+Buettner Incorporating Geo-Diverse Knowledge into Prompting for Increased Geographical Robustness in

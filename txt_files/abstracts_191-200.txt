@@ -1,0 +1,628 @@
+Abstract
+In this work, we tackle the problem of domain gener-
+alization for object detection, specifically focusing on the
+scenario where only a single source domain is available.
+We propose an effective approach that involves two key
+steps: diversifying the source domain and aligning detec-
+tions based on class prediction confidence and localiza-
+tion. Firstly, we demonstrate that by carefully selecting a
+set of augmentations, a base detector can outperform ex-
+isting methods for single domain generalization by a good
+margin. This highlights the importance of domain diversi-
+fication in improving the performance of object detectors.
+Secondly, we introduce a method to align detections from
+multiple views, considering both classification and localiza-
+tion outputs. This alignment procedure leads to better gen-
+eralized and well-calibrated object detector models, which
+are crucial for accurate decision-making in safety-critical
+applications. Our approach is detector-agnostic and can
+be seamlessly applied to both single-stage and two-stage
+detectors.
+To validate the effectiveness of our proposed
+methods, we conduct extensive experiments and ablations
+on challenging domain-shift scenarios.
+The results con-
+sistently demonstrate the superiority of our approach com-
+pared to existing methods. Our code and models are avail-
+able at: https://github.com/msohaildanish/DivAlign.
+1. Introduction
+In recent years, we have witnessed remarkable performance
+improvements in supervised object detection [39, 47, 48,
+53].
+The success of these methods rely on the assump-
+tion that the training and testing data are sampled from the
+same distribution. However, in many real-world applica-
+tions, such as autonomous driving, this assumption is of-
+ten violated and these object detectors usually show de-
+graded performance due to a phenomenon called domain-
+shift [3, 5, 49]. Shifts in real-world domains are typically
+caused by environmental alterations, like varying weather
+and time conditions.
+These changes manifest in diverse
+contrasts, brightness levels, and textures among others.
+A prominent line of research that attempts to alleviate the
+impact of domain-shift is known as unsupervised domain
+adaptation (UDA) [20, 24, 42, 49, 63, 68, 72]. Given the
+labeled data from the source domain and unlabelled data
+from the target domain, the aim of UDA methods is to align
+the source and target data distributions so that the trained
+model can generalize well to the target domain [67]. An
+obvious limitation of UDA methods is that they require pre-
+collecting data and re-training the model for different target
+domains. Collecting data, even without annotation, for all
+possible domain shifts and training the model when shift
+happens is difficult and sometime not possible.
+To cope with the domain-shift problem, a more real-
+istic albeit challenging problem is domain generalization
+[2, 11, 23, 26, 32, 34, 35, 40, 58].
+The goal of do-
+main generalization (DG) is to learn a generalizable model
+typically from multiple source domains, available during
+training, that can perform well on the unseen target do-
+main. A dominant class of DG methods attempts to learn
+domain-invariant feature space across multiple source do-
+mains [1, 11, 33, 35].
+The performance of these meth-
+ods is sensitive to the number of available source domains
+[7, 70]. In many realistic scenarios, acquiring labeled data
+from multiple source domains is often costly and time-
+consuming, eventually restricting the potential utilization
+of such methods. For these reasons, generalizing from a
+single-source domain is a more practical setting.
+Recent surveys [29, 70] reveal that very little work has
+been done on DG for object detection [38, 60], despite the
+fact that object detectors occupy an important position in
+many safety-critical and security-sensitive applications e.g.,
+autonomous driving. An object detector should be able to
+provide accurate as well as calibrated detections in different
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+17732
+Abstract
+The existing facial datasets, while having plentiful im-
+ages at near frontal views, lack images with extreme
+head poses, leading to the downgraded performance of
+deep learning models when dealing with proﬁle or pitched
+faces. This work aims to address this gap by introducing
+a novel dataset named Extreme Pose Face High-Quality
+Dataset (EFHQ), which includes a maximum of 450k high-
+quality images of faces at extreme poses.
+To produce
+such a massive dataset, we utilize a novel and meticulous
+dataset processing pipeline to curate two publicly avail-
+able datasets, VFHQ and CelebV-HQ, which contain many
+high-resolution face videos captured in various settings.
+Our dataset can complement existing datasets on various
+facial-related tasks, such as facial synthesis with 2D/3D-
+aware GAN, diffusion-based text-to-image face generation,
+and face reenactment.
+Speciﬁcally, training with EFHQ
+helps models generalize well across diverse poses, signif-
+icantly improving performance in scenarios involving ex-
+treme views, conﬁrmed by extensive experiments. Addition-
+ally, we utilize EFHQ to deﬁne a challenging cross-view
+face veriﬁcation benchmark, in which the performance of
+SOTA face recognition models drops 5-37% compared to
+frontal-to-frontal scenarios, aiming to stimulate studies on
+face recognition under severe pose conditions in the wild.
+1. Introduction
+The human face is a central focus in computer vision, with
+extensive research dedicated to tasks like detection, recog-
+nition, generation, and manipulation [39, 42]. Numerous
+large-scale facial datasets[9, 12, 14, 24, 28, 30, 45, 48, 54,
+55] have facilitated the face-related studies.
+Along with
+deep learning techniques, many tasks have made a consid-
+erable leap in performance in recent years. For instance,
+face recognition systems can recognize near-frontal faces in
+the wild with near-perfect accuracy [13, 18]. Facial gen-
+erative models, such as [5, 15, 49], can synthesize realistic
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+22605
+Abstract
+Modeling and visualizing relationships between tasks
+or datasets is an important step towards solving various
+meta-tasks such as dataset discovery, multi-tasking, and
+transfer learning. However, many relationships, such as
+containment and transferability, are naturally asymmetric
+and current approaches for representation and visualiza-
+tion (e.g., t-SNE [44]) do not readily support this.
+We
+propose TASK2BOX, an approach to represent tasks us-
+ing box embeddings—axis-aligned hyperrectangles in low
+dimensional spaces—that can capture asymmetric relation-
+ships between them through volumetric overlaps. We show
+that TASK2BOX accurately predicts unseen hierarchical
+relationships between nodes in ImageNet and iNaturalist
+datasets, as well as transferability between tasks in the
+Taskonomy benchmark.
+We also show that box embed-
+dings estimated from task representations (e.g., CLIP [36],
+Task2Vec [4], or attribute based [15]) can be used to pre-
+dict relationships between unseen tasks more accurately
+than classifiers trained on the same representations, as well
+as handcrafted asymmetric distances (e.g., KL divergence).
+This suggests that low-dimensional box embeddings can
+effectively capture these task relationships and have the
+added advantage of being interpretable. We use the ap-
+proach to visualize relationships among publicly available
+image classification datasets on popular dataset hosting
+platform called Hugging Face.
+1. Introduction
+The success of deep learning has led to the proliferation of
+datasets for solving a wide range of computer vision prob-
+lems. Yet, there are few tools available to enable practition-
+ers to find datasets related to the task at hand, and to solve
+various meta-tasks related to it. We present TASK2BOX, a
+method to represent tasks using axis-aligned hyperrectan-
+gles (or box embeddings). TASK2BOX is framed as a learn-
+able mapping from dataset representation to boxes, and can
+be trained to predict various relationships between novel
+tasks such as transferability, hierarchy, and overlap.
+Box embeddings [48] extend order embeddings [46] by
+using volumetric relationships between axis-aligned hyper-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+28827
+Abstract
+Reconstructing dynamic objects from monocular videos
+is a severely underconstrained and challenging problem,
+and recent work has approached it in various directions.
+However, owing to the ill-posed nature of this problem,
+there has been no solution that can provide consistent, high-
+quality novel views from camera positions that are signifi-
+cantly different from the training views. In this work, we
+introduce Neural Parametric Gaussians (NPGs) to take on
+this challenge by imposing a two-stage approach: first, we
+fit a low-rank neural deformation model, which then is used
+as regularization for non-rigid reconstruction in the second
+stage. The first stage learns the object’s deformations such
+that it preserves consistency in novel views. The second
+stage obtains high reconstruction quality by optimizing 3D
+Gaussians that are driven by the coarse model. To this end,
+we introduce a local 3D Gaussian representation, where
+temporally shared Gaussians are anchored in and deformed
+by local oriented volumes. The resulting combined model
+can be rendered as radiance fields, resulting in high-quality
+photo-realistic reconstructions of the non-rigidly deforming
+objects. We demonstrate that NPGs achieve superior results
+compared to previous works, especially in challenging sce-
+narios with few multi-view cues.1
+1Project Page: https://geometric-rl.mpi-inf.mpg.de/npg/
+1. Introduction
+Reconstructing 3D objects from 2D observations is a core
+problem in computer vision with numerous applications in
+several industries, such as the movie and game industry,
+AR/VR, and robotics. Tremendous progress has been seen
+in static scene reconstruction during the last few years. The
+real world is, however, dynamic, and most recorded scenes
+are captured in a casual setting, with sparse coverage from
+a single camera. Thus, addressing these two aspects during
+reconstruction is of fundamental importance.
+The success of neural approaches on static scenes has en-
+couraged their use for dynamic scene reconstruction from
+monocular videos, both in its classical [24, 40, 45] and
+hybrid [4, 10, 28] forms.
+These methods either learn a
+per-frame scene representation with limited time consis-
+tency [10, 24] or utilize a time-invariant canonical space,
+which is used to track the observations at each timestep [41,
+45]. However, as pointed out in Gao et al. [12], they are
+evaluated on datasets that contain multi-view signals, such
+as camera teleportation—i.e., alternating samples from dif-
+ferent cameras to construct a temporal sequence—and lim-
+ited object motion, and their performance suffers drastically
+when evaluated on more realistic monocular sequences.
+Such sequences usually contain faster object motion com-
+pared to camera motion. Strong regularization is required in
+order to propagate information between different timesteps
+with the correct data association. As we will demonstrate
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+10715
+Abstract
+Even the best current algorithms for estimating body
+3D shape and pose yield results that include body self-
+intersections.
+In this paper, we present CLOAF, which
+exploits the diffeomorphic nature of Ordinary Differential
+Equations to eliminate such self-intersections while still im-
+posing body shape constraints. We show that, unlike earlier
+approaches to addressing this issue, ours completely elim-
+inates the self-intersections without compromising the ac-
+curacy of the reconstructions. Being differentiable, CLOAF
+can be used to ﬁne-tune pose and shape estimation base-
+lines to improve their overall performance and eliminate
+self-intersections in their predictions.
+Furthermore, we
+demonstrate how our CLOAF strategy can be applied to
+practically any motion ﬁeld induced by the user. CLOAF
+also makes it possible to edit motion to interact with the
+environment without worrying about potential collision or
+loss of body-shape prior.
+1. Introduction
+Feed-forward approaches to estimating human body 3D
+shape and pose from a single image have become remark-
+ably effective [6, 25, 35]. The very recent transformer-based
+architecture of [10] embodies the current state-of-the-art.
+It is pre-trained on 300 million images and ﬁne-tuned on
+most SMPL data sets in existence. However, as good as
+these methods have become, they can still produce unreal-
+istic poses with substantial self-intersections of body parts,
+as illustrated by Fig. 1. This is a serious issue if video-based
+motion capture is to be used in ﬁelds, such as robotics or re-
+alistic animation, where preventing self-intersections is of
+utmost importance.
+Most current approaches to addressing this issue [4, 13,
+24, 28] are iterative. They penalize self-intersections explic-
+itly by minimizing an interpenetration loss. This requires
+explicitly detecting self-intersections and then performing
+*This work was supported in part by the Swiss National Science Foun-
+dation
+Collision Rate (%)
+HMR2.0
+Optim
+CLOAF
+Methods
+39.2%
+9.2%
+0.0%
+Figure 1.
+Self-intersections in SOTA methods.
+Top rows.
+HMR2.0 [10] (ﬁrst row) and PARE [19] (second row), two of the
+best current methods, produce bodies shown in blue with self-
+intersections.
+CLOAF removes them and generates the results
+shown in gold. Bottom row. HMR 2.0 [10] recovers bodies with
+self-intersections in 39.2% of frames of the 3DPW-test set. A
+recent post-processing method such as [28] brings this down to
+9.2%. CLOAF drops this number all the way to zero.
+a separate optimization step, which makes the whole pro-
+cess non-differentiable and precludes its use during train-
+ing. Another approach is to eliminate self-intersections in
+the training databases [26]. While all these methods help,
+they do not guarantee the absence of self-collisions at infer-
+ence time.
+In this paper, we propose a different approach. It pre-
+vents self-intersections in a differentiable manner and with-
+out an explicit detection step. To this end, we rely on the
+fact that if the scene ﬂow from one body to another is the
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+1176
+Abstract
+We present 3D Paintbrush, a technique for automati-
+cally texturing local semantic regions on meshes via text
+descriptions. Our method is designed to operate directly
+on meshes, producing texture maps which seamlessly inte-
+grate into standard graphics pipelines. We opt to simultane-
+ously produce a localization map (to specify the edit region)
+and a texture map which conforms to it. This approach im-
+proves the quality of both the localization and the styliza-
+tion. To enhance the details and resolution of the textured
+area, we leverage multiple stages of a cascaded diffusion
+model to supervise our local editing technique with gen-
+erative priors learned from images at different resolutions.
+Our technique, referred to as Cascaded Score Distillation
+(CSD), simultaneously distills scores at multiple resolutions
+in a cascaded fashion, enabling control over both the gran-
+ularity and global understanding of the supervision. We
+demonstrate the effectiveness of 3D Paintbrush to locally
+texture different semantic regions on a variety of shapes.
+Project page: https://threedle.github.io/3d-
+paintbrush
+1. Introduction
+The ability to edit existing high-quality 3D assets is a funda-
+mental capability in 3D modeling workflows. Recent works
+have shown exceptional results for text-driven 3D data cre-
+ation [32, 38, 48, 53, 58, 59], but focus on making global
+edits. While some progress has been made on local edit-
+ing using an explicit localization of the edit region [49, 67],
+these regions are often coarse and lack fine-grained detail.
+Highly-detailed and accurate localizations are important for
+constraining the edits to be within a specific region, prevent-
+ing changes unrelated to the target edit. Furthermore, while
+meshes with texture maps are the de facto standard in graph-
+ics pipelines, existing local editing work does not natively
+operate on meshes nor produce texture maps for them.
+In this work we develop 3D Paintbrush, a method for
+automatically texturing local semantic regions on meshes
+via text descriptions. Our method is designed to operate
+directly on meshes, producing texture maps which seam-
+lessly integrate into standard graphics pipelines. 3D Paint-
+brush is controlled via intuitive, free-form text input, allow-
+ing users to describe their edits using open vocabulary on
+a wide range of meshes. Specifically, given an input mesh
+and a text prompt, 3D Paintbrush produces the correspond-
+ing high-quality texture map and a localization region to
+confine it. To enhance the details and resolution of the lo-
+cally textured area, we introduce Cascaded Score Distilla-
+tion (CSD) which leverages multiple stages of a cascaded
+diffusion model.
+Our explicit localization masks can be
+used to layer our edit texture onto existing textures.
+We opt to represent both our localization map and tex-
+ture map as neural fields encoded by multi-layer percep-
+tions. Our method synthesizes both a fine-grained localiza-
+tion mask and high-quality texture in tandem. Simultane-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+4473
+Abstract
+When building classification systems with demographic
+fairness considerations, there are two objectives to satisfy:
+1) maximizing utility for the specific task and 2) ensuring
+fairness w.r.t. a known demographic attribute. These ob-
+jectives often compete, so optimizing both can lead to a
+trade-off between utility and fairness. While existing works
+acknowledge the trade-offs and study their limits, two ques-
+tions remain unanswered: 1) What are the optimal trade-
+offs between utility and fairness? and 2) How can we nu-
+merically quantify these trade-offs from data for a desired
+prediction task and demographic attribute of interest? This
+paper addresses these questions. We introduce two utility-
+fairness trade-offs: the Data-Space and Label-Space Trade-
+off. The trade-offs reveal three regions within the utility-
+fairness plane, delineating what is fully and partially pos-
+sible and impossible. We propose U-FaTE, a method to nu-
+merically quantify the trade-offs for a given prediction task
+and group fairness definition from data samples. Based on
+the trade-offs, we introduce a new scheme for evaluating
+representations. An extensive evaluation of fair representa-
+tion learning methods and representations from over 1000
+pre-trained models revealed that most current approaches
+are far from the estimated and achievable fairness-utility
+trade-offs across multiple datasets and prediction tasks.
+1. Introduction
+As learning-based systems are increasingly being deployed
+in high-stakes applications, there is a dire need to ensure
+that they do not propagate or amplify any discriminative
+tendencies inherent in the training datasets. An ideal so-
+lution would impart fairness to prediction models while re-
+taining the performance of the same model when learned
+without fairness considerations.
+Realizing this goal necessitates optimizing two objec-
+tives: maximizing utility in predicting a label Y for a tar-
+get task (e.g., face identity) while minimizing the unfair-
+ness w.r.t. a demographic attribute S (e.g., age or gender).
+However, when the statistical dependence between Y and S
+Possible
+Impossible
+Possible with Extra Data
+DST
+LST
+Utility (Y)
+Unfairness (S)
+(a)
+0
+10
+20
+30
+EOD (%)
+30
+40
+50
+60
+70
+80
+90
+100
+Accuracy (%)
+DST
+LST
+Zero-Shot
+Supervised
+(b)
+Figure 1. The utility-fairness trade-offs. (a) Classification sys-
+tems can be evaluated by their utility (e.g., accuracy) w.r.t. a target
+label Y and their unfairness w.r.t. a demographic label S. We
+introduce two trade-offs, Data Space Trade-Off (DST) and Label
+Space Trade-Off (LST). (b) We empirically estimate DST and LST
+on CelebA and evaluate the utility (high cheekbones) and fairness
+(gender & age) of over 100 zero-shot and 900 supervised models.
+is not negligible, learning with fairness considerations will
+necessarily degrade the performance of the target predictor,
+i.e., a trade-off will exist between utility and fairness.
+The existence of a utility-fairness trade-off has been well
+established, theoretically [11, 22, 29, 36, 37] and empir-
+ically [29], in multiple prior works. However, the focus
+of this body of work has been limited in multiple respects.
+First, prior work [29, 36] focused on just one type of trade-
+off, ignoring other possible trade-offs between utility and
+fairness. Second, prior work [36, 37] focused on establish-
+ing bounds or identifying the end-points of the trade-off of
+interest rather than attempting its precise characterization.
+Third, the majority of the prior work [11, 29, 36, 37] has
+investigated the utility-fairness trade-offs for one definition
+of group fairness, namely, demographic parity (DP). There
+are multiple fairness definitions [2], including those more
+practically relevant than DP, such as Equalized Opportunity
+(EO), for which the trade-offs have not been studied.
+Despite these attempts, several questions related to the
+utility-fairness trade-offs remain outstanding.
+1. What are the optimal utility-fairness trade-offs?
+2. For a given prediction task and a demographic at-
+tribute, we wish to be fair w.r.t., how can we empiri-
+cally estimate the trade-offs from data?
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+12037
+Abstract
+Estimating large, extreme inter-image rotations is crit-
+ical for numerous computer vision domains involving im-
+ages related by limited or non-overlapping fields of view.
+In this work, we propose an attention-based approach with
+a pipeline of novel algorithmic components. First, as ro-
+tation estimation pertains to image pairs, we introduce an
+inter-image distillation scheme using Decoders to improve
+embeddings. Second, whereas contemporary methods com-
+pute a 4D correlation volume (4DCV) encoding inter-image
+relationships, we propose an Encoder-based cross-attention
+approach between activation maps to compute an enhanced
+equivalent of the 4DCV. Finally, we present a cascaded
+Decoder-based technique for alternately refining the cross-
+attention and the rotation query. Our approach outperforms
+current state-of-the-art methods on extreme rotation estima-
+tion. We make our code publicly available1.
+1. Introduction
+Estimating the relative pose between a pair of images is a
+crucial task in computer vision, which is used in various ap-
+plications such as indoor navigation, augmented reality, au-
+tonomous driving, 3D reconstruction [40, 44], camera local-
+ization [5, 45, 47], simultaneous localization and mapping
+[12, 38], and novel view synthesis [35, 42]. The current
+approach to image registration involves extracting features,
+matching them, and establishing correspondence between
+them. However, this approach is ineffective for input pairs
+with little or no overlap, making it difficult to establish suf-
+ficient feature correspondences for matching, such as in the
+images shown in Fig. 1.
+Numerous applications [1, 32, 49] necessitate precise es-
+timation of inter-image rotations. The prevalent approach
+for extreme 3D rotation estimation between images with
+limited or no overlap, as in Fig.
+1, relates to the semi-
+nal work of Coughlan and Yuille [10]. They introduced a
+technique premised on linear structures within an image,
+primarily arising from three mutually orthogonal directions
+Figure 1. The estimation of extreme 3D image rotations. First row:
+Images pair with a small overlap. Second row: non-overlapping
+image pairs. The proposed scheme estimates the relative rotation
+between image pairs.
+- one vertical (building walls) and two horizontal (ground
+pavements, roads, etc.). Similarly, ”Single View Metrol-
+ogy” by Criminisi et al. [11] and extensions [26, 41, 61] uti-
+lize parallel image lines and corresponding vanishing points
+[19] for camera calibration. Furthermore, relative camera
+rotation can be estimated via illumination cues [2], by ana-
+lyzing lighting and shadow directions.
+In this work, we propose a deep-learning approach for
+estimating significant, extreme inter-image rotations. Un-
+like classical formulations [10, 11] that explicitly detect
+hand-crafted cues such as lines, shadows, and vanishing
+points, our method directly regresses the relative rotation
+from input images through a deep neural network. Inspired
+by recent successful applications of Transformers [53] in
+computer vision tasks including object detection [8] and im-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+2588
+Abstract
+Existing 3D scene understanding methods are heavily fo-
+cused on 3D semantic and instance segmentation. How-
+ever, identifying objects and their parts only constitutes an
+intermediate step towards a more ﬁne-grained goal, which
+is effectively interacting with the functional interactive ele-
+ments (e.g., handles, knobs, buttons) in the scene to accom-
+plish diverse tasks. To this end, we introduce SceneFun3D,
+a large-scale dataset with more than 14.8k highly accu-
+rate interaction annotations for 710 high-resolution real-
+world 3D indoor scenes. We accompany the annotations
+with motion parameter information, describing how to in-
+teract with these elements, and a diverse set of natural lan-
+guage descriptions of tasks that involve manipulating them
+in the scene context. To showcase the value of our dataset,
+we introduce three novel tasks, namely functionality seg-
+mentation, task-driven affordance grounding and 3D mo-
+tion estimation, and adapt existing state-of-the-art methods
+to tackle them. Our experiments show that solving these
+tasks in real 3D scenes remains challenging despite recent
+progress in closed-set and open-set 3D scene understanding
+methods.
+1. Introduction
+Datasets of 3D indoor environments have been extensively
+used for computer vision, robotics, embodied AI and mixed
+reality [5, 7, 11]. To perceive 3D environments, 3D instance
+segmentation has served as a fundamental task to provide
+object-level knowledge to agents enabling scene interaction.
+Going a step further, a line of work [46, 49] has studied the
+task of part-object segmentation focusing on the lower-level
+object parts, e.g., the drawers of a cabinet. However, these
+two tasks serve only as a proxy since in the real-world set-
+ting, agents need to successfully detect and interact with the
+functional interactive elements (e.g., knobs, handles, but-
+tons) of the objects in the scene. Detecting these elements
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+14531
+Abstract
+Recently, building on the foundation of neural radiance
+ﬁeld, various techniques have emerged to learn unsigned
+distance ﬁelds (UDF) to reconstruct 3D non-watertight
+models from multi-view images. Yet, a central challenge
+in UDF-based volume rendering is formulating a proper
+way to convert unsigned distance values into volume den-
+sity, ensuring that the resulting weight function remains un-
+biased and sensitive to occlusions. Falling short on these
+requirements often results in incorrect topology or large
+reconstruction errors in resulting models. This paper ad-
+dresses this challenge by presenting a novel two-stage al-
+gorithm, 2S-UDF, for learning a high-quality UDF from
+multi-view images. Initially, the method applies an easily
+trainable density function that, while slightly biased and
+transparent, aids in coarse reconstruction. The subsequent
+stage then reﬁnes the geometry and appearance of the ob-
+ject to achieve a high-quality reconstruction by directly ad-
+justing the weight function used in volume rendering to en-
+sure that it is unbiased and occlusion-aware. Decoupling
+density and weight in two stages makes our training sta-
+ble and robust, distinguishing our technique from existing
+UDF learning approaches. Evaluations on the DeepFash-
+ion3D, DTU, and BlendedMVS datasets validate the ro-
+bustness and effectiveness of our proposed approach. In
+both quantitative metrics and visual quality, the results in-
+dicate our superior performance over other UDF learn-
+ing techniques in reconstructing 3D non-watertight models
+from multi-view images. Our code is available at https:
+//bitbucket.org/jkdeng/2sudf/.
+1. Introduction
+As the success of neural radiance ﬁeld (NeRF) [29], numer-
+ous volume rendering based 3D modeling methods are pro-
+*Corresponding author
+GT
+Ours
+NeuralUDF
+NeUDF
+Figure 1.
+We learn a UDF from multiview images for non-
+watertight model reconstruction. As illustrated in the cross sec-
+tions of learned UDFs, our learned UDF approximates to the
+ground truth. In contrast, the learned UDF of NeuralUDF [25]
+is choppy leading to signiﬁcant artifacts, e.g., unexpected pit. The
+learned UDF of NeUDF [23] is almost closed struggling to gener-
+ate open surface.
+posed to learn signed distance ﬁelds (SDF) for 3D model re-
+construction from multi-view images [7, 34, 36, 40]. These
+approaches map signed distance value to a density function,
+thereby enabling the use of volume rendering to learn an
+implicit SDF representation. To calculate pixel colors, they
+compute the weighted sum of radiances along each light
+ray. Achieving an accurate surface depiction requires the
+density function to meet three essential criteria. Firstly, the
+weights, which are derived from the density function, must
+reach their maximum value when the distance is zero, ensur-
+ing unbiasedness. Secondly, as a ray traverses through the
+surface, the accumulated density should tend towards inﬁn-
+ity, rendering the surface opaque — a property referred to as
+occlusion-awareness. Finally, the density function should
+be bounded to prevent numerical issues. The popular SDF
+approaches, such as NeuS [34] and VolSDF [40], adopt an
+S-shaped density function that meets all these requirements.
+While SDF-based methods excel at reconstructing wa-
+tertight models, they have limitations in representing open
+models. This is due to the intrinsic nature of SDF, which
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+5084

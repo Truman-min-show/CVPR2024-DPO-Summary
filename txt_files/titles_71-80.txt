@@ -1,0 +1,10 @@
+Cannici Mitigating Motion Blur in Neural Radiance Fields with Events and
+Cao Bootstrapping Chest CT Image Understanding by Distilling Knowledge from X-ray
+Cao Deep Equilibrium Diffusion Restoration with Parallel Sampling
+Cao DreamAvatar Text-and-Shape Guided 3D Human Avatar Generation via Diffusion Models
+Cao Motion2VecSets 4D Latent Vector Set Diffusion for Non-rigid Shape Reconstruction
+Cao Solving the Catastrophic Forgetting Problem in Generalized Category Discovery
+Cao SuperNormal Neural Surface Reconstruction via Multi-View Normal Integration
+Carlsson HEAL-SWIN A Vision Transformer On The Sphere
+Carter SleepVST Sleep Staging from Near-Infrared Video Signals using Pre-Trained Transformers
+Casarin Your Image is My Video Reshaping the Receptive Field via

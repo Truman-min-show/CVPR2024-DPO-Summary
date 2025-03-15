@@ -1,0 +1,653 @@
+Abstract
+Efficient generation of 3D digital humans is important
+in several industries, including virtual reality, social media,
+and cinematic production. 3D generative adversarial net-
+works (GANs) have demonstrated state-of-the-art (SOTA)
+quality and diversity for generated assets. Current 3D GAN
+architectures, however, typically rely on volume representa-
+tions, which are slow to render, thereby hampering the GAN
+training and requiring multi-view-inconsistent 2D upsam-
+plers. Here, we introduce Gaussian Shell Maps (GSMs) as
+a framework that connects SOTA generator network archi-
+tectures with emerging 3D Gaussian rendering primitives
+using an articulable multi shell–based scaffold. In this set-
+ting, a CNN generates a 3D texture stack with features that
+are mapped to the shells. The latter represent inflated and
+deflated versions of a template surface of a digital human
+in a canonical body pose. Instead of rasterizing the shells
+directly, we sample 3D Gaussians on the shells whose at-
+tributes are encoded in the texture features. These Gaus-
+sians are efficiently and differentiably rendered. The ability
+to articulate the shells is important during GAN training
+and, at inference time, to deform a body into arbitrary user-
+defined poses. Our efficient rendering scheme bypasses the
+need for view-inconsistent upsamplers and achieves high-
+quality multi-view consistent renderings at a native resolu-
+tion of 512 × 512 pixels. We demonstrate that GSMs suc-
+cessfully generate 3D humans when trained on single-view
+datasets, including SHHQ and DeepFashion.
+Project Page: rameenabdal.github.io/GaussianShellMaps
+1. Introduction
+The ability to generate articulable three-dimensional dig-
+ital humans augments traditional asset creation and anima-
+tion workflows, which are laborious and costly. Such gener-
+ative artificial intelligence–fueled workflows are crucial in
+several applications, including communication, cinematic
+production, and interactive gaming, among others.
+3D Generative Adversarial Networks (GANs) have
+emerged as the state-of-the-art (SOTA) platform in this do-
+main, enabling the generation of diverse 3D assets at inter-
+active framerates [6, 8, 15, 23, 41, 71, 76, 76]. Most ex-
+isting 3D GANs build on variants of volumetric scene rep-
+resentations combined with neural volume rendering [65].
+However, volume rendering is relatively slow and compro-
+mises the training of a GAN, which requires tens of millions
+of forward rendering passes to converge [11]. Mesh–based
+representations building on fast differentiable rasterization
+have been proposed to overcome this limitation [19, 71],
+* Equal Contribution
+† Work done as a visiting student researcher at Stanford University
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+9441
+Abstract
+Quantifying the degree of similarity between images is a
+key copyright issue for image-based machine learning. In
+legal doctrine however, determining the degree of similarity
+between works requires subjective analysis, and fact-ﬁnders
+(judges and juries) can demonstrate considerable variabil-
+ity in these subjective judgement calls.
+Images that are
+structurally similar can be deemed dissimilar, whereas im-
+ages of completely different scenes can be deemed similar
+enough to support a claim of copying. We seek to deﬁne and
+compute a notion of ‘conceptual similarity’ among images
+that captures high-level relations even among images that
+do not share repeated elements or visually similar compo-
+nents. The idea is to use a base multi-modal model to gen-
+erate ‘explanations’ (captions) of visual data at increasing
+levels of complexity. Then, similarity can be measured by
+the length of the caption needed to discriminate between
+the two images: Two highly dissimilar images can be dis-
+criminated early in their description, whereas conceptually
+dissimilar ones will need more detail to be distinguished.
+We operationalize this deﬁnition and show that it correlates
+with subjective (averaged human evaluation) assessment,
+and beats existing baselines on both image-to-image and
+text-to-text similarity benchmarks. Beyond just providing a
+number, our method also offers interpretability by pointing
+to the speciﬁc level of granularity of the description where
+the source data are differentiated.
+1. Introduction
+Consider the two images in Fig. 1. One could say they are
+similar: both portray small red Italian cars. Another could
+say they are different: One is a sports car in an open space,
+the other a tiny city car in an alley. Is there an objective way
+of measuring the similarity among images? In some cases,
+similarity judgments can be inﬂuenced by shared concepts:
+in Fig. 2, two images share compelling stylistic and concep-
+tual similarity, but it is difﬁcult to identify speciﬁc visual
+elements they share. Yet the two were found to be legally
+“substantially similar” [37]. Can we deﬁne an objective no-
+tion of ‘conceptual similarity’ among data?
+There have been many attempts at deﬁning an objective
+notion of similarity based on the number of bits of infor-
+mation that the two samples share [11, 25, 40], but funda-
+mentally they do not capture concepts (Appendix A), which
+are human constructs. Since humans must play a role in
+deﬁning similarity among concepts, one way to achieve ob-
+jectivity is by averaging a large number of human assess-
+ments. This is what large-scale neural network models do
+[34]. However, contrastive-trained models measure similar-
+ity based on how easily the data can be distinguished, and
+any two non-identical samples can be distinguished by ran-
+dom features of no conceptual relevance [22].
+Rather than focusing on ﬁnding the features that best dis-
+tinguish the two images, we focus on ﬁnding the ones that
+best describe them. Then, we can measure semantic sim-
+ilarity based on how well descriptions of one ﬁt the other.
+If two samples are similar, a short description should apply
+equally well to both. If the samples are very different, the
+description of one will be a poor ﬁt for the other. The more
+complex the description needed to distinguish the images,
+the higher their conceptual similarity. The key idea is to fo-
+cus on optimally describing individual samples, rather than
+adversarially discriminating them.
+Speciﬁcally, referring to Fig. 1, we generate multiple de-
+scriptions of each sample in increasing level of complexity,
+sorted by their coding length. Then, we measure the dif-
+ference of the likelihood of each image conditioned on ei-
+ther descriptions as a function of complexity. That traces
+a curve that measures distance as a function of complexity.
+Any two images can be distinguished by their description
+at some point (the more you look, the more differences you
+see). Therefore, similarity should always be relative to a de-
+scription length. However, when a single number is needed
+for comparison, we show that the AUC of the distance func-
+tion is well aligned with human similarity assessments.
+Our proposed method, which we call Complexity-
+Constrained Descriptive Autoencoding, or CC:DAE, is
+rooted in the idea of the Kolmogorov Structure Function,
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+11062
+Abstract
+Vision-Language Models (VLMs) such as CLIP are
+trained on large amounts of image-text pairs, resulting
+in remarkable generalization across several data distribu-
+tions.
+However, in several cases, their expensive train-
+ing and data collection/curation costs do not justify the
+end application. This motivates a vendor-client paradigm,
+where a vendor trains a large-scale VLM and grants only
+input-output access to clients on a pay-per-query basis in
+a black-box setting. The client aims to minimize inference
+cost by distilling the VLM to a student model using the
+limited available task-specific data, and further deploying
+this student model in the downstream application. While
+naive distillation largely improves the In-Domain (ID) ac-
+curacy of the student, it fails to transfer the superior out-
+of-distribution (OOD) generalization of the VLM teacher
+using the limited available labeled images.
+To mitigate
+this, we propose Vision-Language to Vision - Align, Dis-
+till, Predict (VL2V-ADiP), which first aligns the vision and
+language modalities of the teacher model with the vision
+modality of a pre-trained student model, and further distills
+the aligned VLM representations to the student. This max-
+imally retains the pre-trained features of the student, while
+also incorporating the rich representations of the VLM im-
+age encoder and the superior generalization of the text em-
+beddings. The proposed approach achieves state-of-the-art
+results on the standard Domain Generalization benchmarks
+in a black-box teacher setting as well as a white-box setting
+where the weights of the VLM are accessible. Project page:
+http://val.cds.iisc.ac.in/VL2V-ADiP/
+1. Introduction
+While the initial success of Deep Learning was predomi-
+nantly driven by training specialized models for each task
+or dataset [26, 29], recent research on foundation models
+[24, 34, 47, 65] eliminates the need for this by training
+generic models jointly over several modalities using large-
+*Equal Contribution.
+Correspondence to Sravanti Addepalli <sravantia@iisc.ac.in>, Ashish
+Ramayee Asokan <ashish.ramayee@gmail.com>
+Figure 1. Schematic diagram showing class and domain distri-
+butions in the shared text/ image embedding space of a VLM:
+VLMs learn highly specialized image representations that are not
+domain invariant. Thus, a linear classifier (red decision bound-
+ary) that is trained over the vision encoder using limited training
+data cannot generalize well to the target domain (shown in pur-
+ple). On the other hand, generic text embeddings such as “A photo
+of a class” represent the core concept of a class by virtue of their
+training method and vast training data. Thus, they generalize ef-
+fectively across domains, and a zero-shot classifier (green decision
+boundary) aligns better with the true distribution of classes.
+scale data. The use of both image and language modal-
+ities in large-scale Vision-Language Models (VLMs) en-
+ables their use in several applications including zero-shot
+classification, where the embedding of an image is com-
+pared with text embeddings for “a photo of a {class}” cor-
+responding to every class during inference and the class
+with highest similarity is predicted. For example, the LiT
+(private) model [65] has been trained on 4 billion image-text
+pairs scraped from the web, and it achieves 85.2% zero-shot
+accuracy on ImageNet. VLMs also demonstrate extraordi-
+nary performance across several distributions, owing to the
+vast diversity of distributions seen during their training [47].
+The remarkable OOD generalization of VLMs makes
+them suitable for use in several applications, either directly
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+23922
+Abstract
+Scale-ambiguity in 3D scene dimensions leads to
+magnitude-ambiguity of volumetric densities in neural ra-
+diance ﬁelds, i.e., the densities double when scene size is
+halved, and vice versa. We call this property alpha invari-
+ance. For NeRFs to better maintain alpha invariance, we
+recommend 1) parameterizing both distance and volume
+densities in log space, and 2) a discretization-agnostic ini-
+tialization strategy to guarantee high ray transmittance. We
+revisit a few popular radiance ﬁeld models and ﬁnd that
+these systems use various heuristics to deal with issues aris-
+ing from scene scaling. We test their behaviors and show
+our recipe to be more robust. Visit our project page at
+https://pals.ttic.edu/p/alpha-invariance.
+1. Introduction
+3D computer graphics and vision are fundamentally scale-
+ambiguous. Lengths of objects and scenes are often unitless
+and measure up to a constant ratio. This is ﬁne for routines
+such as projection, triangulation, and camera motion estima-
+tion. A common practice is to normalize the scene dimension
+or the size of a reference object to an arbitrary number.
+Volume rendering [17] used by Neural Radiance Fields
+(NeRFs) [20] presents a complication due to explicit inte-
+gration over space. Since the distance scaling is arbitrary,
+the volumetric density function σ(x) must compensate for
+the multiplicative factor to render the same ﬁnal RGB color.
+In other words, if the scene size expands by a factor k, it is
+sufﬁcient for the learned σ to shrink by 1/k to be invariant
+to the change. The same applies to integration over cones
+or more general spatial data structures [1, 3]. Note that in
+addition to scene dimensions, the magnitude of σ is also
+inﬂuenced by the number of samples per ray and ultimately
+the sharpness of change in local opacity.
+There is no single “correct” size for a scene setup. A
+* Equal contribution.
+Figure 1. A discretized view of volume rendering. Top: a ray is cut
+into intervals, each with a density σi ≥0 and interval length di.
+Bottom: illustration of the weight given to the 3rd interval, com-
+puted through alpha compositing. The rendered color is obtained
+by weighting all the interval colors with their wis. If we scale each
+di by a constant k, scaling σi by 1
+k renders the identical color.
+robust algorithm should be able to perform consistently
+across different scalings. We investigate how this notion
+of invariance manifests itself in practice, discuss how the hy-
+perparameter decisions affect it, and propose a solution that
+ensures robustness to distance scaling across the NeRF meth-
+ods. We revisit and experiment with a few popular NeRF
+architectures: Vanilla NeRF [20], TensoRF [6], DVGO [30],
+Plenoxels [8], and Nerfacto [31], and ﬁnd that many systems
+use tailored heuristics that work well at a particular scene
+size. We analyze the impact of some critical hyperparameters
+which are often overlooked or not highlighted in the original
+papers.
+In our testing of these models we identify two main fail-
+ure modes. When the scene is scaled down (short ray interval
+d), some models struggle to produce large enough σ values
+for solid geometry. When the scene is scaled up (long inter-
+val length), the σ at initialization is often too large, resulting
+in cloudiness that traps the optimization at bad local optima.
+We therefore propose 1) parameterizing both distance and
+volume densities in log space for easier multiplicative scal-
+ing; 2) a closed-form formula for σ value initialization that
+guarantees high ray transmittance and scene transparency.
+We show that these two ingredients can robustly handle vari-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+20396
+Abstract
+Unsupervised (US) video anomaly detection (VAD) in
+surveillance applications is gaining more popularity re-
+cently due to its practical real-world applications.
+As
+surveillance videos are privacy sensitive and the availabil-
+ity of large-scale video data may enable better US-VAD sys-
+tems, collaborative learning can be highly rewarding in this
+setting. However, due to the extremely challenging nature
+of the US-VAD task, where learning is carried out without
+any annotations, privacy-preserving collaborative learning
+of US-VAD systems has not been studied yet. In this pa-
+per, we propose a new baseline for anomaly detection ca-
+pable of localizing anomalous events in complex surveil-
+lance videos in a fully unsupervised fashion without any la-
+bels on a privacy-preserving participant-based distributed
+training configuration. Additionally, we propose three new
+evaluation protocols to benchmark anomaly detection ap-
+proaches on various scenarios of collaborations and data
+availability. Based on these protocols, we modify existing
+VAD datasets to extensively evaluate our approach as well
+as existing US SOTA methods on two large-scale datasets
+including UCF-Crime and XD-Violence. All proposed eval-
+uation protocols, dataset splits, and codes are available
+here: https://github.com/AnasEmad11/CLAP.
+1. Introduction
+Recent years have seen a surge in federated learning based
+methods, where the goal is to enable collaborative training
+of machine learning models without transferring any train-
+ing data to a central server. This direction of research in ma-
+chine learning is of notable importance as it enables learn-
+ing with multiple participants that can contribute data with-
+out compromising privacy. Several researchers have studied
+federated learning for different applications such as medical
+diagnosis [1, 3, 6, 22], network security [10, 19, 21, 30], and
+large-scale classification models [4, 14, 42].
+Anomaly detection in surveillance videos, being one
+...
+Central
+Parameter Sharing
+Server
+Server
+Conventional Centralized Training
+Ours: Collaborative Training
+...
+...
+...
+Figure 1. a) Conventional central training requires all training data
+to be on the server to carry out the training. This setting cannot en-
+sure privacy, thus hindering collaborations between different enti-
+ties holding large-scale surveillance data. b) Our proposed unsu-
+pervised video anomaly detection technique does not require the
+transfer of training data between the server and participants, thus
+ensuring complete privacy.
+of the large-scale applications of computer vision, may
+greatly benefit from autonomous collaborative training al-
+gorithms.
+VAD in surveillance videos is privacy sensi-
+tive and may involve data belonging to several organiza-
+tions/establishments. This may result in hectic bureaucratic
+processes to obtain data from each establishment for cen-
+tralized training. For example, the police department of a
+city may not be willing to share street surveillance videos
+due to privacy concerns of the general public, or a daycare
+facility may have to obtain the consent of all parents to be
+allowed to share its CCTV footage. Such restrictions may
+hinder the possibility of obtaining large-scale data to train
+efficient anomaly detectors making a central training requir-
+ing all training data the least preferred option in the real-
+world scenarios. Unfortunately, to the best of our knowl-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+12416
+Abstract
+This paper addresses complex challenges in histopatho-
+logical image analysis through three key contributions.
+Firstly, it introduces a fast patch selection method, FPS,
+for whole-slide image (WSI) analysis, significantly reduc-
+ing computational cost while maintaining accuracy. Sec-
+ondly, it presents PathDino, a lightweight histopathol-
+ogy feature extractor with a minimal configuration of five
+Transformer blocks and only ≈9 million parameters,
+markedly fewer than alternatives. Thirdly, it introduces a
+rotation-agnostic representation learning paradigm using
+self-supervised learning, effectively mitigating overfitting.
+We also show that our compact model outperforms existing
+state-of-the-art histopathology-specific vision transformers
+on 12 diverse datasets, including both internal datasets
+spanning four sites (breast, liver, skin, and colorectal) and
+seven public datasets (PANDA, CAMELYON16, BRACS,
+DigestPath, Kather, PanNuke, and WSSS4LUAD). Notably,
+even with a training dataset of ≈6 million histopathol-
+ogy patches from The Cancer Genome Atlas (TCGA), our
+approach demonstrates an average 8.5% improvement in
+patch-level majority vote performance. These contributions
+provide a robust framework for enhancing image analysis
+in digital pathology, rigorously validated through extensive
+evaluation. 1
+1. Introduction
+The advent of whole slide image (WSI) scanning in dig-
+ital pathology has revolutionized the research in compu-
+tational pathology [1–3]. While digital pathology enables
+both researchers and clinicians to enjoy the ease of access
+to the WSIs, processing and storing these gigapixel images
+are still quite challenging.
+Motivation: Large image size and scarce or lack of patch-
+level labels (annotations) pose two main challenges in
+WSI analysis [4]. As a result, most state-of-the-art meth-
+*Corresponding author
+1The project page:
+https://KimiaLabMayo.github.io/
+PathDino-Page/
+Figure 1. HistoRotate. A 360◦rotation augmentation for
+training models on histopathology images. Unlike training on nat-
+ural images where the rotation may change the context of the vi-
+sual data, rotating a histopathology image improves the learning
+process for discriminative embedding learning.
+ods adopt Multi-instance Learning (MIL) with weak su-
+pervision [5–13]. While these approaches may eliminate
+the need for pixel-level annotations, MIL significantly in-
+creases computational loads and potentially lowers the qual-
+ity of results compared to fully supervised approaches.
+While some attempts have been made to select representa-
+tive patches [5,6,14,15], many such methods remain com-
+putationally intensive, leaving the desire for efficient, accu-
+rate solutions an unmet need.
+The field of image analysis in digital pathology has
+predominantly adopted deep models designed for natural
+image analysis without further customization to the field
+[16–19]. While showing good performance on natural im-
+age analysis, pre-trained deep models may not fully ex-
+ploit the unique characteristics of histopathology images.
+Furthermore, most current training recipes for histopatho-
+logical embedding learning adopt conventional training and
+common augmentation techniques for natural images [18].
+However, histopathology images have arguably very differ-
+ent features compared to natural images and even radiology
+images. This gap motivated us to design an improved train-
+ing approach for histopathology images.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+11683
+Abstract
+Image and video analysis requires not only accurate ob-
+ject detection but also the understanding of relationships
+among detected objects. Common solutions to relation mod-
+eling typically resort to stand-alone object detectors fol-
+lowed by non-differentiable post-processing techniques. Re-
+cently introduced detection transformers (DETR) perform
+end-to-end object detection based on a bipartite matching
+loss. Such methods, however, lack the ability to jointly detect
+objects and resolve object associations. In this paper, we
+build on the DETR approach and extend it to the joint de-
+tection of objects and their relationships by introducing an
+approximated bipartite matching. While our method can gen-
+eralize to an arbitrary number of objects, we here focus on
+the modeling of object pairs and their relations. In particular,
+we apply our method PairDETR to the problem of detect-
+ing human bodies and faces, and associating them for the
+same person. Our approach not only eliminates the need for
+hand-designed post-processing but also achieves excellent
+results for body-face associations. We evaluate PairDETR
+on the challenging CrowdHuman and CityPersons datasets
+and demonstrate a large improvement over the state of the
+art. Our training code and pre-trained models are available
+at https://github.com/mts-ai/pairdetr
+1. Introduction
+The detection of objects and their relationships is one of the
+key challenges in computer vision. It involves the prediction
+of bounding boxes for given object categories and assigning
+pairs of detected objects to particular relations.
+For example, the detection of human faces and bodies, as
+well as the association of them for the same person, is essen-
+tial for applications including human-computer interaction
+(gestures detection), gaming (in virtual reality), fitness and
+sport (from virtual coaching to automated match tracking),
+mass market (virtual try-on), and many others.
+Person detection is a well-studied problem in computer
+vision. However, common approaches often focus on de-
+tecting human bodies, faces, and heads in isolation, without
+considering relationships among them. Given face and body
+detections, typical systems resolve object relations based
+on ad-hoc post-processing techniques, such as non-maxima
+suppression followed by the matching of overlapping object
+bounding boxes.
+In this work, we formulate the detection and association
+of object pairs as a graph prediction problem. While apply-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+423
+Abstract
+The reflective nature of the human eye is an underappre-
+ciated source of information about what the world around
+us looks like. By imaging the eyes of a moving person, we
+capture multiple views of a scene outside the camera’s di-
+rect line of sight through the reflections in the eyes. In this
+paper, we reconstruct a radiance field beyond the camera’s
+line of sight using portrait images containing eye reflec-
+tions. This task is challenging due to 1) the difficulty of ac-
+curately estimating eye poses and 2) the entangled appear-
+ance of the iris textures and the scene reflections. To address
+these, our method jointly optimizes the cornea poses, the ra-
+diance field depicting the scene, and the observer’s eye iris
+texture. We further present a regularization prior on the iris
+texture to improve scene reconstruction quality. Through
+various experiments on synthetic and real-world captures
+featuring people with varied eye colors, and lighting con-
+ditions, we demonstrate the feasibility of our approach to
+recover the radiance field using cornea reflections.
+*Equal contribution
+1. Introduction
+The human eye is a remarkable organ that enables vi-
+sion and holds valuable information about the surrounding
+world. While we typically use our own eyes as two lenses
+to focus light onto the photosensitive cells composing our
+retina, we would also capture the light reflected from the
+cornea if we look at someone else’s eyes. When we use
+a camera to image the eyes of another, we effectively turn
+their eyes into a pair of mirrors in the overall imaging sys-
+tem. Since the light that reflects off the observer’s eyes
+share the same source as the light that reaches their retina,
+our camera can form images containing information about
+the surrounding world the observer sees.
+Prior studies have explored recovering a panoramic im-
+age of the world the observer sees and simple 3D struc-
+tures like boxes that the observer is looking at from man-
+ually specified correspondences from a single image of two
+eyes [27, 28]. Follow-up works have further explored ap-
+plications such as personal identification [10, 29], detecting
+grasp posture [53], focused object estimation [40], illumina-
+tion estimation [48], and relighting [26]. Given the recent
+advancements in 3D vision and graphics, we wonder: Can
+we do more than reconstruct a single panoramic environ-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+4864
+Abstract
+We introduce FaceTalk1, a novel generative approach de-
+signed for synthesizing high-fidelity 3D motion sequences
+of talking human heads from input audio signal. To capture
+the expressive, detailed nature of human heads, including
+hair, ears, and finer-scale eye movements, we propose to
+couple speech signal with the latent space of neural para-
+metric head models to create high-fidelity, temporally co-
+herent motion sequences. We propose a new latent diffu-
+sion model for this task, operating in the expression space of
+neural parametric head models, to synthesize audio-driven
+realistic head sequences. In the absence of a dataset with
+corresponding NPHM expressions to audio, we optimize for
+these correspondences to produce a dataset of temporally-
+optimized NPHM expressions fit to audio-video recordings
+of people talking.
+To the best of our knowledge, this is
+the first work to propose a generative approach for realis-
+tic and high-quality motion synthesis of volumetric human
+heads, representing a significant advancement in the field of
+audio-driven 3D animation. Notably, our approach stands
+out in its ability to generate plausible motion sequences that
+can produce high-fidelity head animation coupled with the
+1Project Page:
+https://shivangi- aneja.github.io/
+projects/facetalk
+NPHM shape space. Our experimental results substantiate
+the effectiveness of FaceTalk, consistently achieving supe-
+rior and visually natural motion, encompassing diverse fa-
+cial expressions and styles, outperforming existing methods
+by 75% in perceptual user study evaluation.
+1. Introduction
+Modeling 3D animation of humans has a wide range of
+applications in the realm of digital media, including an-
+imated movies, computer games, and virtual assistants.
+In recent years, there have been numerous works propos-
+ing generative approaches for motion synthesis of human
+bodies, enabling the animation of human skeletons condi-
+tioned on various signals such as action [3, 25, 46], lan-
+guage [1, 4, 36, 47, 64, 77] and music [2, 67]. While human
+faces are critical to synthesis of humans, generative syn-
+thesis of 3D faces in motion has focused on 3D morphable
+models (3DMMs) leveraging linear blendshapes [7, 40] to
+represent head motion and expression. Such models char-
+acterize a disentangled space of head shape and motion,
+but lack the capacity to comprehensively represent the com-
+plexity and fine-grained details of human face geometry in
+motion (e.g., hair, skin furrowing during motion, etc.).
+Thus, we propose to represent animated head sequences
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+21263
+Abstract
+Learning representations to capture the very fundamental
+understanding of the world is a key challenge in machine
+learning. The hierarchical structure of explanatory factors
+hidden in data is such a general representation and could be
+potentially achieved with a hierarchical VAE. However, train-
+ing a hierarchical VAE always suffers from the “posterior
+collapse”, where the data information is hard to propagate
+to the higher-level latent variables, hence resulting in a bad
+hierarchical representation. To address this issue, we first an-
+alyze the shortcomings of existing methods for mitigating the
+posterior collapse from an information theory perspective,
+then highlight the necessity of regularization for explicitly
+propagating data information to higher-level latent variables
+while maintaining the dependency between different levels.
+This naturally leads to formulating the inference of the hi-
+erarchical latent representation as a sequential decision
+process, which could benefit from applying reinforcement
+learning (RL). Aligning RL’s objective with the regulariza-
+tion, we first introduce a skip-generative path to acquire
+a reward for evaluating the information content of an in-
+ferred latent representation, and then the developed Q-value
+function based on it could have a consistent optimization
+direction of the regularization. Finally, policy gradient, one
+of the typical RL methods, is employed to train a hierarchical
+VAE without introducing a gradient estimator. Experimental
+results firmly support our analysis and demonstrate that our
+proposed method effectively mitigates the posterior collapse
+issue, learns an informative hierarchy, acquires explainable
+latent representations, and significantly outperforms other
+hierarchical VAE-based methods in downstream tasks.
+1. Introduction
+Deriving meaningful representations of data with mini-
+mal supervision is a central challenge in machine learn-
+*Equal contribution, authors listed alphabetically by last name.
+†Corresponding to: Yewen Li <yewen001@e.ntu.edu.sg>.
+x
+z1
+z2
+z3
+z4
+z5
+HVAE
+x
+z1
+z2
+z3
+z4
+z5
+IVAE
+HVAE
+IVAE
+Hierarchy level→
+Hierarchy level→
+Figure 1. Visualization of different levels’ latent representations of
+hierarchical VAEs on FashinMNIST and CelebA [53] to demon-
+strate the learned hierarchical structure. HVAE fails to learn a
+5-level hierarchy, where higher-level latent representations display
+posterior collapse, collapsing into the same modes of “clothing”
+and “female faces” regardless of the input. For IVAE, reconstruc-
+tions of certain consecutive layers appear highly similar, suggesting
+a disrupted hierarchy. In contrast, our method preserves detailed
+information of inputs at low levels and captures increasingly ab-
+stract semantics at higher levels, mitigating posterior collapse and
+establishing an informative hierarchy.
+ing [5], while existing research has predominantly concen-
+trated on the discriminative approach [10] that relies on
+meticulously crafted preprocessing pipelines like pretext
+tasks [22, 30, 62, 65, 95] and data augmentations [3, 59].
+Methods such as contrastive learning [8, 9, 11, 12, 14–
+16, 27, 29, 32, 34, 36, 49, 87, 97, 98] exemplify the success
+of this discriminative approach. However, representations
+derived from these methods are only limited to tasks invari-
+ant to the preprocessing pipelines [24], e.g. representations
+learned with the random cropping data augmentation cannot
+be applied to pixel-level localization tasks [83, 84], limit-
+ing their broader applicability. To transcend these confines,
+Bengio et al. [5] advocate for the pursuit of a universal and
+fundamental understanding of the world-a “general-purpose
+prior”-enabling the direct learning of representations with-
+out prior knowledge or assumptions about downstream tasks.
+Such representations could be learned by generative ap-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+22946

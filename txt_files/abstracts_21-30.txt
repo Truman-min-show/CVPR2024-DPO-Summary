@@ -1,0 +1,702 @@
+Abstract
+Federated learning (FL) has emerged as a powerful
+paradigm for learning from decentralized data, and fed-
+erated domain generalization further considers the test
+dataset (target domain) is absent from the decentralized
+training data (source domains).
+However, most existing
+FL methods assume that domain labels are provided during
+training, and their evaluation imposes explicit constraints
+on the number of domains, which must strictly match the
+number of clients. Because of the underutilization of nu-
+merous edge devices and additional cross-client domain an-
+notations in the real world, such restrictions may be im-
+practical and involve potential privacy leaks. In this pa-
+per, we propose an efficient and novel approach, called
+Disentangled Prompt Tuning (DiPrompT), a method that
+tackles the above restrictions by learning adaptive prompts
+for domain generalization in a distributed manner. Specif-
+ically, we first design two types of prompts, i.e., global
+prompt to capture general knowledge across all clients
+and domain prompts to capture domain-specific knowledge.
+They eliminate the restriction on the one-to-one mapping
+between source domains and local clients. Furthermore, a
+dynamic query metric is introduced to automatically search
+the suitable domain label for each sample, which includes
+two-substep text-image alignments based on prompt tun-
+ing without labor-intensive annotation. Extensive experi-
+ments on multiple datasets demonstrate that our DiPrompT
+achieves superior domain generalization performance over
+state-of-the-art FL methods when domain labels are not
+provided, and even outperforms many centralized learning
+methods using domain labels.
+1. Introduction
+Federated learning (FL) is an emerging privacy-preserving
+machine-learning technique [26], which enables multiple
+∗Equal contribution, † Corresponding authors, ‡ Project leader
+(70.59) 
+Cartoon 
+Real World 
+Sketch
+Target
+D-Prompt 2
+D-Prompt 1
+D-Prompt 3
+G-Prompt
+(b) Training Stage in clients-side
+Cartoon
+Client 1
+Client 2
+Client 3
+Client 4
+Server
+D-Prompt 1
+D-Prompt 2
+D-Prompt 3
+G-Prompt
+Prediction
+0.2
+0.7
+0.1
+1.0
+(c) Test Stage in Server-side
+(a) Diversified Source domains 
+70.59 
+403.86 
+1878.98
+307.92
+Figure 1. The motivation example and our main idea. (a) When
+clients outnumber source domains, learning domain-invariant fea-
+tures may become challenging due to imbalanced contributions
+across domains/clients. Note that the contribution imbalance of
+local data is measured through its feature distances with the tar-
+get domain. (b) DiPrompT separates domain-specific features and
+general knowledge during local training. (c) DiPrompT adaptive
+ensembles for generic and valuable specific knowledge for better
+target domain prediction during inference.
+clients (e.g., mobile devices or organizations) to collabo-
+ratively learn a global model without exchanging their pri-
+vate data. However, a practical concern with conventional
+FL methods is that they usually ignore the possible domain
+shift between training data (source domains) and test data
+(target domain) [1], which can incur poor performance on
+unseen target domains due to domain discrepancies.
+Recently, some research efforts have attempted to incor-
+porate domain generalization into the FL framework. For
+example, FedDG [21] shares the amplitude spectrum of im-
+ages among local clients for medical image segmentation.
+FedSR [29] builds a simple algorithm that utilizes two lo-
+cal regularizers for domain generalization.
+These meth-
+ods extract domain-invariant features across all source do-
+mains. Nevertheless, most of these methods only focus on
+domain-invariant features across clients, and they rely on
+the assumption of one-to-one mapping of client and domain.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+27284
+Abstract
+3D head avatars built with neural implicit volumetric
+representations have achieved unprecedented levels of pho-
+torealism. However, the computational cost of these meth-
+ods remains a significant barrier to their widespread adop-
+tion, particularly in real-time applications such as virtual
+reality and teleconferencing.
+While attempts have been
+made to develop fast neural rendering approaches for static
+scenes, these methods cannot be simply employed to sup-
+port realistic facial expressions, such as in the case of a dy-
+namic facial performance. To address these challenges, we
+propose a novel fast 3D neural implicit head avatar model
+that achieves real-time rendering while maintaining fine-
+grained controllability and high rendering quality. Our key
+idea lies in the introduction of local hash table blendshapes,
+which are learned and attached to the vertices of an under-
+lying face parametric model. These per-vertex hash-tables
+are linearly merged with weights predicted via a CNN, re-
+sulting in expression dependent embeddings. Our novel rep-
+resentation enables efficient density and color predictions
+using a lightweight MLP, which is further accelerated by a
+hierarchical nearest neighbor search method. Extensive ex-
+periments show that our approach runs in real-time while
+achieving comparable rendering quality to state-of-the-arts
+and decent results on challenging expressions.
+1. Introduction
+The demand of high performing photo-realistic human
+avatars has dramatically increased with emerging VR/AR
+applications, e.g. VR gaming [2, 33], virtual assistant [3],
+tele-presence [28], and 3D videos [15, 26]. How to build
+efficient high quality avatars from monocular RGB videos
+becomes a promising direction due to the convenience of
+monocular data acquisition.
+While early works mostly
+adopt surface-based models for convenient controllability,
+recent methods (e.g. MonoAvatar [5]) leverage a sophisti-
+cated pipeline to build human avatars on neural radiance
+fields, which delivers vivid animations as well as signifi-
+cantly better rendering quality, especially over challenging
+parts such as hairs and glasses. On the downside, these ap-
+proaches tend to be prohibitively slow, and most of the com-
+putation is consumed by the neural radiance field inference
+with large Multilayer Perceptrons (MLPs).
+Recently, fast approaches for neural radiance fields (e.g.
+hash encoding in Instant NGPs [27]) have been proposed,
+which are designed mostly for static scenes or pre-recorded
+temporal sequences.
+Despite their great success, it is
+not straightforward to extend these approaches for human
+avatars, which requires real-time rendering of dynamic fa-
+cial performances when controlling the avatar. NeRFBlend-
+∗Work was conducted while Ziqian Bai was an intern at Google.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+1975
+Abstract
+We introduce the Fixed Point Diffusion Model (FPDM),
+a novel approach to image generation that integrates the
+concept of ﬁxed point solving into the framework of diffusion-
+based generative modeling. Our approach embeds an im-
+plicit ﬁxed point solving layer into the denoising network
+of a diffusion model, transforming the diffusion process
+into a sequence of closely-related ﬁxed point problems.
+Combined with a new stochastic training method, this ap-
+proach signiﬁcantly reduces model size, reduces memory
+usage, and accelerates training. Moreover, it enables the
+development of two new techniques to improve sampling
+efﬁciency: reallocating computation across timesteps and
+reusing ﬁxed point solutions between timesteps. We con-
+duct extensive experiments with state-of-the-art models on
+ImageNet, FFHQ, CelebA-HQ, and LSUN-Church, demon-
+strating substantial improvements in performance and efﬁ-
+ciency. Compared to the state-of-the-art DiT model [38],
+FPDM contains 87% fewer parameters, consumes 60% less
+memory during training, and improves image generation
+*Equal Contribution.
+†Corresponding author.
+quality in situations where sampling computation or time is
+limited. Our code and pretrained models are available at
+https://lukemelas.github.io/ﬁxed-point-diffusion-models/.
+1. Introduction
+The ﬁeld of image generation has experienced signiﬁcant
+recent advancements driven by the development of large-
+scale diffusion models [23, 37, 38, 41, 47, 48]. Key to these
+advancements have been increased model size, computa-
+tional power, and the collection of extensive datasets [4, 12,
+16, 25, 45, 46, 54], collectively contributing to a marked
+improvement in generation performance.
+Despite these strides, the core principles of diffusion net-
+works have remained largely unchanged since their develop-
+ment [23]. They typically consist of a ﬁxed series of neural
+network layers, either with a UNet architecture [42] or, more
+recently, a vision transformer architecture [14, 51]. However,
+as diffusion models are increasingly deployed in production,
+especially on mobile and edge devices, their large size and
+computational costs pose signiﬁcant challenges.
+This paper introduces the Fixed Point Diffusion Model
+(FPDM), which integrates an implicit ﬁxed point solving
+layer into the denoising network of a diffusion model. In
+1
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+9430
+Abstract
+Out-of-distribution (OOD) detection methods often ex-
+ploit auxiliary outliers to train model identifying OOD sam-
+ples, especially discovering challenging outliers from aux-
+iliary outliers dataset to improve OOD detection. However,
+they may still face limitations in effectively distinguishing
+between the most challenging OOD samples that are much
+like in-distribution (ID) data, i.e., ID-like samples. To
+this end, we propose a novel OOD detection framework that
+discovers ID-like outliers using CLIP [32] from the vicin-
+ity space of the ID samples, thus helping to identify these
+most challenging OOD samples. Then a prompt learning
+framework is proposed that utilizes the identified ID-like
+outliers to further leverage the capabilities of CLIP for OOD
+detection. Benefiting from the powerful CLIP, we only need
+a small number of ID samples to learn the prompts of the
+model without exposing other auxiliary outlier datasets. By
+focusing on the most challenging ID-like OOD samples
+and elegantly exploiting the capabilities of CLIP, our method
+achieves superior few-shot learning performance on various
+real-world image datasets (e.g., in 4-shot OOD detection on
+the ImageNet-1k dataset, our method reduces the average
+FPR95 by 12.16% and improves the average AUROC by
+2.76%, compared to state-of-the-art methods). Code is avail-
+able at https://github.com/ycfate/ID-like
+1. Introduction
+When deploying machine learning models in practical set-
+tings, it is possible to come across OOD samples that were
+not encountered during training. The risk of incorrect de-
+cisions rises when it comes to these OOD inputs, which
+could pose serious safety issues, particularly in applications
+like autonomous driving and medical diagnosis. The system
+needs to identify OOD samples in addition to performing
+*Equal contribution. †Corresponding author.
+ID: husky
+easy OOD: cat
+hard OOD: wolf
+Figure 1. Hard OOD samples typically contain more features corre-
+lated to ID samples, i.e., they behave more ID-like.
+well on ID samples in order to produce trustworthy predic-
+tions. OOD detection is therefore quite critical for safely
+deploying machine learning models in reality.
+Existing methods [9, 18, 21] usually focus on detecting
+OOD examples only using ID data in training to predict
+lower confidence [8, 27] or higher energy [22] for OOD sam-
+ples. However, due to the lack of OOD information, these
+models struggle to be effective in OOD detection. There-
+fore, some studies [10, 22] suggest using auxiliary outliers
+to regularize the models and identity OOD samples. Chen
+et al. [1] and Ming et al. [29] suggested that selecting more
+challenging outlier samples can help the model learn a better
+decision boundary between ID and OOD. However, these
+auxiliary outliers usually contain limited challenging outliers.
+Furthermore, most of these methods require additional out-
+lier data, which makes them ineffective when outlier datasets
+are unavailable. Recently, Du et al. [4] proposed to synthe-
+size virtual outlier data in the feature space of ID data to
+construct outliers during training without additional data.
+This method shows strong efficacy in distinguishing between
+ID and OOD. However, there are two main limitations: i)
+it assumes that ID data in the feature space conforms to a
+class conditional Gaussian distribution, which does not al-
+ways hold in the complex real-world applications [34]; ii) it
+requires numerous ID samples to construct a more accurate
+distribution of ID data, while obtaining a large number of ID
+samples is often costly. Accordingly, in this work, we focus
+on flexibly constructing challenging outliers with few-shot
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+17480
+Abstract
+We introduce a novel sequential modeling approach which
+enables learning a Large Vision Model (LVM) without mak-
+ing use of any linguistic data. To do this, we deﬁne a common
+format, “visual sentences”, in which we can represent raw
+images and videos as well as annotated data sources such
+as semantic segmentations and depth reconstructions with-
+out needing any meta-knowledge beyond the pixels. Once
+this wide variety of visual data (comprising 420 billion to-
+kens) is represented as sequences, the model can be trained
+to minimize a cross-entropy loss for next token prediction.
+By training across various scales of model architecture and
+data diversity, we provide empirical evidence that our models
+scale effectively. Many different vision tasks can be solved
+by designing suitable visual prompts at test time.
+1. Introduction
+Large language models (LLMs) such as GPT [10] and
+LLaMA [80] have taken the world by storm. What would
+it take to build a Large Vision Model (LVM)? From the
+animal world, we know that visual competences are not de-
+pendent on language. In particular, many experiments have
+shown that the visual world of non-human primates is re-
+markably similar to that of humans. So while the space of
+vision-language models such as LLaVA [53] is interesting
+and worthwhile to pursue, in this paper we seek an answer to
+a different question – how far can we go from pixels alone?
+The key features of contemporary LLMs that we seek
+to emulate in LVMs are: 1) scaling in the presence of big
+data, and 2) ﬂexible speciﬁcation of tasks through prompting
+(in-context learning). How do we achieve this? As usual,
+there are three main components that must be speciﬁed:
+Data: We want to exploit all the remarkable diversity in
+visual data. First of all, just raw unannotated images and
+videos. Next, we want to exploit the variety of annotated
+visual data sources that have been produced over the last
+*Equal Contribution. Webpage: https://yutongbai.com/lvm.html.
+couple of decades – semantic segmentations, depth recon-
+structions, keypoints, multiple views of 3D objects, among
+others. We deﬁne a common format, “visual sentences”, in
+which to represent these different annotations without need-
+ing any meta-knowledge beyond the pixels. The total size of
+our training dataset is 1.64 billion images/frames.
+Architecture: We use a large transformer architecture
+(3 billion parameters) trained on visual data represented as
+sequence of tokens, using a learned tokenizer that maps each
+image to a string of 256 vector-quantized tokens.
+Loss function: We draw inspiration from the natural
+language community, where masked token modeling has
+given way to sequential autoregressive prediction. Once
+images/videos/annotated images can all be represented as
+sequences, we can train the model to minimize the cross-
+entropy loss for predicting the next token.
+With this extremely simple design, we demonstrate some
+noteworthy behaviors:
+• Appropriate scaling behavior as one increases model size
+and data size.
+• Many different vision tasks can now be “solved” by design-
+ing suitable prompts at test time. While the results don’t
+show as high performance as bespoke, speciﬁcally-trained
+models, the fact that so many tasks are all addressed by a
+single vision model is quite encouraging.
+• We see a clear beneﬁt of the amount of unsupervised data
+on the performance on various standard vision tasks.
+• We see a hint of an ability for general visual reasoning –
+handling out-of-distribution data, and performing novel
+tasks. But further investigation is needed.
+2. Related Work
+Pretrained Vision Models. The value of using pretrained
+models (such as ImageNet-pretrained AlexNet [45]) has
+been demonstrated as far back as 2015 in R-CNN [34],
+and it has since become standard practice in computer vi-
+sion. Self-supervised pretraining was proposed as a way
+to vastly increase the amount of data available for pretrain-
+ing [16, 25, 37, 61, 62, 99]. Unfortunately, this was not
+very successful, likely because the CNN-based architectures
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+22861
+Abstract
+This paper presents DriveTrack, a new benchmark and
+data generation framework for long-range keypoint tracking in
+real-world videos. DriveTrack is motivated by the observation
+that the accuracy of state-of-the-art trackers depends strongly
+on visual attributes around the selected keypoints, such as
+texture and lighting. The problem is that these artifacts are
+especially pronounced in real-world videos, but these trackers
+are unable to train on such scenes due to a dearth of annotations.
+DriveTrack bridges this gap by building a framework to auto-
+matically annotate point tracks on autonomous driving datasets.
+We release a dataset consisting of 1 billion point tracks across
+24 hours of video, which is seven orders of magnitude greater
+than prior real-world benchmarks and on par with the scale
+of synthetic benchmarks. DriveTrack unlocks new use cases
+for point tracking in real-world videos. First, we show that fine-
+tuning keypoint trackers on DriveTrack improves accuracy on
+real-world scenes by up to 7%. Second, we analyze the sensitiv-
+ity of trackers to visual artifacts in real scenes and motivate the
+idea of running assistive keypoint selectors alongside trackers.
+1. Introduction
+Long-range keypoint tracking in videos underpins many com-
+puter vision applications, including autonomous driving [14],
+robotics [24], pose estimation [8], 3D reconstruction [16], and
+medical imaging [26]. Each of these applications involves mov-
+ing objects and moving cameras. Keypoint tracking—whose
+goal is to track unique points in the presence of mobility and
+occlusions—is an active area of research [4, 5, 10, 29].
+Most proposals follow the Track Any Point (TAP) [4]
+formulation: given a video and a set of query points, the
+algorithm must estimate the locations of those points in all
+other frames where they are visible. The underlying tracking
+algorithms vary significantly. TAPIR [4, 5] is an end-to-end
+method that predicts correspondences using feature maps and
+cost volumes. By contrast, PIPs++ [10, 29] stitches optical flow
+vectors together to construct long-range trajectories. These are
+two recent methods that improve the state-of-the-art, adding
+to a number of techniques proposed over the last two decades.
+This paper observes that the accuracy of state-of-the-art
+Figure 1. DriveTrack automatically generates dense, accurate, and
+long-range point track annotations for autonomous driving videos.
+trackers suffers on real videos.
+In particular, noisy visual
+characteristics—such as texture, lighting variations, occlusions,
+and motion-induced image distortions—can hinder tracking
+performance (§3). The key problem is that modern trackers train
+on vast synthetic datasets [9, 13, 29] whose scenes do not exhibit
+these imperfections. We are aware of only two benchmarks for
+the TAP task on real-world videos [12, 19], with each offering
+(only) tens of human-labeled annotations per scene.
+To overcome this shortcoming, we propose DriveTrack,
+a large-scale benchmark for long-range point tracking tasks.
+DriveTrack brings to real-world videos the density and fidelity
+of annotations available only for synthetic benchmarks today.
+By using camera feeds from cars driven in urban areas,
+DriveTrack captures realistic motion, noisy visual attributes, and
+occlusions, which synthetic [9, 13] or rendered [29] datasets
+do not model. Fig. 1 shows the annotations computed by
+DriveTrack for a driving scene. Although DriveTrack is built
+on autonomous driving videos, it captures the wide variety of
+visual artifacts typical in real-world scenes.
+To generate point tracks, we adapt methods used by synthetic
+benchmarks [9, 29] that use rendering software to precisely
+annotate the motion of simulated trajectories.
+However,
+real-world videos do not have the luxury of a simulator.
+To overcome this challenge, DriveTrack uses timestamped
+LiDAR point clouds, object bounding box annotations, and
+camera poses and orientations [2, 7, 21, 25]. Since LiDAR
+point sweeps do not have 1:1 correspondence over time [21],
+DriveTrack cannot compute correspondences between adjacent
+point clouds, as synthetic benchmarks are able to. DriveTrack
+instead transforms each timestamped point cloud according
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+22488
+Abstract
+Sign Languages (SL) serve as the primary mode of com-
+munication for the Deaf and Hard of Hearing communities.
+Deep learning methods for SL recognition and translation
+have achieved promising results. However, Sign Language
+Production (SLP) poses a challenge as the generated mo-
+tions must be realistic and have precise semantic meaning.
+Most SLP methods rely on 2D data, which hinders their re-
+alism. In this work, a diffusion-based SLP model is trained
+on a curated large-scale dataset of 4D signing avatars and
+their corresponding text transcripts. The proposed method
+can generate dynamic sequences of 3D avatars from an un-
+constrained domain of discourse using a diffusion process
+formed on a novel and anatomically informed graph neu-
+ral network defined on the SMPL-X body skeleton. Through
+quantitative and qualitative experiments, we show that the
+proposed method considerably outperforms previous meth-
+ods of SLP. This work makes an important step towards re-
+alistic neural sign avatars, bridging the communication gap
+between Deaf and hearing communities.1
+1Project page: https://baltatzisv.github.io/neural-sign-actors/
+1. Introduction
+Sign language (SL) is a form of language in which visual-
+manual modalities are used instead of spoken words to con-
+vey meaning. It is the predominant form of communication
+for more than 70 million Deaf and Hard of Hearing peo-
+ple around the world. Akin to verbal languages, SLs have
+extremely rich vocabulary and grammar, yet the complexi-
+ties differ drastically [55]. To enable effective visual com-
+munication, they consist of both manual and non-manual
+components [35]. The manual modality encompasses hand
+articulation, orientation, position, and motion, while non-
+manual elements include arm movements and facial expres-
+sions [6]. Whilst it is possible to convey some meaning us-
+ing just hand articulations, expressiveness is limited since
+non-manual elements often convey emotions [3, 55].
+Recently, several methods have been proposed to bridge
+the domain gap between sign and spoken languages. Most
+methods focus on Sign Language Recognition (SLR) which
+includes the translation of a specific sign to its correspond-
+ing meaning, as well as Sign Language Translation (SLT)
+that extends SLR to the translation of a sign sequence to
+its spoken word equivalent. This is usually tackled using
+glosses [10, 14, 15, 28], which are simplified mid-level
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+1985
+Abstract
+Recent advances in large-scale pretraining have yielded
+visual foundation models with strong capabilities. Not only
+can recent models generalize to arbitrary images for their
+training task, their intermediate representations are useful
+for other visual tasks such as detection and segmentation.
+Given that such models can classify, delineate, and local-
+ize objects in 2D, we ask whether they also represent their
+3D structure? In this work, we analyze the 3D awareness
+of visual foundation models. We posit that 3D awareness
+implies that representations (1) encode the 3D structure of
+the scene and (2) consistently represent the surface across
+views. We conduct a series of experiments using task-speciﬁc
+probes and zero-shot inference procedures on frozen fea-
+tures. Our experiments reveal several limitations of the
+current models. Our code and analysis can be found at
+https://github.com/mbanani/probe3d.
+1. Introduction
+Large-scale pretraining on image datasets has yielded visual
+foundation models with impressive generalization capabili-
+ties. Such models can classify [46, 65], segment [36], and
+generate [10, 69, 70] arbitrary images. Furthermore, the
+dense representations learned by such models extend beyond
+their training tasks and exhibit strong zero-shot capabilities
+in other tasks such as segmentation [56, 95] and part discov-
+ery [1, 27]. This suggests that models are learning strong
+image representations, but how well do they represent the
+3D world that images depict?
+Recent work suggests that visual foundation models are
+useful for some 3D tasks despite being trained with 2D
+data. For instance, models implicitly represent depth and
+surface normals when generating images of scenes and
+faces [6, 12]. Furthermore, the intermediate representations
+of self-supervised and generative models can be used to esti-
+mate semantic correspondence [1, 27, 30, 83, 99] and object
+pose [25]. However, when reconstructing 3D objects, they
+generate artifacts that suggest a lack of 3D consistency [50];
+* Current afﬁliation is Stability AI.
+Evaluation Tasks
+Single-Image 3D 
+Multiview Consistency
+Single-Image 3D 
+Multiview Consistency
+Objects
+Scenes
+Evaluated Models
+MAE 
+iBOT
+DeiT III
+CLIP
+MiDaS 
+DINO 
+DINOv2
+StableDiffusion
+SigLIP
+SAM 
+Figure 1. Are current visual foundation models 3D aware? We
+probe the 3D awareness of the learned representations by evaluating
+their ability to encode the 3D structure of the visible surface and
+their consistency across views.
+e.g., animals with multiple faces. Therefore, it remains un-
+clear how those modes represent or understand the 3D world.
+The goal of this paper is to study the 3D awareness of
+visual foundation models. Previous benchmarks evaluate
+visual models on semantic tasks [24, 26, 87], but their 3D
+understanding remains understudied. Representations can
+vary from having no 3D awareness (e.g., class label or bag
+of words) to accurately representing the 3D geometry of
+the scene (e.g., 3D surface map or mesh). We posit that
+3D awareness can be evaluated through two distinct capa-
+bilities: single-view surface reconstruction and multiview
+consistency. If a model is 3D aware, we expect that its repre-
+sentations would encode the geometry of the surfaces visible
+in the image; i.e., how far is each point in the scene? what
+is the orientation of the surface? Moreover, the representa-
+tions should be consistent for different views of the scene;
+allowing them to establish accurate correspondence.
+1
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+21795
+Abstract
+We propose SketchINR, to advance the representation
+of vector sketches with implicit neural models.
+A vari-
+able length vector sketch is compressed into a latent space
+of fixed dimension that implicitly encodes the underlying
+shape as a function of time and strokes. The learned func-
+tion predicts the xy point coordinates in a sketch at each
+time and stroke. Despite its simplicity, SketchINR outper-
+forms existing representations at multiple tasks: (i) Encod-
+ing an entire sketch dataset into a fixed size latent vec-
+tor, SketchINR gives 60× and 10× data compression over
+raster and vector sketches, respectively. (ii) SketchINR’s
+auto-decoder provides a much higher-fidelity representa-
+tion than other learned vector sketch representations, and
+is uniquely able to scale to complex vector sketches such
+as FS-COCO. (iii) SketchINR supports parallelisation that
+can decode/render ∼100× faster than other learned vector
+representations such as SketchRNN. (iv) SketchINR, for the
+first time, emulates the human ability to reproduce a sketch
+with varying abstraction in terms of number and complex-
+ity of strokes. As a first look at implicit sketches, Sketch-
+INR’s compact high-fidelity representation will support fu-
+ture work in modelling long and complex sketches.
+1. Introduction
+The prevalence of touch-screen devices has triggered signif-
+icant research progress on sketches [4, 6, 8, 51, 57]. Mod-
+elling digital sketches has become an important challenge
+for learning systems that aim to stimulate human creativity
+[17, 27]. Large-scale datasets [24, 28, 53] motivated sev-
+eral downstream applications like image retrieval [15, 61],
+image generation [37, 65], image editing [1, 41], and 3D
+content creation [5, 8, 38], among others [58, 60].
+These applications are underpinned by sketches captured
+in raw form either as raster or vector images, and usu-
+ally encoded into derived representations by ConvNets [15],
+splines, and so on. For over a decade, discourse around
+what is a “good” representation of human sketches has
+persisted [31].
+A now substantial body of work has fo-
+cused on representations for sequential vector sketches that
+model both explicit strokes, and their drawing over time
+— most famously by the auto-regressive SketchRNN [28],
+but also using representations such as parametric curves
+[16], Gaussians [2], and Neural ODEs [17]. We introduce
+a novel continuous-time representation of sequential vec-
+tor sketches by taking an implicit neural representation per-
+spective on sketches for the first time.
+First, we review the limitations of current sketch repre-
+sentations. The two most popular raw sketch representa-
+tions are (i) raster sketch – a black and white image of a
+line drawing, and (ii) vector sketch – a temporal sequence
+of points and strokes. Raster sketch has a large but fixed
+storage (e.g., 256 × 256). Its compatibility with ConvNets
+[64] made raster sketches popular but they lack the tempo-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+12565
+Abstract
+Pre-trained Vision Language Models (VLMs) have
+demonstrated notable progress in various zero-shot tasks,
+such as classiﬁcation and retrieval. Despite their perfor-
+mance, because improving performance on new tasks re-
+quires task-speciﬁc knowledge, their adaptation is essen-
+tial. While labels are needed for the adaptation, acquiring
+them is typically expensive. To overcome this challenge, ac-
+tive learning, a method of achieving a high performance by
+obtaining labels for a small number of samples from ex-
+perts, has been studied. Active learning primarily focuses
+on selecting unlabeled samples for labeling and leverag-
+ing them to train models. In this study, we pose the ques-
+tion, “how can the pre-trained VLMs be adapted under the
+active learning framework?” In response to this inquiry,
+we observe that (1) simply applying a conventional active
+learning framework to pre-trained VLMs even may degrade
+performance compared to random selection because of the
+class imbalance in labeling candidates, and (2) the knowl-
+edge of VLMs can provide hints for achieving the balance
+before labeling. Based on these observations, we devise a
+novel active learning framework for VLMs, denoted as PCB.
+To assess the effectiveness of our approach, we conduct ex-
+periments on seven different real-world datasets, and the
+results demonstrate that PCB surpasses conventional active
+learning and random sampling methods. Code is available
+at https://github.com/kaist-dmlab/pcb.
+1. Introduction
+In the past, as emerging research in deep neural networks
+(DNNs) progressed, there was a substantial focus on study-
+ing speciﬁc types of datasets, including image/video (vi-
+sion) [1, 10, 16], natural language [5, 54, 55], graph [63], ta-
+ble [58], and more. However, recent research has raised the
+question: “can we develop DNNs capable of understand-
+ing multiple types of datasets interactively?” Among vari-
+ous candidates for multi-modality models, vision language
+⇤indicates corresponding author.
+models (VLMs) [31–33, 46, 59] have garnered signiﬁcant
+attention due to not only to their wide domain knowledge
+but also to their superior performance on various tasks.
+Most of VLMs, for instance CLIP [46], comprises two
+encoders: image and text encoders. They have consistently
+shown impressive zero-shot performance across a wide
+range of tasks without ﬁne-tuning. For example, CLIP is
+well-known for its remarkable zero-shot classiﬁcation per-
+formance on various benchmarks, even if the model has not
+encountered the datasets previously. Despite these notable
+zero-shot performances, many researchers are focusing on
+developing adaptation methods for new target tasks because
+of necessity to make the model aware of the target tasks.
+Since updating all parameters can be computationally ex-
+pensive, a key research focus lies in reducing the adapta-
+tion computing cost [23, 66, 67]. For example, CoOp [66]
+takes the approach of freezing both encoders and only al-
+lowing a small number of trainable parameters (with a size
+ranging from 4 to 16) to serve as prompts. This strategy
+has demonstrated substantial improvements in classiﬁcation
+performance with only a small number of trainable param-
+eters and a limited amount of data for each class.
+Even though we can reduce the adpation cost, the barrier
+of high labeling costs still persists. To mitigate this inefﬁ-
+ciency, there have been extensive studies in an area of active
+learning [48, 51]. The central objective of active learning
+is to select samples for labeling so that the model perfor-
+mance is signiﬁcantly improved, making a noticebale gap
+compared to random samples of the same quantity. These
+active learning methods can be roughly divided into two cat-
+egories: (1) uncertainty-based sampling [12, 18, 19, 25, 47]
+and (2) diversity-based sampling [43, 50] which leverages
+feature embeddings from the image encoder. In a hybrid
+perspective, BADGE [2] was introduced by combining un-
+certainty and diversity through the use of k-means++ clus-
+tering within the gradient embedding space.
+Under these two researches, our initial inquiry pertains
+to the determination of whether the implementation sim-
+ply combining active learning with VLMs can effectively
+lead to enhanced classiﬁcation performance. If it does not
+result in such improvement, what constitutes the critical in-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+27004

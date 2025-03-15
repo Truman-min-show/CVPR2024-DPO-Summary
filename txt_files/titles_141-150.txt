@@ -1,0 +1,10 @@
+Chen Sculpt3D Multi-View Consistent Text-to-3D Generation with Sparse 3D Prior
+Chen SDPose Tokenized Pose Estimation via Circulation-Guide Self-Distillation
+Chen SecondPose SE3-Consistent Dual-Stream Feature Fusion for Category-Level Pose Estimation
+Chen SoundingActions Learning How Actions Sound from Narrated Egocentric Videos
+Chen SUGAR Pre-training 3D Visual Representations for Robotics
+Chen Text-to-3D using Gaussian Splatting
+Chen Think Twice Before Selection Federated Evidential Active Learning for Medical
+Chen TiNO-Edit Timestep and Noise Optimization for Robust Diffusion-Based Image Editing
+Chen Total Selfie Generating Full-Body Selfies
+Chen Towards Generalizable Tumor Synthesis

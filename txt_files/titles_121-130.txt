@@ -1,0 +1,10 @@
+Chen How Far Can We Compress Instant-NGP-Based NeRF
+Chen Image Neural Field Diffusion Models
+Chen InternVL Scaling up Vision Foundation Models and Aligning for Generic
+Chen Learning Adaptive Spatial Coherent Correlations for Speech-Preserving Facial Expression Manipulation
+Chen LION Empowering Multimodal Large Language Model with Dual-Level Visual Knowledge
+Chen LL3DA Visual Interactive Instruction Tuning for Omni-3D Understanding Reasoning and
+Chen Low-Res Leads the Way Improving Generalization for Super-Resolution by Self-Supervised
+Chen Map-Relative Pose Regression for Visual Re-Localization
+Chen Mind Artist Creating Artistic Snapshots with Human Thought
+Chen MoCha-Stereo Motif Channel Attention Network for Stereo Matching

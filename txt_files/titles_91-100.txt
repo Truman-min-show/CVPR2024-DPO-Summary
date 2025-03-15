@@ -1,0 +1,10 @@
+Chan Improving Subject-Driven Image Synthesis with Subject-Agnostic Guidance
+Chan Resolution Limit of Single-Photon LiDAR
+Charatan pixelSplat 3D Gaussian Splats from Image Pairs for Scalable Generalizable
+Cha Text2HOI Text-guided 3D Motion Generation for Hand-Object Interaction
+Chehreghani Hierarchical Correlation Clustering and Tree Preserving Embedding
+Cheng EgoThink Evaluating First-Person Perspective Thinking Capability of Vision-Language Models
+Cheng G-FARS Gradient-Field-based Auto-Regressive Sampling for 3D Part Grouping
+Cheng LOTUS Evasive and Resilient Backdoor Attacks through Sub-Partitioning
+Cheng Putting the Object Back into Video Object Segmentation
+Cheng Towards Calibrated Multi-label Deep Neural Networks

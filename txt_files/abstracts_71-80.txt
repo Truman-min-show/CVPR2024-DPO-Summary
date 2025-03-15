@@ -1,0 +1,855 @@
+Abstract
+Neural Radiance Fields (NeRFs) have shown great po-
+tential in novel view synthesis. However, they struggle to
+render sharp images when the data used for training is af-
+fected by motion blur. On the other hand, event cameras ex-
+cel in dynamic scenes as they measure brightness changes
+with microsecond resolution and are thus only marginally
+affected by blur. Recent methods attempt to enhance NeRF
+reconstructions under camera motion by fusing frames and
+events. However, they face challenges in recovering accu-
+rate color content or constrain the NeRF to a set of pre-
+defined camera poses, harming reconstruction quality in
+challenging conditions. This paper proposes a novel for-
+mulation addressing these issues by leveraging both model-
+and learning-based modules. We explicitly model the blur
+formation process, exploiting the event double integral as
+an additional model-based prior. Additionally, we model
+the event-pixel response using an end-to-end learnable re-
+sponse function, allowing our method to adapt to non-
+idealities in the real event-camera sensor.
+We show, on
+synthetic and real data, that the proposed approach outper-
+forms existing deblur NeRFs that use only frames as well
+as those that combine frames and events by +6.13dB and
++2.48dB, respectively.
+Multimedial Material: For videos, datasets and more visit
+https://github.com/uzh-rpg/evdeblurnerf.
+1. Introduction
+Neural Radiance Fields (NeRFs) [27] have completely rev-
+olutionized the field of 3D reconstruction and novel view
+synthesis, achieving unprecedented levels of details [2, 3,
+43]. As a result, they have quickly found applications in
+many subfields of computer vision and robotics, such as
+pose estimation and navigation [36, 53, 59], image process-
+ing [12, 24, 28, 47], scene understanding [17, 22, 51], sur-
+face reconstruction [1, 48, 54], and many others.
+Leveraging multi-view consistency from calibrated im-
+ages, NeRF exploits supervision from multiple view-points,
+enabling generalization to novel camera poses and the abil-
+ity to render view-dependent color effects [43]. However,
+Motion-aware
+NeRF
+event
+CRF
+Ev-DeblurNeRF
+Blurry Images
+Events
+Reconstructions
+Figure 1. Ev-DeblurNeRF combines blurry images and events to
+recover sharp NeRFs. A motion-aware NeRF recovers camera mo-
+tion and a learnable event camera response function models real
+camera’s non-idealities, enabling high-quality reconstructions.
+akin to other methods relying on photometric consistency,
+NeRF can only deliver high-quality reconstructions when
+the images used for training are perfectly captured and free
+from any artifact. Unfortunately, perfect conditions are sel-
+dom met in the real world.
+For example, in robotics, camera motion is prevalent
+when capturing images, often resulting in motion blur. Un-
+der such conditions, NeRFs are unable to reconstruct sharp
+radiance fields, thereby impeding their practical use in real-
+world scenes. Although recent works [6, 18, 24, 49] have
+shown promising results in reconstructing radiance fields
+from motion-blurred images by learning to infer the cam-
+era motion during the exposure time, the task of recover-
+ing motion-deblurred NeRFs still remains significantly ill-
+posed. Existing image-based approaches typically fail when
+training images exhibit similar and consistent motion [24],
+and they are inherently limited by the presence of motion
+ambiguities and loss of texture details that cannot be recov-
+ered from blurry images alone.
+In this regard, recent works have shown that event-based
+cameras can substantially aid the task of deblurring images
+captured with standard cameras [33, 37, 45, 56].
+These
+sensors measure brightness changes at microseconds reso-
+lution and are practically unaffected by motion blur [11],
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+9286
+Abstract
+Radiologists highly desire fully automated versatile AI
+for medical imaging interpretation. However, the lack of ex-
+tensively annotated large-scale multi-disease datasets has
+hindered the achievement of this goal. In this paper, we
+explore the feasibility of leveraging language as a natu-
+rally high-quality supervision for chest CT imaging. In light
+of the limited availability of image-report pairs, we boot-
+strap the understanding of 3D chest CT images by distill-
+ing chest-related diagnostic knowledge from an extensively
+pre-trained 2D X-ray expert model. Speciﬁcally, we pro-
+pose a language-guided retrieval method to match each 3D
+CT image with its semantically closest 2D X-ray image, and
+perform pair-wise and semantic relation knowledge distil-
+lation. Subsequently, we use contrastive learning to align
+images and reports within the same patient while distin-
+guishing them from the other patients. However, the chal-
+lenge arises when patients have similar semantic diagnoses,
+such as healthy patients, potentially confusing if treated as
+negatives. We introduce a robust contrastive learning that
+identiﬁes and corrects these false negatives. We train our
+model with over 12K pairs of chest CT images and radi-
+ology reports. Extensive experiments across multiple sce-
+narios, including zero-shot learning, report generation, and
+ﬁne-tuning processes, demonstrate the model’s feasibility in
+interpreting chest CT images.
+1. Introduction
+Understanding medical images is crucial for precise clinical
+diagnosis, with doctors routinely engaging in multi-disease
+*Correspondence to Jianpeng Zhang and Jian Zheng. The work was
+done during Weiwei Cao’s internship at DAMO Academy.
+Model
+Supervision
+Functionality
+Single-disease
+Nodule
+Emphysema
+Inflammation
+Calcification
+…
+Ours
+Nodule
+Emphysema
+Inflammation
+Calcification
+…
+Nodule
+Emphysema
+Inflammation
+Calcification
+…
++
+Multi-disease
+Figure 1. Models tailored for speciﬁc diseases demand doctors
+to annotate each image. Creating a multi-disease model involves
+more time and effort for comprehensive data annotation. In con-
+trast, our model learns to diagnose various diseases from both im-
+ages and reports, eliminating the need for additional annotations.
+detection and diagnosis in imaging scans. Deep learning
+models require extensive datasets with fully annotated dis-
+eases for comprehensive training [19, 24, 28]. In practice,
+the prevailing approach to developing a diagnostic model
+typically concentrates on a speciﬁc disease, as illustrated in
+Figure 1. This workﬂow results in models with limited us-
+age, failing to be applied to other diseases. To augment the
+capability for a new disease, a signiﬁcant additional effort
+is needed for data collection, annotation, and model train-
+ing, which is not scalable, as there might be hundreds of
+diseases and tasks. Therefore, there is a strong anticipation
+for a new model development paradigm beyond the current
+labor-intensive annotation and task-speciﬁc training. Imag-
+ing diagnostic reports, the core output of radiologists’ in-
+tellectual work, inherently offer disease-level labels. The
+challenge lies in effectively leveraging this text data to en-
+hance medical image understanding.
+Recent advances in vision-language pretraining (VLP)
+have yielded valuable insights [2, 11, 20, 22, 27]. Con-
+trastive learning, a powerful technique in VLP, effectively
+bridges the image and text modalities. This method uniﬁes
+1
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+11238
+Abstract
+Diffusion model-based image restoration (IR) aims to use
+diffusion models to recover high-quality (HQ) images from
+degraded images, achieving promising performance. Due
+to the inherent property of diffusion models, most existing
+methods need long serial sampling chains to restore HQ
+images step-by-step, resulting in expensive sampling time
+and high computation costs. Moreover, such long sampling
+chains hinder understanding the relationship between inputs
+and restoration results since it is hard to compute the gra-
+dients in the whole chains. In this work, we aim to rethink
+the diffusion model-based IR models through a different per-
+spective, i.e., a deep equilibrium (DEQ) fixed point system,
+called DeqIR. Specifically, we derive an analytical solution
+by modeling the entire sampling chain in these IR models as
+a joint multivariate fixed point system. Based on the analyti-
+cal solution, we can conduct parallel sampling and restore
+HQ images without training. Furthermore, we compute fast
+gradients via DEQ inversion and found that initialization
+optimization can boost image quality and control the gen-
+eration direction. Extensive experiments on benchmarks
+demonstrate the effectiveness of our method on typical IR
+tasks and real-world settings.
+1. Introduction
+Image restoration (IR) aims at recovering a high-quality
+(HQ) image from a degraded input. Recently, diffusion
+models [37, 61] are attracting great attention because they
+can generate higher quality images than GANs [23] and
+likelihood-based models [44]. Based on diffusion models
+[37, 61], many IR methods [20, 41, 68] achieve compelling
+performance on different tasks. Directly using diffusion
+models in IR, however, suffers from some limitations.
+First, diffusion model-based image restoration (DMIR)
+models rely on a long sampling chain to synthesize HQ im-
+ages step-by-step, as shown in Figure 2 (a). As a result,
+it will lead to expensive sampling time during the infer-
+*Corresponding author.
+DPS
+DDRM DDNM
+Ours
+(a) 4x SR (ImageNet)
+19
+22
+25
+28
+PSNR
+0.2
+0.3
+0.4
+0.5
+LPIPS
+DPS
+DDRM DDNM
+Ours
+(b) Deblurring (ImageNet)
+20
+25
+30
+35
+40
+PSNR
+0.0
+0.2
+0.4
+LPIPS
+DDRM PaletteRePaint Ours
+(c) Inpainting (CelebA)
+37
+38
+39
+40
+PSNR
+0.0
+0.1
+0.2
+0.3
+LPIPS
+DGP
+DDRM DDNM
+Ours
+(d) Colorization (CelebA)
+40
+50
+60
+70
+80
+FID
+0.1
+0.2
+0.3
+LPIPS
+Figure 1. Comparisons of different zero-shot DMIR methods in
+various IR applications on different datasets.
+ence. For example, DPS [20] based on DDPM [37] needs
+1k sampling steps. To accelerate the sampling, some DMIR
+methods [41, 68, 87] use DDIM [61] to make a trade-off be-
+tween computational cost and the restoration quality. Based
+on this, these methods can reduce sampling steps to 100
+or even fewer. Unfortunately, it may degrade the sample
+quality when reducing the sampling steps [52]. It raises an
+interesting question: is it possible to develop an alternative
+sampling method without sacrificing the sample quality?
+Second, the long sampling chain makes understanding the
+relationship between the restoration and inputs difficult. In
+practice, sampling different Gaussian noises as inputs may
+have diverse results for some IR tasks (e.g., inpainting and
+colorization). Such diversity is not necessary for some IR
+tasks, e.g., super-resolution (SR) or deblurring. Nevertheless,
+different initializations may affect the quality of SR and
+deblurring. It raises the second question: is it possible to
+optimize the initialization such that the generation can be
+improved or controlled? However, it is difficult for existing
+methods to compute the gradient along the long sampling
+chain as they require storing the entire computational graph.
+In this paper, we rethink the sampling process in IR from a
+deep equilibrium (DEQ) based on [57]. Specifically, we first
+derive a proposition to model the sampling chain as a fixed
+point system, achieving parallel sampling. Then, we use a
+DEQ solver to find the fixed point of the sampling chain.
+Last, we use modern automatic differentiation packages to
+compute the gradients with backpropagating and understand
+the relationship between input noise and restoration.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+2824
+Abstract
+We present DreamAvatar, a text-and-shape guided
+framework for generating high-quality 3D human avatars
+with controllable poses. While encouraging results have
+been reported by recent methods on text-guided 3D common
+object generation, generating high-quality human avatars
+remains an open challenge due to the complexity of the
+human body’s shape, pose, and appearance. We propose
+DreamAvatar to tackle this challenge, which utilizes a train-
+able NeRF for predicting density and color for 3D points
+and pretrained text-to-image diffusion models for providing
+2D self-supervision. Specifically, we leverage the SMPL
+model to provide shape and pose guidance for the gener-
+ation. We introduce a dual-observation-space design that
+involves the joint optimization of a canonical space and
+a posed space that are related by a learnable deforma-
+tion field.
+This facilitates the generation of more com-
+plete textures and geometry faithful to the target pose. We
+also jointly optimize the losses computed from the full body
+and from the zoomed-in 3D head to alleviate the common
+multi-face “Janus” problem and improve facial details in
+the generated avatars. Extensive evaluations demonstrate
+that DreamAvatar significantly outperforms existing meth-
+ods, establishing a new state-of-the-art for text-and-shape
+guided 3D human avatar generation.
+1. Introduction
+The creation of 3D graphical human models has received
+great attention in recent years due to its wide-ranging appli-
+cations in fields such as film-making, video games, AR/VR,
+and human-robotic interaction.
+Traditional methods for
+building such complex 3D models require thousands of
+man-hours of trained artists and engineers [10, 12], mak-
+ing the process both time-consuming and highly expert-
+*Equal contribution
+†Corresponding authors
+‡Webpage: https:
+//yukangcao.github.io/DreamAvatar/
+Acknowlegement: This work is partially supported by Hong Kong Re-
+search Grant Council - Early Career Scheme (Grant No. 27208022) and
+HKU Seed Fund for Basic Research.
+dependent. With the development of deep learning meth-
+ods, we have witnessed the emergence of promising meth-
+ods [5, 54, 61] which can reconstruct 3D human mod-
+els from monocular images. These techniques, however,
+still face challenges in fully recovering details from the in-
+put images and rely heavily on the training dataset.
+To
+tackle these challenges and simplify the modeling process,
+adopting generative models for 3D human avatar modeling
+has recently received increasing attention from the research
+community. This approach has the potential to alleviate the
+need for large 3D datasets and facilitate easier and more ac-
+cessible 3D human avatar modeling.
+To leverage the potential of 2D generative image models
+for 3D content generation, recent methods [8, 29, 31, 35, 46]
+have utilized pretrained text-guided image diffusion models
+to optimize 3D implicit representations (e.g., NeRFs [37]
+and DMTet [40, 56]).
+DreamFusion [46] introduces a
+novel Score Distillation Sampling (SDS) strategy to self-
+supervise the optimization process and achieves promising
+results. However, human bodies, which are the primary fo-
+cus of this paper, exhibit a complex articulated structure,
+with head, arms, hands, trunk, legs, feet, etc., each capa-
+ble of posing in various ways. As a result, while Dream-
+Fusion [46] and subsequent methods (e.g., Magic3D [29],
+ProlificDreamer [58], Fantasia3D [8]) produce impressive
+results, they lack the proper constraints to enforce consis-
+tent 3D human structure and often struggle to generate de-
+tailed textures for 3D human avatars. Latent-NeRF [35] in-
+troduces a sketch-shape loss based on the 3D shape guid-
+ance, but it still faces challenges in generating reasonable
+results for human bodies.
+In this paper, we present DreamAvatar, a novel frame-
+work for generating high-quality 3D human avatars from
+text prompts and shape priors.
+Inspired by previous
+works [29, 46], DreamAvatar employs a trainable NeRF
+as the base representation for predicting density and color
+values for each 3D point. Coupled with pretrained text-
+to-image diffusion models [50, 68], DreamAvatar can be
+trained to generate 3D avatars using 2D self-supervision.
+The key innovation of DreamAvatar lies in three main as-
+pects. Firstly, we leverage the SMPL model [32] to provide
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+958
+Abstract
+We introduce Motion2VecSets, a 4D diffusion model for
+dynamic surface reconstruction from point cloud sequences.
+While existing state-of-the-art methods have demonstrated
+success in reconstructing non-rigid objects using neural
+field representations, conventional feed-forward networks
+encounter challenges with ambiguous observations from
+noisy, partial, or sparse point clouds.
+To address these
+challenges, we introduce a diffusion model that explicitly
+learns the shape and motion distribution of non-rigid ob-
+jects through an iterative denoising process of compressed
+latent representations. The diffusion-based priors enable
+more plausible and probabilistic reconstructions when han-
+dling ambiguous inputs.
+We parameterize 4D dynamics
+with latent sets instead of using global latent codes. This
+novel 4D representation allows us to learn local shape and
+deformation patterns, leading to more accurate non-linear
+motion capture and significantly improving generalizabil-
+ity to unseen motions and identities. For more temporally-
+coherent object tracking, we synchronously denoise defor-
+mation latent sets and exchange information across multi-
+ple frames. To avoid computational overhead, we designed
+*Equal Contribution.
+†Corresponding author.
+‡Work done during master’s thesis.
+an interleaved space and time attention block to alternately
+aggregate deformation latents along spatial and temporal
+domains.
+Extensive comparisons against state-of-the-art
+methods demonstrate the superiority of our Motion2VecSets
+in 4D reconstruction from various imperfect observations.
+1. Introduction
+Our world, dynamic in its 4D nature, demands an increas-
+ingly sophisticated understanding and simulation of our
+living environment.
+This offers significant potential for
+practical applications, including Virtual Reality (VR), Aug-
+mented Reality (AR), and robotic simulations. There have
+been notable advances in 3D object modeling, particularly
+in representations through parametric models [27, 30, 36,
+45, 67]. Unfortunately, these template-based models are
+not effectively suited to capture the 4D dynamics of gen-
+eral non-rigid objects, due to the assumption of a fixed tem-
+plate mesh. Model-free approaches [25, 32, 52] represent
+a significant advance by using coordinate-MLP represen-
+tations for deformable object reconstruction with arbitrary
+topologies and non-unified structures. However, these state-
+of-the-art methods still encounter challenges when facing
+ambiguous observations of noisy, sparse, or partial point
+clouds since it is an ill-posed problem where multiple pos-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+20496
+Abstract
+Generalized Category Discovery (GCD) aims to identify
+a mix of known and novel categories within unlabeled data
+sets, providing a more realistic setting for image recogni-
+tion. Essentially, GCD needs to remember existing pat-
+terns thoroughly to recognize novel categories.
+Recent
+state-of-the-art method SimGCD transfers the knowledge
+from known-class data to the learning of novel classes
+through debiased learning.
+However, some patterns are
+catastrophically forgot during adaptation and thus lead to
+poor performance in novel categories classiﬁcation. To ad-
+dress this issue, we propose a novel learning approach, Le-
+goGCD, which is seamlessly integrated into previous meth-
+ods to enhance the discrimination of novel classes while
+maintaining performance on previously encountered known
+classes.
+Speciﬁcally, we design two types of techniques
+termed as Local Entropy Regularization (LER) and Dual-
+views Kullback–Leibler divergence constraint (DKL). The
+LER optimizes the distribution of potential known class
+samples in unlabeled data, thus ensuring the preservation of
+knowledge related to known categories while learning novel
+classes. Meanwhile, DKL introduces Kullback–Leibler di-
+vergence to encourage the model to produce a similar pre-
+diction distribution of two view samples from the same im-
+age. In this way, it successfully avoids mismatched predic-
+tion and generates more reliable potential known class sam-
+ples simultaneously. Extensive experiments validate that the
+proposed LegoGCD effectively addresses the known cate-
+gory forgetting issue across all datasets, e.g., delivering
+a 7.74% and 2.51% accuracy boost on known and novel
+classes in CUB, respectively.
+Our code is available at:
+https://github.com/Cliffia123/LegoGCD.
+*Equal Contribution.
+†Joint Corresponding Authors.
+64.44%
+57.82%
+Catastrophic
+forgetting
+(a) Baseline SimGCD [39]
+72.18% 
+(↑7.74)
+60.33%
+(↑2.51)
+(b) Ours LegoGCD
+Figure 1. Visualization of the accuracy results in unlabeled dataset
+on CUB dataset [37] during training. (a) shows a decrease in the
+accuracy of known (Old) classes (green) in the baseline as the ac-
+curacy of novel (New) classes (orange) increases. (b) demonstrates
+that LegoGCD solves the catastrophic forgetting problem and sur-
+passes the baseline by a signiﬁcant margin of 7.74.
+1. Introduction
+Deep learning have achieved superior performance on com-
+puter vision tasks [4, 11, 24, 25, 30, 34], particularly on
+image classiﬁcation [10, 12, 27, 28, 51]. However, con-
+ventional methods work in a close-world setting, where
+all training data comes with pre-deﬁned classes.
+Con-
+sequently, deploying these models in real-world scenar-
+ios with potential novel classes becomes a considerable
+challenge.
+Furthermore, these achievements rely heav-
+ily on large-scale annotated dataset, which is not easily
+accessible in realistic scenarios.
+To address these chal-
+lenges, a new paradigm of Generalized Category Discov-
+ery (GCD) [1, 7, 9, 23, 36, 39, 45, 46] has been proposed
+and attracts increasing attention in recent years.
+The goal of GCD is to train a classiﬁcation model capa-
+ble of recognizing both known and novel categories within
+unlabeled data. To be clear, GCD distinguishes itself from
+the Novel Class Discovery (NCD) [8], which relies on an
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+16880
+Abstract
+We present SuperNormal, a fast, high-ﬁdelity approach
+to multi-view 3D reconstruction using surface normal maps.
+With a few minutes, SuperNormal produces detailed sur-
+faces on par with 3D scanners. We harness volume ren-
+dering to optimize a neural signed distance function (SDF)
+powered by multi-resolution hash encoding. To accelerate
+training, we propose directional ﬁnite difference and patch-
+based ray marching to approximate the SDF gradients nu-
+merically. While not compromising reconstruction quality,
+this strategy is nearly twice as efﬁcient as analytical gra-
+dients and about three times faster than axis-aligned ﬁnite
+difference. Experiments on the benchmark dataset demon-
+strate the superiority of SuperNormal in efﬁciency and ac-
+curacy compared to existing multi-view photometric stereo
+methods. On our captured objects, SuperNormal produces
+more ﬁne-grained geometry than recent neural 3D recon-
+struction methods. Our code is available at https://
+github.com/CyberAgentAILab/SuperNormal.
+1. Introduction
+Recovering high-quality 3D geometry of real-world ob-
+jects from their multi-view images is a long-standing chal-
+lenge in computer vision. Recently, neural implicit surface-
+based methods have shown remarkable reconstruction re-
+sults.
+Compared to traditional multi-view stereo (MVS)
+methods [25], neural methods are more robust to view-
+dependent observations and textureless surfaces [29]. Fur-
+thermore, the reconstruction procedure has become highly
+efﬁcient [30] by introducing multi-resolution hash cod-
+ing [20]. However, even though this spatial encoding al-
+lows ﬁne-grained geometry to be represented, shape recon-
+struction from multi-view images tends to smooth out high-
+frequency surface details, as shown in Fig. 1 bottom right.
+Multi-view photometric stereo (MVPS), on the other
+hand, aims to recover pixel-level high-frequency surface
+detail by introducing additional lighting conditions during
+Multi-view posed normal maps
+Ours (51 secs)
+PS-NeRF (8 hrs)
+Scanner [Rexcan CS+]
+Ours (5 mins)
+NeuS2 (5 mins)
+~100 images
+18 normal maps
+Scanner 
+[EinScan SE]
+Figure 1.
+(Top) From multi-view surface normal maps,
+SuperNormal recovers ﬁne-grained surface details comparable to
+3D scanners while being orders of magnitude faster than the exist-
+ing MVPS method PS-NeRF [31]. (Bottom) Using normal maps
+produces more faithful high-frequency details than the MVS-
+based method NeuS2 [30], although both use multi-resolution hash
+encoding [20].
+the image acquisition [9].
+In a typical workﬂow, a sur-
+face normal map is ﬁrst recovered for each view, record-
+ing per-pixel surface orientation information. The normal
+maps estimated at different viewpoints are then fused into a
+3D model, also known as multi-view normal integration [5].
+However, existing normal fusion methods struggle to reﬂect
+the details of the normal maps in the shape of the recov-
+ered 3D model. Moreover, the reconstruction process takes
+hours even when only a few low-resolution normal maps are
+used [4, 31]. Due to the lack of a fast and accurate multi-
+view normal fusion method, current multi-view photometric
+stereo results remain unsatisfactory.
+This paper presents SuperNormal to unite the best of
+both worlds. Normal maps with pixel-level surface details
+are utilized to exploit the expressive power and efﬁciency
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+20581
+Abstract
+High-resolution wide-angle fisheye images are becom-
+ing more and more important for robotics applications
+such as autonomous driving.
+However, using ordinary
+convolutional neural networks or vision transformers on
+this data is problematic due to projection and distor-
+tion losses introduced when projecting to a rectangular
+grid on the plane. We introduce the HEAL-SWIN trans-
+former, which combines the highly uniform Hierarchi-
+cal Equal Area iso-Latitude Pixelation (HEALPix) grid
+used in astrophysics and cosmology with the Hierarchical
+Shifted-Window (SWIN) transformer to yield an efficient
+and flexible model capable of training on high-resolution,
+distortion-free spherical data. In HEAL-SWIN, the nested
+structure of the HEALPix grid is used to perform the patch-
+ing and windowing operations of the SWIN transformer, en-
+abling the network to process spherical representations with
+minimal computational overhead. We demonstrate the su-
+perior performance of our model on both synthetic and real
+automotive datasets, as well as a selection of other image
+datasets, for semantic segmentation, depth regression and
+classification tasks. Our code is publicly available1.
+1. Introduction
+High-resolution fisheye cameras are among the most com-
+mon and important sensors in modern intelligent vehi-
+cles [42]. Due to their non-rectilinear mapping functions
+and large field of view, fisheye images are highly distorted.
+Moreover, the most commonly used large-scale computer
+∗Equal contribution
+aDepartment of Mathematical Sciences, Chalmers University of Tech-
+nology, University of Gothenburg, SE-412 96 Gothenburg, Sweden
+bCorresponding author, email: osccarls@chalmers.se
+cNeural Information Processing, Science of Intelligence, Technical
+University Berlin, DE-10623 Berlin, Germany
+dDepartment of Mathematics and Mathematical Statistics, Ume˚a Uni-
+versity, SE-901 87 Ume˚a, Sweden
+eZenseact, SE-417 56 Gothenburg, Sweden
+1https://github.com/JanEGerken/HEAL-SWIN
+<latexit sha1_base64="cQJewpwtZc
+pJ6NEe50L9/ReM0bc=">ADT3ichVJNTxRBEH07q8LiF8jFhMvEjcbTZsYoeCRB
+DBcTFzADEzQ+/S2fnKdC8GNvsruMKP4ugv4WIMr8vGRFHpTW9Vv6r3qrqm0zrX
+xkbRt1bQvnP3sxsZ+7+g4ePHs8vPNky1bjJVD+r8qrZSROjcl2qvtU2Vzt1o5I
+izdV2Olpz8e0j1RhdlZ/sca32i2RY6oHOEkvo857VhTJhvPxlvhv1IlnhTSf2Thd
++bVYLrafYwEqZBijgEIJSz9HAsPfLmJEqIntY0KsoaclrjDFHLljZilmJERH/B/
+ytOvRkmenaYSdsUrO3ZAZ4jn3e1FMme2qKvqG9jv3iWDf1aYiLr8Jg2pWJHFD
+8Qtzhkxm3Mwmde93I7093KYoC3chvN/mpB3D2zXzrvGmIjSQSYl0yh9RI5XzECZ
+S0fXbgpnytEMqND2gTsUpUSq+YUK+hdN3/bgef8YVvspkC7mRY04kVojGQCrk5E
+2Ju+9Y+O/2P7Yh72/sQ3Y/5RuL/3xRN52tV714ufm4+vu6gv/2maxhGd4yRe1g
+lVsYJMzyFj3FGc4Dy6Cy+BH26cGLe8s4rfV7lwB56CrDA=</latexit>⇥16
+<latexit sha1_base64="H68/dxKI2U
+seIb13+4XGgtKcZA=">ADTnichVLThtBECwveRhIwiMXpFxWKCcrDWCJEck
+SMQFCSQMlgCh3WVsRt6XdsZExPJPcE0+is/khOI1DRLpITXWOPuqe6q6entqEi0
+sUFwWfPGXrx89bo+PjH5u27qemZ2V2TD8pYteM8yctOFBqV6Ey1rbaJ6hSlCtM
+oUXtRf83F905VaXSe7dizQh2mYS/TXR2HlDnwOpUGX/5aLoRNANZ/n2nVTkNVGs
+rn6nN4QDHyBFjgBQKGSz9BCEMf/toIUB7BDYiU9LXGFESbIHTBLMSMk2ud/j6f
+9Cs14dpG2DFvSbhLMn0scH8TxYjZ7lZF39Becf8QrPfoDUNRdhWe0UZUHBfFTe
+IWJ8x4jplWmXe1PM90r7Lo4ou8RrO+QhD3zvivzjojJbG+RHx8lcweNSI5n7IDGW
+2bFbgu3yn48uJj2lCsEpWsUgypV9K67rt6XI23cYXv0tlUXuSYQ4mlotGVGxLyRs
+Td0yr7/YU25D3EPuE1Y84Y63/J+q+s7vUbH1qrmwvN1YXq2mr4wPm8ZET9Rmr2
+MAWe+Am6Rw/8cu78H57197NbapXqzjv8c8aq/8BTCWrzg=</latexit>⇥4
+<latexit sha1_base64="WGRhOxYokf
+OXVAs1tZNL6VNKYck=">ADd3ichVLbtNAEJ3EXFpzS+EFiQciIq+kNpFXB4r
+cREvSEUibaU4qmxn4q5ir631plEb5TP4Gl7hI/gUJB4O3WQoEA32szsmTlnZ8ab
+VLmqbRB8a7W9K1evXV9b92/cvHX7Tmfj7n5dzkzKg7TMS3OYxDXnSvPAKpvzYWU
+4LpKcD5LpKxc/OGFTq1J/tKcVj4o402qi0tgCOupsRwlnSi9S1pbN0p8rPS7nUTR
+8rSyI79WZ+xHrMerhKNOL+gHsroXnbBxetSsvXKjdZ8iGlNJKc2oICZNFn5OMdX
+4DSmkgCpgI1oAM/CUxJmW5IM7QxYjIwY6xX+G07BNc5OsxZ2iltybANmlx5jvx
+XFBNnuVoZfw/7APhMs+cNC1F2FZ7CJlBcF8X3wC0dI+MyZtFkrmq5nOm6sjShl9
+KNQn2VIK7P9JfOa0QMsKlEuvRGMjNoJHI+wQ07AVuCmvFLrS8Rg2FsuiohvFGH
+oG1k3f1eNqPI8zWyhXTkmAuJFaIxkRty8JbA3Xcsmu/2P3YN3t/Yx6jevbHwz
+xd10dnf6YfP+8+7PR2N5vXtkYP6BFt4UW9oF16R3uYQUqf6DN9oa/t795Db9PbO
+k9txrOPfpteFP7li5vw=</latexit>window
+size
+<latexit sha1_base64="Ft6bx/o8LJ
+GZzlKi7UM7FU4VCGA=">ADT3ichVJdaxNBFD3ZaJtU+xH7IvQlGIQiGDaFfjxG
+bKWFKhXNh8RSdreTdMl+sbuJtCG/oq/6o3z0l/SlFM9cp4JG2wmTe+fce869c3fc
+JPCz3LZ/FKzig4dz86XywqPHi0vLK5Un7SwepZ5qeXEQp13XyVTgR6qV+3mgukm
+qnNANVMcdvtbxzlilmR9H/PzRB2HziDy+7n5IQ+7e+9Onz5oXPw7mSlZtdtWdV
+Zp2GcGsw6iuFp/iMU8TwMEIhQg5/QAOMv56aMBGQuwYE2IpPV/iClMskDtilmK
+GQ3TI/wFPYNGPGvNTNgeqwTcKZlVPOd+I4ous3VRT+jvea+EGzw3woTUdYdnt
+O6VCyL4lviOc6YcR8zNJm3vdzP1LfK0ceO3MZnf4kg+p7eb51dRlJiQ4lUsSeZA2
+q4ch5zAhFtix3oKd8qVOXGp7SOWCUqkVF0qJfS6unrfnSPv+IKX2SyodxIMycSC0
+WjLxUC8qbE9XcMzXe7i52R9y/2Gbuf8o01/n5Rs057o97Yqm+36g1X5jXVsIan
+mGdL2obTezjiDPwWPcSX/HN+m5dWTdFk2oVjLOKP1ax/BN7FqR</latexit>HEAL-SWIN
+<latexit sha1_base64="G8ES7BJ6M+
+eZ5PcIQIPR60J+4Wg=">ADSnichVLJSgNBEH0Z9327CF6CQRAPYSK4HAUX9KAo
+GiOoyMzYSYbMxsxE0ZBf8Kof5Q/4G95ED74uR8G9Q6eqX9V7XVXTduS5SWqaDzmj
+o7Oru6e3r39gcGh4ZHRs/DAJm7Gjyk7ohfGRbSXKcwNVTt3U0dRrCzf9lTFbqz
+qeOVCxYkbBgfpVaROfasWuFXsVIN7Ve2ds5GC2bRlJX/7pQyp4Bs7YZjuUmc4Bw
+hHDThQyFASt+DhYS/Y5RgIiJ2ihaxmJ4rcYU2+sltMksxwyLa4H+Np+MDXjWmom
+wHd7icdk5jHDvSGKNrP1rYp+QvCfS1Y7dcbWqKsK7yitanYJ4rbxFPUmfEf08
+8y32v5n6m7SlHFsnTjsr5IEN2n86GzxkhMrCGRPNYls0YNW84XnEBAW2YFesrvCn
+np+JzWEqtEJcgULerFtHr6uh5d41tc4VIm60tHmtmSmC8aVbnBI69NXH9HP/tuf7
+ET8n5i1l9m2+s9PVFfXcO54ulxeLC3nxhZS57b2YwjRm+aKWsIJN7HIGDjVvc
+Is74954NJ6M57dUI5dxJvBpdXS+AiRpqhc=</latexit>SWIN
+Figure 1. Our HEAL-SWIN model uses the nested structure of
+the HEALPix grid to lift the windowed self-attention of the SWIN
+model onto the sphere.
+vision and autonomous driving datasets do not contain fish-
+eye images. For these reasons, fisheye images have received
+much less attention than rectilinear images in the literature.
+Despite the distortions introduced by the mapping func-
+tion, the traditional approach for dealing with this kind of
+data is to use standard (flat) convolutional neural networks
+which are adjusted to the distortions and either preprocess
+the data [16, 17, 26, 36, 46, 50] or deform the convolu-
+tion kernels [47]. However, these approaches struggle to
+capture the inherent spherical geometry of the images since
+they operate on a flat approximation of the sphere. Errors
+and artifacts arising from handling the strong and spatially
+inhomogeneous distortions are particularly problematic in
+safety-critical applications such as autonomous driving.
+Utilizing spherical representations is an approach taken
+by some models [8, 10, 19] which lift convolutions to the
+sphere. These models rely on a rectangular grid in spherical
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+6067
+Abstract
+Advances in camera-based physiological monitoring
+have enabled the robust, non-contact measurement of res-
+piration and the cardiac pulse, which are known to be in-
+dicative of the sleep stage. This has led to research into
+camera-based sleep monitoring as a promising alterna-
+tive to “gold-standard” polysomnography, which is cum-
+bersome, expensive to administer, and hence unsuitable for
+longer-term clinical studies. In this paper, we introduce
+SleepVST, a transformer model which enables state-of-the-
+art performance in camera-based sleep stage classifica-
+tion (sleep staging). After pre-training on contact sensor
+data, SleepVST outperforms existing methods for cardio-
+respiratory sleep staging on the SHHS and MESA datasets,
+achieving total Cohen’s kappa scores of 0.75 and 0.77 re-
+spectively. We then show that SleepVST can be successfully
+transferred to cardio-respiratory waveforms extracted from
+video, enabling fully contact-free sleep staging. Using a
+video dataset of 50 nights, we achieve a total accuracy of
+78.8% and a Cohen’s κ of 0.71 in four-class video-based
+sleep staging, setting a new state-of-the-art in the domain.
+1. Introduction
+Accurate sleep monitoring is critical for the diagnosis of
+sleep disorders and the discovery of novel treatments and
+biomarkers. Poor sleep is broadly linked with a number
+of health conditions, including cardiovascular diseases such
+as diabetes and hypertension [15]. Additionally, there are
+links between specific sleep stages and neurodegenerative
+conditions, such as a decrease in non-rapid-eye-movement
+stage 3 (N3) sleep with Alzheimer’s disease [23].
+Overnight video polysomnography (vPSG), the “gold-
+standard” [52] technique for sleep monitoring, requires the
+*jcarter@robots.ox.ac.uk
+use of a large number of contact sensors including elec-
+trodes placed on the scalp (EEG), near the eyes (EOG),
+and under the chin (EMG) of the patient. Human experts
+(polysomnographers) must then review the recorded data,
+classifying the patient’s sleep into five stages at 30-second
+intervals (epochs) and annotating other important events
+such as leg movements and apnoeas. This manual process
+often takes multiple hours to complete.
+Experts primarily rely on characteristic patterns in
+brain activity measured from the EEG to classify sleep
+stages [20]. However, sleep stage information is also en-
+coded in measures of autonomic activity, including car-
+diac [48] and respiratory signals [19], and body move-
+ments [68]. This has led to the development of methods
+for automatically classifying sleep stages from sensors that
+measure these parameters, such as smartwatches [63].
+Prior work has shown that these physiological parame-
+ters can also be measured using video cameras [18, 65, 66],
+leading to the development of methods for classifying sleep
+stages entirely from video input [6, 35, 60].
+Camera-
+based methods have particular promise as part of a multi-
+purpose sleep monitoring system. For example, within el-
+derly care settings, in addition to classifying sleep stages,
+they could also be used to detect specific sleep movement
+disorders [18], which are linked with conditions such as
+Parkinson’s, and which are typically distinguished via man-
+ual video review [51]. They could also be used to detect
+falls [12], one of the leading causes of injury and mortality
+amongst elderly individuals.
+State-of-the-art video-based sleep staging [6] has used
+the heart rate (HR) and breathing rate (BR) derived from
+video to perform sleep staging. However, these rates are
+typically measured as averages over time, losing higher
+frequency inter-pulse and inter-breath interval information.
+EEG- [40] and wearable-based [22] sleep staging methods
+have both been improved by using raw waveforms as inputs,
+rather than derived quantities e.g. signal features [37, 45].
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+12479
+Abstract
+The landscape of deep learning research is moving to-
+wards innovative strategies to harness the true potential of
+data. Traditionally, emphasis has been on scaling model
+architectures, resulting in large and complex neural net-
+works, which can be difficult to train with limited compu-
+tational resources. However, independently of the model
+size, data quality (i.e. amount and variability) is still a ma-
+jor factor that affects model generalization. In this work, we
+propose a novel technique to exploit available data through
+the use of automatic data augmentation for the tasks of im-
+age classification and semantic segmentation.
+We intro-
+duce the first Differentiable Augmentation Search method
+(DAS) to generate variations of images that can be pro-
+cessed as videos. Compared to previous approaches, DAS
+is extremely fast and flexible, allowing the search on very
+large search spaces in less than a GPU day. Our intuition
+is that the increased receptive field in the temporal dimen-
+sion provided by DAS could lead to benefits also to the spa-
+tial receptive field. More specifically, we leverage DAS to
+guide the reshaping of the spatial receptive field by selecting
+task-dependant transformations. As a result, compared to
+standard augmentation alternatives, we improve in terms of
+accuracy on ImageNet, Cifar10, Cifar100, Tiny-ImageNet,
+Pascal-VOC-2012 and CityScapes datasets when plugging-
+in our DAS over different light-weight video backbones.
+1. Introduction
+Creating models with significantly increased capacity, in an
+attempt to achieve incremental performance improvements,
+has been the prevailing approach in designing Convolu-
+tional Neural Network (CNN) classifiers. As a result, CNNs
+with increased depth [16, 40, 45, 60], and Vision Trans-
+formers (ViTs) [13] were proposed over the years. Specif-
+ically, ViT has demonstrated promising results on a wide
+variety of computer vision tasks including image classifi-
+(a) Conceptual representation of the proposed approach. We reshape the
+Receptive Field (RF) by applying affine transformations optimized through
+our Differentiable Augmentation Search (DAS). On the top right you can
+see how fusing with random transformation would not lead to benefits as,
+when concatenating in time, the employed shift mechanism would fuse
+features related to random parts. On the bottom, the augmentations guided
+by DAS obtain specific shapes of the RF so that more context is kept.
+rotate
+translate
+zoom
+found by DAS
+(b) RF visualization (ResNet-50, with GSF fusion) when different single
+or composed transformations are applied. The last column shows our DAS
+selected operation for CIFAR-10 and CIFAR-100, which combines trans-
+lation, rotation and zoom. More details in Tab. 4.
+Figure 1. 1a overviews our approach and 1b shows a real exam-
+ple of obtained receptive fields. The employed transformations are
+fundamental to shape the receptive field, as shown in 1b. The aug-
+mented images with DAS (Sec. 3.1) are concatenated in time, and
+processed through a video network that partially shifts and fuses
+the features (Sec. 3.2).
+cation and semantic segmentation [13, 36, 48, 56]. How-
+ever, while these techniques have demonstrated remarkable
+success, it is noteworthy that these high-capacity models
+necessitate increased computational resources for effective
+training and inference, making them economically imprac-
+tical for training and deployment within practical applica-
+tion scenarios. Moreover, the over-parametrization of ViT
+and Deep CNNs makes the networks prone to overfitting,
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+5829

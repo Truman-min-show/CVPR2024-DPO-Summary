@@ -1,0 +1,10 @@
+Bulat FFF Fixing Flawed Foundations in Contrastive Pre-Training Results in Very
+Byun MAFA Managing False Negatives for Vision-Language Pre-training
+Cai AdaShift Learning Discriminative Self-Gated Neural Feature Activation With an Adaptive
+Cai Batch Normalization Alleviates the Spectral Bias in Coordinate Networks
+Cai Digital Life Project Autonomous 3D Characters with Social Intelligence
+Cai Generative Rendering Controllable 4D-Guided Video Generation with 2D Diffusion Models
+Cai L-MAGIC Language Model Assisted Generation of Images with Coherence
+Cai PoseIRM Enhance 3D Human Pose Estimation on Unseen Camera Settings
+Cai Real-time 3D-aware Portrait Video Relighting
+Cai ViP-LLaVA Making Large Multimodal Models Understand Arbitrary Visual Prompts

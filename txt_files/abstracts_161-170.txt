@@ -1,0 +1,738 @@
+Abstract
+We introduce a novel approach to single image denoising
+based on the Blind Spot Denoising principle, which we call
+MAsked and SHuffled Blind Spot Denoising (MASH). We
+focus on the case of correlated noise, which often plagues
+real images. MASH is the result of a careful analysis to
+determine the relationships between the level of blindness
+(masking) of the input and the (unknown) noise correlation.
+Moreover, we introduce a shuffling technique to weaken the
+local correlation of noise, which in turn yields an addi-
+tional denoising performance improvement. We evaluate
+MASH via extensive experiments on real-world noisy image
+datasets. We demonstrate state-of-the-art results compared
+to existing self-supervised denoising methods. Website:
+https://hamadichihaoui.github.io/mash.
+1. Introduction
+The removal of noise from real images, i.e., image denois-
+ing, is a fundamental and still open problem in image pro-
+cessing despite having a long history of dedicated research
+(see [9] for an overview of the classic and recent methods).
+In classic methods, the primary strategies involve manually
+designing image priors and optimization techniques to en-
+hance both reconstruction accuracy and speed. In contrast,
+in the context of deep learning methods, neural networks
+naturally introduce a very powerful prior for images [24]
+and provide models that could perform denoising efficiently
+at inference time. These innate capabilities of neural net-
+works opened the doors to a wide range of methods that
+could not only learn to denoise image from examples of
+noisy and clean image pairs, but, even more remarkably,
+directly from single noisy images [12, 15, 25, 26].
+In this work, we push the limits of these advanced meth-
+ods one step further. We focus on the family of methods
+called Blind Spot Denoising (BSD)[15], since it provides a
+powerful and general framework. Moreover, we consider
+the case where only a single image is used for denoising
+(i.e., we do not rely on a supporting dataset). As also ob-
+served by Wang et al [25], training on a dataset may not
+generalize well on new data, where the noise distribution is
+unknown. This is particularly true for real images, where
+noise is often correlated. In these settings, most modern
+methods find it challenging to handle non-iid data.
+In our work, similar to the approach in [21], we explore
+the more general setting of random masking beyond the sin-
+gle blind spot method introduced in [15]. In our analysis,
+we uncover valuable connections between the performance
+of Blind Spot Denoising (BSD) methods trained with vari-
+ous input masking techniques and the degree of noise cor-
+relation. Surprisingly, we observe that models trained with
+a higher masking ratio tend to perform better when dealing
+with highly correlated noise, whereas models trained with a
+lower masking ratio excel in denoising tasks with iid noise.
+This discovery offers two key contributions: 1) it provides a
+method to estimate the unknown level of noise correlation,
+and 2) it offers a strategy for achieving enhanced denoising
+performance. Furthermore, our analysis reveals that noise
+correlation significantly hampers the denoising capabilities
+of BSD models. This suggests that a more radical approach
+would be to directly eliminate the correlation in the input
+data. An intuitive method to achieve this would involve
+randomly permuting all pixels that correspond to the same
+clean-image color intensity. However, this presents a classic
+chicken and egg dilemma, as we would typically need the
+clean image to perform the permutation, yet the clean im-
+age is precisely what we are trying to restore. To tackle this
+challenge, we utilize an intermediate denoised image as a
+pseudo-clean image to define the permutation set. Further-
+more, given that adjacent pixels are likely to have similar
+color intensities, we focus on shuffling only pixels within
+small neighborhoods. We incorporate these insights into a
+novel method called MAsked and SHuffled Blind Spot De-
+noising (MASH), which we elaborate on further in Sec. 3.
+Our contributions are summarized as follows
+• We provide an analysis of BSD, showcasing the impact of
+various masking ratios on correlated noise and presenting
+a method for estimating the noise correlation level;
+• We introduce MASH, an enhanced version of BSD that
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+3025
+Abstract
+Referring Image Segmentation (RIS) is a challenging
+task that requires an algorithm to segment objects referred
+by free-form language expressions.
+Despite significant
+progress in recent years, most state-of-the-art (SOTA) meth-
+ods still suffer from considerable language-image modality
+gap at the pixel and word level. These methods generally
+1) rely on sentence-level language features for language-
+image alignment and 2) lack explicit training supervision
+for fine-grained visual grounding. Consequently, they ex-
+hibit weak object-level correspondence between visual and
+language features. Without well-grounded features, prior
+methods struggle to understand complex expressions that
+require strong reasoning over relationships among multiple
+objects, especially when dealing with rarely used or am-
+biguous clauses. To tackle this challenge, we introduce a
+novel Mask Grounding auxiliary task that significantly im-
+proves visual grounding within language features, by ex-
+plicitly teaching the model to learn fine-grained correspon-
+dence between masked textual tokens and their matching
+visual objects. Mask Grounding can be directly used on
+prior RIS methods and consistently bring improvements.
+Furthermore, to holistically address the modality gap, we
+also design a cross-modal alignment loss and an accom-
+panying alignment module. These additions work syner-
+gistically with Mask Grounding. With all these techniques,
+our comprehensive approach culminates in MagNet (Mask-
+grounded Network), an architecture that significantly out-
+performs prior arts on three key benchmarks (RefCOCO,
+RefCOCO+ and G-Ref), demonstrating our method’s effec-
+tiveness in addressing current limitations of RIS algorithms.
+Our code and pre-trained weights will be released.
+1. Introduction
+Deep learning has greatly improved the performance of vi-
+sion algorithms on many image segmentation tasks, such
+as semantic segmentation [5, 48], instance segmentation
+[2, 12, 24, 42] and panoptic segmentation [8, 36]. These
+† Project lead.
+B Corresponding author.
+diving man
+diving man
+(b) Fine-grained visual grounding is required to understand
+expressions used in uncommon or ambiguous contexts.
+Correct
+Wrong
+diving man
+Correct
+third remote from the left
+(a) Fine-grained visual grounding is required to reason over
+complicated relationships among multiple objects.
+third remote from the left
+third remote from the left
+Correct
+Wrong
+Wrong
+Figure 1. Importance of Fine-grained Visual Grounding for RIS.
+Most RIS algorithms lack well-grounded text features. As a result,
+they struggle in difficult cases illustrated in (a) and (b). Red mask
+are predictions of LAVT, one of the recent SOTA RIS methods.
+Yellow dotted boxes are the ground truths.
+tasks require grouping of image pixels under a fixed set of
+pre-defined categories and mainly differ in the granularity
+of grouping semantics required. In contrast to these uni-
+modal segmentation tasks, Referring Image Segmentation
+(RIS) [9, 28] is a challenging multi-modal task that requires
+an algorithm to simultaneously understand fine-grained hu-
+man language expression and make correct pixel-level cor-
+respondence to the referred object. Recently, it has gained
+widespread research attention due to its potential to im-
+prove human-robot interaction [1], interactive image editing
+[43, 52] and advanced driver-assistance systems [29].
+The key challenge in RIS lies in how to reduce the
+modality gap between language and image features [14, 64,
+71]. To tackle this challenge, we need to have an effective
+alignment between a given language expression and the cor-
+responding image pixels for highlighting the referred target.
+Ideally, with robust pixel-wise language-image alignment,
+language and image features should have high feature simi-
+larity when referring to the same object and low feature sim-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+26573
+Abstract
+Unsupervised domain adaptation (UDA) for semantic
+segmentation aims to transfer the pixel-wise knowledge
+from the labeled source domain to the unlabeled target do-
+main.
+However, current UDA methods typically assume
+a shared label space between source and target, limiting
+their applicability in real-world scenarios where novel cat-
+egories may emerge in the target domain. In this paper, we
+introduce Open-Set Domain Adaptation for Semantic Seg-
+mentation (OSDA-SS) for the first time, where the target
+domain includes unknown classes. We identify two major
+problems in the OSDA-SS scenario as follows: 1) the exist-
+ing UDA methods struggle to predict the exact boundary of
+the unknown classes, and 2) they fail to accurately predict
+the shape of the unknown classes. To address these issues,
+we propose Boundary and Unknown Shape-Aware open-
+set domain adaptation, coined BUS. Our BUS can accu-
+rately discern the boundaries between known and unknown
+classes in a contrastive manner using a novel dilation-
+erosion-based contrastive loss.
+In addition, we propose
+OpenReMix, a new domain mixing augmentation method
+that guides our model to effectively learn domain and size-
+invariant features for improving the shape detection of the
+known and unknown classes.
+Through extensive experi-
+ments, we demonstrate that our proposed BUS effectively
+detects unknown classes in the challenging OSDA-SS sce-
+nario compared to the previous methods by a large margin.
+The code is available at https://github.com/KHU-
+AGI/BUS.
+1. Introduction
+In semantic segmentation, a model predicts pixel-wise cat-
+egory labels given an input image.
+Semantic segmen-
+tation has a lot of applications, e.g., autonomous driv-
+ing [1], human-machine interaction [2], and augmented re-
+*Equal contribution
+†Corresponding authors
+(a) Ground truth.
+(b) UDA method (MIC [12]).
+(c) Confidence-based threshold.
+(d) Unknown head-expansion.
+(e) BUS (Ours).
+Figure 1. Visualization of prediction maps in the OSDA-SS sce-
+nario. The pixels detected by the white color mean the unknown
+classes. The naive UDA method (b) is completely unaware of the
+unknown classes. Even after applying simple techniques to help
+the UDA model recognize the unknown, it still struggles to accu-
+rately predict the shape of the unknown, as shown in (c) and (d).
+ality.
+Over the past decade, there has been notable ad-
+vancement in supervised semantic segmentation driven by
+deep neural networks [3–6]. However, supervised seman-
+tic segmentation requires pixel-level annotations, which
+are labor-intensive and costly to collect. To mitigate the
+challenges, unsupervised domain adaptation (UDA) has
+emerged. Many studies [7–12] leverage the already-labeled
+source data to achieve high performance on the unlabeled
+target data. Notably, synthetic datasets such as GTA5 [13]
+and SYNTHIA [14] which are automatically generated by
+game engines present valuable resources for UDA research.
+UDA methods typically presume that source and target
+domains share the same label space. Such an assumption
+is not reasonable in real-world applications. In the target
+data, novel categories not presented in the source dataset
+(target-private categories) may emerge, leading to an Open-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+23943
+Abstract
+This paper proposes a novel direct Audio-Visual Speech
+to Audio-Visual Speech Translation (AV2AV) framework,
+where the input and output of the system are multimodal
+(i.e., audio and visual speech). With the proposed AV2AV,
+two key advantages can be brought: 1) We can perform
+real-like conversations with individuals worldwide in a
+virtual meeting by utilizing our own primary languages.
+In contrast to Speech-to-Speech Translation (A2A), which
+solely translates between audio modalities, the proposed
+AV2AV directly translates between audio-visual speech.
+This capability enhances the dialogue experience by
+presenting synchronized lip movements along with the
+translated speech.
+2) We can improve the robustness of
+the spoken language translation system. By employing the
+complementary information of audio-visual speech, the
+system can effectively translate spoken language even in
+the presence of acoustic noise, showcasing robust perfor-
+mance. To mitigate the problem of the absence of a parallel
+AV2AV translation dataset, we propose to train our spoken
+language translation system with the audio-only dataset of
+A2A. This is done by learning unified audio-visual speech
+representations through self-supervised learning in ad-
+vance to train the translation system. Moreover, we propose
+an AV-Renderer that can generate raw audio and video in
+parallel. It is designed with zero-shot speaker modeling,
+thus the speaker in source audio-visual speech can be
+maintained at the target translated audio-visual speech.
+The effectiveness of AV2AV is evaluated with extensive ex-
+periments in a many-to-many language translation setting.
+Demo page is available on choijeongsoo.github.io/av2av.
+∗Equal contribution.
+†Corresponding author. This work was sup-
+ported by the National Research Foundation of Korea (NRF) grant funded
+by the Korea government (MSIT) (No. NRF-2022R1A2C2005529), Insti-
+tute of Information & communications Technology Planning & Evaluation
+(IITP) grant funded by the Korea government (MSIT) (No.2022-0-00124,
+Development of Artificial Intelligence Technology for Self-Improving
+Competency-Aware Learning Capabilities), and BK21 FOUR (Connected
+AI Education & Research Program for Industry and Society Innovation,
+KAIST EE, No. 4120200113769).
+It
+Multilingual 
+AV2AV
+Translation
+…
+“J'aimerais t'aider”
+“Ich würde dir gerne helfen”
+“Me gustaría ayudarte”
+“Mi piacerebbe aiutarti”
+De
+En
+Pt
+Es
+Fr
+AV Speech Unit 
+“I would like to help you”
+“Eu gostaria de ajudar você”
+…
+AV Speech Unit 
+Figure 1.
+Conceptual illustration of the proposed multilin-
+gual Audio-Visual Speech to Audio-Visual Speech Translation
+(AV2AV) framework. The system can directly translate between
+multilingual AV speech without requiring any text.
+Note that
+the proposed AV2AV can generate both audio speech and visual
+speech in listener-oriented (i.e., translated) languages.
+1. Introduction
+In our increasingly interconnected world, where commu-
+nication transcends linguistic boundaries, Neural Machine
+Translation (NMT) [1–6] has played a critical role in break-
+ing down barriers in multilingual interaction. Despite their
+strong performances, NMT systems exhibit limitations in
+seamless application to virtual conferences or face-to-face
+interactions. This is due to their reliance on human interven-
+tion for text input or speech recognition, as these systems
+primarily operate with text modalities. Speech-to-Speech
+Translation (A2A1) [7–11] can mitigate this problem by di-
+rectly translating spoken languages into the target language
+at the audio level. With the growth of A2A technologies
+[12], it is anticipated that individuals can effortlessly com-
+municate with one another using their primary languages,
+irrespective of their nationalities. However, there still exists
+one unsolved problem in the aspects of multimedia, the dis-
+crepancy between the translated speech and the visual stim-
+1Throughout this paper, we employ abbreviations for input and output
+modalities, using A for Audio, V for Visual, and T for Text.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+27325
+Abstract
+We address the problem of generalized category discov-
+ery (GCD) that aims to partition a partially labeled col-
+lection of images; only a small part of the collection is la-
+beled and the total number of target classes is unknown.
+To address this generalized image clustering problem, we
+revisit the mean-shift algorithm, i.e., a classic, powerful
+technique for mode seeking, and incorporate it into a con-
+trastive learning framework. The proposed method, dubbed
+Contrastive Mean-Shift (CMS) learning, trains an embed-
+ding network to produce representations with better cluster-
+ing properties by an iterative process of mean shift and con-
+trastive update. Experiments demonstrate that our method,
+both in settings with and without the total number of clus-
+ters being known, achieves state-of-the-art performance on
+six public GCD benchmarks without bells and whistles.
+1. Introduction
+Clustering is one of the most fundamental problems in un-
+supervised learning, which aims to partition instances of a
+data collection into different groups [2, 15, 34, 42]. Unlike
+the classiﬁcation problem, it does not assume either prede-
+ﬁned target classes or labeled instances in its standard setup.
+However, in a practical scenario, some data instances may
+be labeled for a subset of target classes so that we can lever-
+age them to cluster all the data instances while also discov-
+ering the remaining unknown classes. The goal of Gen-
+eralized Category Discovery (GCD) [48] is to tackle such
+a semi-supervised image clustering problem given a small
+amount of incomplete supervision.
+Clustering is a transductive reasoning process based on
+the neighborhood data in the given data collection. To learn
+an image embedding for this clustering purpose, we are mo-
+tivated to incorporate the neighborhood embeddings into
+learning. We revisit mean shift [8, 11, 12, 18, 44], i.e., a
+classic, powerful technique for mode seeking and cluster-
+ing analysis. The mean-shift algorithm consists of iterative
+mode-seeking steps of updating each data point by kernel-
+!
+!!
+pull
+push
+: image embedding "
+: mean-shifted embedding #
+: augmented mean-shifted embedding #!
+: augmented image embedding "!
+!"
+: augmented image of !
+!!
+: different images in a batch
+!"
+push
+Figure 1. Contrastive Mean-Shift (CMS) learning. We inte-
+grate mean shift [11] into contrastive learning [7, 24, 59]. In train-
+ing, image embeddings proceed a single-step mean shift with their
+kNNs. The contrastive learning objective pulls the mean-shifted
+embeddings of I and I+, while it pushes those from different im-
+age inputs. Colors denote different classes and k=4.
+weighted aggregation of its neighboring data points; this
+process is non-parametric and does not require any informa-
+tion about the target clusters, e.g., the number of clusters.
+For GCD, we develop a GPU-friendly mean-shift variant
+and incorporate it into a contrastive representation learning
+framework [7, 24, 59].
+We introduce Contrastive Mean-Shift (CMS) learning
+for GCD. CMS learning aims to encode the semantic dis-
+tance between image embeddings on a mean-shifted space
+via contrastive learning. Precisely, we perform a single-step
+mean shift for each image embedding by moving it toward
+the mean of its neighbors in an embedding space. To per-
+form stable mean shifts in the embedding space, we use k
+nearest neighbors (kNNs) instead of typical distance-based
+neighbors [8, 11].
+In learning, an image I and its aug-
+mented image I0 are both mean-shifted and pull each other
+on the embedding space while pushing I and different im-
+ages (Fig. 1). The training objective with mean-shifted em-
+1
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+23094
+Abstract
+Photometric stereo leverages variations in illumination
+conditions to reconstruct surface normals. Display photo-
+metric stereo, which employs a conventional monitor as an
+illumination source, has the potential to overcome limita-
+tions often encountered in bulky and difficult-to-use conven-
+tional setups. In this paper, we present differentiable dis-
+play photometric stereo (DDPS), addressing an often over-
+looked challenge in display photometric stereo: the design
+of display patterns. Departing from using heuristic display
+patterns, DDPS learns the display patterns that yield accu-
+rate normal reconstruction for a target system in an end-
+to-end manner.
+To this end, we propose a differentiable
+framework that couples basis-illumination image formation
+with analytic photometric-stereo reconstruction. The dif-
+ferentiable framework facilitates the effective learning of
+display patterns via auto-differentiation. Also, for training
+supervision, we propose to use 3D printing for creating a
+real-world training dataset, enabling accurate reconstruc-
+tion on the target real-world setup. Finally, we exploit that
+conventional LCD monitors emit polarized light, which al-
+lows for the optical separation of diffuse and specular re-
+flections when combined with a polarization camera, lead-
+ing to accurate normal reconstruction. Extensive evalua-
+tion of DDPS shows improved normal-reconstruction accu-
+racy compared to heuristic patterns and demonstrates com-
+pelling properties such as robustness to pattern initializa-
+tion, calibration errors, and simplifications in image for-
+mation and reconstruction.
+1. Introduction
+Reconstructing high-quality surface normals is pivotal in
+computer vision and graphics for 3D reconstruction [32,
+40], relighting [36, 39], and inverse rendering [45, 52].
+Among various techniques, photometric stereo [50] lever-
+ages the intensity variation of a scene point under varied
+illumination conditions to reconstruct normals. Photomet-
+ric stereo finds its application in various imaging systems
+including light stages [29, 35, 49, 56], handheld-flash cam-
+eras [3, 10, 37, 52], and display-camera systems [1, 28, 46].
+Display photometric stereo uses monitors and cameras as
+a versatile and accessible system that can be conveniently
+placed on a desk [1, 28, 46]. Producing diverse illumina-
+tion conditions can be simply achieved by displaying mul-
+tiple patterns using pixels on the display as programmable
+point light sources. This convenient and intricate modu-
+lation of illumination conditions significantly enlarges the
+design space of illumination patterns for display photomet-
+ric stereo. Nevertheless, existing approaches often rely on
+heuristic display patterns, resulting in sub-optimal recon-
+struction quality.
+In this paper, to exploit the large design space of illumi-
+nation patterns in display photometric stereo, we propose
+differentiable display photometric stereo (DDPS). The key
+idea is to learn display patterns that lead to improved recon-
+struction of surface normals for a target system in an end-
+to-end manner. To this end, we introduce a differentiable
+framework that combines basis-illumination image forma-
+tion and an optimization-based photometric stereo method.
+This enables effective pattern learning by directly optimiz-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+11831
+Abstract
+This paper presents a new approach for the detection of
+fake videos, based on the analysis of style latent vectors and
+their abnormal behavior in temporal changes in the gener-
+ated videos. We discovered that the generated facial videos
+suffer from the temporal distinctiveness in the temporal
+changes of style latent vectors, which are inevitable during
+the generation of temporally stable videos with various fa-
+cial expressions and geometric transformations. Our frame-
+work utilizes the StyleGRU module, trained by contrastive
+learning, to represent the dynamic properties of style latent
+vectors. Additionally, we introduce a style attention module
+that integrates StyleGRU-generated features with content-
+based features, enabling the detection of visual and tempo-
+ral artifacts. We demonstrate our approach across various
+benchmark scenarios in deepfake detection, showing its su-
+periority in cross-dataset and cross-manipulation scenar-
+ios. Through further analysis, we also validate the impor-
+tance of using temporal changes of style latent vectors to
+improve the generality of deepfake video detection.
+1. Introduction
+Recent generative algorithms are capable of producing
+high-quality videos; while this advancement has led to so-
+cial concerns, as it becomes increasingly challenging to dis-
+tinguish between generated videos and authentic ones. Gen-
+erative models have the potential to expedite industries such
+as entertainment, gaming, fashion, design, and education.
+However, their misuse can have adverse effects on society.
+The high quality of the videos intensifies the potential for
+inappropriate utilization of the technique. To resolve the
+issue, researchers are actively engaged in developing the
+deepfake video detection algorithms [19, 29, 40].
+Early deepfake detection research addressed spatial ar-
+tifacts such as unnatural aspects [30] and frequency-level
+checkerboard of the generative model [33] in the genera-
+*Corresponding author
+Style latent level
+Style latent variance
+DFD-real
+DFD-fake
+Youtube-real      
+Celeb-Synthesis
+1    2     3     4    5     6    7     8     9   10   11   12   13  14   15  16   17   18
+1    2     3     4   5     6   7     8     9   10   11   12   13  14   15  16   17   18
+0.4
+0.2
+0.0
+0.0
+0.5
+1.0
+1.5
+Figure 1. Variance of style flow for each style latent level. The x-
+axis shows the level of style latent vectors for fine style representa-
+tions. We noticed that the level-wise differences vary across deep-
+fake domains, but the variance of style latent vectors is particularly
+lower in certain levels of the style latent vectors for fake videos
+than in real videos. This happens due to the temporal smooth-
+ness of the style latent vectors to create temporally stable deepfake
+videos, and our results demonstrate that deepfake videos have a
+distinct variance in style flow compared to real videos.
+tion of a single frame. While spatial artifact-based detec-
+tion methods have shown reasonable performance for sin-
+gle images, they failed in accounting for temporal artifacts
+in deepfake videos that consist of multiple frames. To ad-
+dress the limitation, recent studies [15, 41] integrate tempo-
+ral cues such as flickering [14, 57] and discontinuity [16] to
+enhance the accuracy of deepfake video detection task.
+Nevertheless, existing methods [28, 51] that exploit
+visual and temporal cues of generated videos encoun-
+tered performance degradation when attempting to identify
+videos produced by recent deepfake generation algorithms,
+which effectively suppress visual and temporal artifacts.
+Recent observations [36, 39] have presented a decline in
+the effectiveness of visual artifact-based algorithms against
+newly developed high-quality generation techniques [11,
+37]. Temporal artifact-based algorithms [16] also experi-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+1133
+Abstract
+Advancements in neural signed distance fields (SDFs)
+have enabled modeling 3D surface geometry from a set of
+2D images of real-world scenes. Baking neural SDFs can
+extract explicit mesh with appearance baked into texture
+maps as neural features. The baked meshes still have a
+large memory footprint and require a powerful GPU for
+real-time rendering.
+Neural optimization of such large
+meshes with differentiable rendering pose significant chal-
+lenges. We propose a method to produce optimized meshes
+for large unbounded scenes with low triangle budget and
+high fidelity of geometry and appearance.
+We achieve
+this by combining advancements in baking neural SDFs
+with classical mesh simplification techniques and proposing
+a joint appearance-geometry refinement step. The visual
+quality is comparable to or better than state-of-the-art neu-
+ral meshing and baking methods with high geometric ac-
+curacy despite significant reduction in triangle count, mak-
+ing the produced meshes efficient for storage, transmission,
+and rendering on mobile hardware. We validate the effec-
+tiveness of the proposed method on large unbounded scenes
+from mip-NeRF 360, Tanks & Temples, and Deep Blend-
+ing datasets, achieving at-par rendering quality with 73×
+reduced triangles and 11× reduction in memory footprint.
+1. Introduction
+Photorealistic reconstruction and rendering of real-world
+objects and scenes is a longstanding problem of importance
+with several applications in computer vision, robotics and
+AR/VR. In recent years, Neural Radiance Fields (NeRFs)
+[1, 2, 38, 39] have been quite successful at novel view syn-
+thesis. However, the scene representation is learned as an
+implicit volumetric representation that is expensive to eval-
+uate. This is a crucial limitation for many applications, such
+as Augmented and Virtual Reality (AR/VR), often requiring
+real-time rendering with low memory and compute power.
+Figure 1. Example results using LTM showing mesh geometry
+(top-left) and novel-view synthesis (right). Bottom right plot com-
+pares performance of different methods on mip-NeRF360 outdoor
+dataset.
+Our method achieves comparable rendering quality to
+BakedSDF while reducing the mesh size considerably.
+Since modern graphics engines are highly optimized to ras-
+terize triangle meshes, researchers have started exploring
+ways to extract explicit mesh representations from volumet-
+ric functions.
+MobileNeRF [5] uses a polygon mesh with texture maps
+storing feature vectors and opacity.
+Although their ren-
+dering quality is good, the mesh quality is far from an
+ideal surface.
+While NeRF2Mesh [50] and NeRFMesh-
+ing [44], based on volumetric density fields, excel at gen-
+erating highly detailed geometry, they often result in noisy
+and bumpy surfaces and numerous floaters, especially in
+planar regions, which are common in large-scale scenes.
+In contrast, neural Signed Distance Function (SDF) meth-
+ods [42, 52, 54] typically excel in reconstructing accurate
+surface geometry. However, they may not be able to capture
+small or detailed geometry, and their rendering quality is in-
+ferior to volumetric density-field methods. BakedSDF [55]
+overcomes these limitations by applying mip-NeRF 360
+techniques to train SDF representation, though the result-
+ing mesh representation has a high memory overhead.
+Previous neural SDF methods that rely on the March-
+ing Cube algorithm [34] result in meshes with high storage
+overhead. This results in a significant challenge for practi-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+5053
+Abstract
+Omnidirectional cameras are extensively used in various
+applications to provide a wide field of vision.
+However,
+they face a challenge in synthesizing novel views due to
+the inevitable presence of dynamic objects, including the
+photographer, in their wide field of view.
+In this paper,
+we introduce a new approach called Omnidirectional Lo-
+cal Radiance Fields (OmniLocalRF) that can render static-
+only scene views, removing and inpainting dynamic ob-
+jects simultaneously. Our approach combines the princi-
+ples of local radiance fields with the bidirectional optimiza-
+tion of omnidirectional rays. Our input is an omnidirec-
+tional video, and we evaluate the mutual observations of
+the entire angle between the previous and current frames.
+To reduce ghosting artifacts of dynamic objects and inpaint
+occlusions, we devise a multi-resolution motion mask pre-
+diction module. Unlike existing methods that primarily sep-
+arate dynamic components through the temporal domain,
+our method uses multi-resolution neural feature planes for
+precise segmentation, which is more suitable for long 360◦
+videos. Our experiments validate that OmniLocalRF out-
+performs existing methods in both qualitative and quanti-
+tative metrics, especially in scenarios with complex real-
+world scenes. In particular, our approach eliminates the
+need for manual interaction, such as drawing motion masks
+by hand and additional pose estimation, making it a highly
+effective and efficient solution.
+1. Introduction
+Omnidirectional cameras such as Ricoh Theta or Insta360
+allow capturing panoramic 360◦views in a single shot.
+Various applications with omnidirectional images such as
+spherical depth estimation [53, 58, 59], novel view syn-
+thesis [2, 3, 5–7, 11, 18, 31, 35] and geometry reconstruc-
+tion [3, 18] aiming at large-scale static scenes have recently
+been explored. In particular, synthesizing 360◦novel views
+can provide continuous views from unobserved camera an-
+gles while maintaining its details.
+However, recent novel view synthesis methods struggle
+to apply to omnidirectional input for the following reasons.
+(b) OmniLocalRF (ours) 
+(a) Conventional neural rendering
+Input 360°video
+Figure 1. We introduce omnidirectional local radiance fields for
+photorealistic view synthesis of static scenery from 360◦videos.
+Our method effectively removes dynamic objects (including the
+photographer) without manual interaction. Also, it achieves high-
+resolution details in the inpainted regions by means of bidirec-
+tional observations of omnidirectional local radiance fields. Refer
+to the supplemental video for more results.
+When capturing omnidirectional videos to record static en-
+vironments, dynamic objects are prone to be captured as
+an extension of the field of view, and capturing a photog-
+rapher is inevitable unless employing a dedicated hardware
+or remote controller. When synthesizing novel views, these
+captured objects are represented as ghosting artifacts onto
+the rendered results [37]. Despite these problems, existing
+methods have achieved 360◦view synthesis, relying on con-
+strained capturing conditions, where it minimizes the ad-
+vent of dynamic objects [3, 11] or requiring dedicated hard-
+ware [5–7, 31, 35], which are not suitable for casual 360◦
+photography.
+Low-rank decomposition through robust principal com-
+ponent analysis [15, 16, 57] and existing optimization-
+based methods [13, 14] effectively eliminate dynamic ob-
+jects on the image domain.
+However, their applicabil-
+ity is limited to scenarios involving multiple images cap-
+tured from the same viewpoints.
+Recent view synthesis
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+6871
+Abstract
+Video Transformers have become the prevalent solution
+for various video downstream tasks with superior expressive
+power and flexibility. However, these video transformers
+suffer from heavy computational costs induced by the mas-
+sive number of tokens across the entire video frames, which
+has been the major barrier to train and deploy the model.
+Further, the patches irrelevant to the main contents, e.g.,
+backgrounds, degrade the generalization performance of
+models. To tackle these issues, we propose training-free to-
+ken merging for lightweight video Transformer (vid-TLDR)
+that aims to enhance the efficiency of video Transformers by
+merging the background tokens without additional training.
+For vid-TLDR, we introduce a novel approach to capture the
+salient regions in videos only with the attention map. Fur-
+ther, we introduce the saliency-aware token merging strat-
+*: Equal contribution, †: Corresponding author.
+egy by dropping the background tokens and sharpening the
+object scores. Our experiments show that vid-TLDR sig-
+nificantly mitigates the computational complexity of video
+Transformers while achieving competitive performance com-
+pared to the base model without vid-TLDR. Code is available
+at https://github.com/mlvlab/vid-TLDR.
+1. Introduction
+With the success of Transformers in computer vision, e.g.,
+classification [14, 52], object detection [10, 32, 43, 61, 75,
+77], segmentation [59, 64], a line of works [16, 33, 51, 57,
+60, 76] have proposed video Transformers to comprehend
+the video for various downstream tasks. The attention mech-
+anism in Transformers shows the desirable characteristics for
+video understanding such as the ability to capture the spatial
+and temporal dependencies at the same time. Consequently,
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+18771

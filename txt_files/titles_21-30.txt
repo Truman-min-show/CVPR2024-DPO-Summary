@@ -1,0 +1,10 @@
+Bai DiPrompT Disentangled Prompt Tuning for Multiple Latent Domain Generalization in
+Bai Efficient 3D Implicit Head Avatar with Mesh-anchored Hash Table Blendshapes
+Bai Fixed Point Diffusion Models
+Bai ID-like Prompt Learning for Few-Shot Out-of-Distribution Detection
+Bai Sequential Modeling Enables Scalable Learning for Large Vision Models
+Balasingam DriveTrack A Benchmark for Long-Range Point Tracking in Real-World Videos
+Baltatzis Neural Sign Actors A Diffusion Model for 3D Sign Language
+Banani Probing the 3D Awareness of Visual Foundation Models
+Bandyopadhyay SketchINR A First Look into Sketches as Implicit Neural Representations
+Bang Active Prompt Learning in Vision Language Models

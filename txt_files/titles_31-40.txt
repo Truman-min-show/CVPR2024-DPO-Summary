@@ -1,0 +1,10 @@
+Bansal VideoCon Robust Video-Language Alignment via Contrast Captions
+Bao GeneAvatar Generic Expression-Aware Volumetric Head Avatar Editing from a Single
+Bao GLOW Global Layout Aware Attacks on Object Detection
+Barquero Seamless Human Motion Composition with Blended Positional Encodings
+Bar Frozen Feature Augmentation for Few-Shot Image Classification
+Bastian Hybrid Functional Maps for Crease-Aware Non-Isometric Shape Matching
+Bastico Coupled Laplacian Eigenmaps for Locally-Aware 3D Rigid Point Cloud Matching
+Basu FocusMAE Gallbladder Cancer Detection from Ultrasound Videos with Focused Masked
+Ben-Shabat 3DInAction Understanding Human Actions in 3D Point Clouds
+Benigmim Collaborating Foundation Models for Domain Generalized Semantic Segmentation

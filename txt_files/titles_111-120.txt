@@ -1,0 +1,10 @@
+Chen CMA A Chromaticity Map Adapter for Robust Detection of Screen-Recapture
+Chen Coherence As Texture - Passive Textureless 3D Reconstruction by Self-interference
+Chen ConsistDreamer 3D-Consistent 2D Diffusion for High-Fidelity Scene Editing
+Chen DemoCaricature Democratising Caricature Generation with a Rough Sketch
+Chen DiffSHEG A Diffusion-Based Approach for Real-Time Speech-driven Holistic 3D Expression
+Chen Dont Look into the Dark Latent Codes for Pluralistic Image
+Chen DRESS Instructing Large Vision-Language Models to Align and Interact with
+Chen Exploring Efficient Asymmetric Blind-Spots for Self-Supervised Denoising in Real-World Scenarios
+Chen F3Loc Fusion and Filtering for Floorplan Localization
+Chen Generating Handwritten Mathematical Expressions From Symbol Graphs An End-to-End Pipeline

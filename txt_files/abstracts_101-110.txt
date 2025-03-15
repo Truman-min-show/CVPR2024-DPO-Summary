@@ -1,0 +1,676 @@
+Abstract
+Image denoising is a fundamental task in computer vi-
+sion. While prevailing deep learning-based supervised and
+self-supervised methods have excelled in eliminating in-
+distribution noise, their susceptibility to out-of-distribution
+(OOD) noise remains a significant challenge.
+The re-
+cent emergence of contrastive language-image pre-training
+(CLIP) model has showcased exceptional capabilities in
+open-world image recognition and segmentation. Yet, the
+potential for leveraging CLIP to enhance the robustness of
+low-level tasks remains largely unexplored. This paper un-
+covers that certain dense features extracted from the frozen
+ResNet image encoder of CLIP exhibit distortion-invariant
+and content-related properties, which are highly desirable
+for generalizable denoising. Leveraging these properties,
+we devise an asymmetrical encoder-decoder denoising net-
+work, which incorporates dense features including the noisy
+image and its multi-scale features from the frozen ResNet
+encoder of CLIP into a learnable image decoder to achieve
+generalizable denoising. The progressive feature augmen-
+tation strategy is further proposed to mitigate feature over-
+fitting and improve the robustness of the learnable decoder.
+Extensive experiments and comparisons conducted across
+diverse OOD noises, including synthetic noise, real-world
+sRGB noise, and low-dose CT image noise, demonstrate the
+superior generalization ability of our method.
+1. Introduction
+Image denoising is a significant task in computer vision
+and image processing. Current supervised denoising meth-
+ods leveraging powerful deep neural networks and large-
+scale datasets have achieved exceptional performance in
+both synthetic and real-world noise removal [33, 60]. How-
+ever, these supervised denoisers tend to overfit the noise
+present in the training datasets, resulting in poor general-
+ization to out-of-distribution (OOD) noise [6]. On the other
+hand, unsupervised and self-supervised denoising methods
+*Corresponding author.
+[12, 18, 26, 28, 44, 54] directly focus on the target domain
+in which the target noisy images reside and hence bypass
+OOD generalization. Nevertheless, these methods are in-
+herently vulnerable to unseen noise [7] and the collection
+of target noisy datasets is not always available. Therefore,
+it is critical to enhance the generalization of deep denoisers.
+OOD generalization has been popular research in high-
+level vision tasks like image recognition and segmentation
+[51, 70]. In contrast, attention to OOD generalization within
+image denoising is limited. Existing research in this area
+primarily consists of two aspects: generalization across
+degradation levels and generalization across degradation
+types. Regarding the former, some works trained blind de-
+noisers [18, 60, 62] or bias-free networks [41, 63] to handle
+noise with varying levels. However, these methods are con-
+fined to specific noise and cannot generalize to unseen noise
+types. For the latter, several works aimed to fortify mod-
+els against general OOD noise. Particularly, MaskDenois-
+ing [6] incorporated dropout units into the model training
+to enforce the denoiser to learn the reconstruction of image
+contents. DIL [32] built upon causality and meta-learning
+and encouraged the model to learn distortion-invariant rep-
+resentations. HAT [58] designed an adversarial attack for
+deep denoisers and then conducted adversarial training.
+Recently, through solving the image-text alignment
+problem based on hyper-scale datasets, the contrastive
+language-image pre-training (CLIP) model [48] has demon-
+strated remarkable generalization capacity in downstream
+open-world image recognition tasks. A series of extensions
+on CLIP through frozen models [65, 69], model fine-tuning
+[49], visual prompts [71], distillations [19, 31], and so on
+[34] have been proposed to transfer the generalization abil-
+ity of CLIP from classification to dense prediction tasks,
+including open-vocabulary segmentation [34] and zero-shot
+depth estimation [65]. However, the feasibility of CLIP for
+robust restoration in low-level tasks remains unexplored.
+We therefore ask, is CLIP robust to image noise and can
+we transfer it for generalizable image denoising?
+In this paper, we find that the dense feature maps from
+the frozen ResNet image encoder of CLIP within specific
+scales exhibit remarkable resilience to noise, a property that
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+25974
+Abstract
+The Segment Anything Model (SAM) has garnered sig-
+nificant attention for its versatile segmentation abilities and
+intuitive prompt-based interface. However, its application
+in medical imaging presents challenges, requiring either
+substantial training costs and extensive medical datasets for
+full model fine-tuning or high-quality prompts for optimal
+performance. This paper introduces H-SAM: a prompt-free
+adaptation of SAM tailored for efficient fine-tuning of med-
+ical images via a two-stage hierarchical decoding proce-
+dure. In the initial stage, H-SAM employs SAM’s original
+decoder to generate a prior probabilistic mask, guiding a
+more intricate decoding process in the second stage. Specif-
+ically, we propose two key designs: 1) A class-balanced,
+mask-guided self-attention mechanism addressing the un-
+balanced label distribution, enhancing image embedding;
+2) A learnable mask cross-attention mechanism spatially
+modulating the interplay among different image regions
+based on the prior mask. Moreover, the inclusion of a hier-
+archical pixel decoder in H-SAM enhances its proficiency in
+capturing fine-grained and localized details. This approach
+enables SAM to effectively integrate learned medical priors,
+facilitating enhanced adaptation for medical image seg-
+mentation with limited samples. Our H-SAM demonstrates
+a 4.78% improvement in average Dice compared to existing
+prompt-free SAM variants for multi-organ segmentation us-
+ing only 10% of 2D slices. Notably, without using any unla-
+beled data, H-SAM even outperforms state-of-the-art semi-
+supervised models relying on extensive unlabeled training
+data across various medical datasets. Our code is available
+at https://github.com/Cccccczh404/H-SAM.
+1. Introduction
+Accurate delineation of tissues, organs, and regions of in-
+terest through medical image segmentation is pivotal in aid-
+Unlabeled
+Labeled
+78.27
+86.83
+SOTA Semi-
+Supervised
+Methods
+H-SAM
+Mean Dice (%)
+Methods
+75.57
+80.35
+H-SAM
+SOTA SAM
+Variants
+Figure 1.
+H-SAM is advantageous in few-shot medical image
+segmentation. It achieves over 80% in average Dice using only
+10% slices for multi-organ segmentation, outperforming exist-
+ing prompt-free SAM adaptation methods.
+Without using any
+unlabeled data at all, it even outperforms state-of-the-art semi-
+supervised models that use extensive unlabeled training data for
+prostate segmentation.
+ing medical professionals’ diagnostic precision and treat-
+ment planning processes [13, 15]. Furthermore, it plays a
+fundamental role in propelling disease research and discov-
+ery [53]. Nonetheless, a significant challenge in this field
+lies in the demand for deep learning models to undergo ex-
+tensive training on large annotated datasets, a resource often
+challenging to procure within the medical domain.
+Recently, Segment Anything Model (SAM) [37], trained
+with over a billion masks from diverse natural images,
+demonstrates remarkable zero-shot learning capabilities.
+This breakthrough presents an avenue for significant ad-
+vancements in medical image segmentation, especially con-
+sidering the limited availability of extensive datasets in the
+medical realm. However, SAM’s performance on medical
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+3511
+Abstract
+Driver’s eye gaze holds a wealth of cognitive and inten-
+tional cues crucial for intelligent vehicles. Despite its sig-
+niﬁcance, research on in-vehicle gaze estimation remains
+limited due to the scarcity of comprehensive and well-
+annotated datasets in real driving scenarios. In this pa-
+per, we present three novel elements to advance in-vehicle
+gaze research. Firstly, we introduce IVGaze, a pioneering
+dataset capturing in-vehicle gaze, collected from 125 sub-
+jects and covering a large range of gaze and head poses
+within vehicles. In this dataset, we propose a new vision-
+based solution for in-vehicle gaze collection, introducing
+a reﬁned gaze target calibration method to tackle annota-
+tion challenges. Second, our research focuses on in-vehicle
+gaze estimation leveraging the IVGaze. In-vehicle face im-
+ages often suffer from low resolution, prompting our in-
+troduction of a gaze pyramid transformer that leverages
+transformer-based multilevel features integration. Expand-
+ing upon this, we introduce the dual-stream gaze pyramid
+transformer (GazeDPTR). Employing perspective transfor-
+mation, we rotate virtual cameras to normalize images, uti-
+lizing camera pose to merge normalized and original im-
+ages for accurate gaze estimation. GazeDPTR shows state-
+of-the-art performance on the IVGaze dataset.
+Thirdly,
+we explore a novel strategy for gaze zone classiﬁcation
+by extending the GazeDPTR. A foundational tri-plane and
+project gaze onto these planes are newly deﬁned. Leverag-
+ing both positional features from the projection points and
+visual attributes from images, we achieve superior perfor-
+mance compared to relying solely on visual features, sub-
+stantiating the advantage of gaze estimation. The project is
+available at https://yihua.zone/work/ivgaze.
+1. Introduction
+Understanding driver intention and behavior based on driver
+gaze is in high demand in intelligent vehicles, facilitating
+Figure 1. In-vehicle gaze estimation illustration. The driver’s gaze
+direction is estimated based on the facial images captured by the
+camera behind the steering wheels.
+diverse applications such as in-vehicle interaction [1, 2, 25]
+and driver monitor systems [17, 21, 22]. Recent advances in
+vehicle gaze estimation concentrate primarily on gaze zone
+estimation [16, 18, 31, 32]. These approaches deﬁne mul-
+tiple coarse regions, such as side mirrors and windshields,
+and conduct classiﬁcation based on face images.
+Gaze estimation1 serves as an upstream task of gaze zone
+estimation and can offer more precise information to under-
+stand driver attention. However, these methods typically
+require a large-scale dataset for training. Although there
+are numerous gaze datasets, collected in indoor [39, 40] or
+outdoor [20] environments, their applicability to the vehi-
+cle environment is limited due to the different environments
+and camera settings, resulting in suboptimal performance.
+Creating an in-vehicle gaze dataset proves challenging due
+to the conﬁned and irregular nature of the vehicular environ-
+ment. Constructing in-vehicle gaze collection systems re-
+mains an unsolved issue, as traditional gaze collection sys-
+tems are impractical for use within vehicles. The absence
+of in-vehicle gaze datasets acts as a signiﬁcant barrier to the
+progress of in-vehicle gaze estimation.
+In this paper, we present a comprehensive vision-based
+1Our work focuses on gaze direction estimation. We abbreviate gaze
+direction as gaze in the rest.
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+1556
+Abstract
+Large-scale visual-language pre-trained models have
+achieved significant success in various video tasks. How-
+ever, most existing methods follow an “adapt then align”
+paradigm, which adapts pre-trained image encoders to
+model video-level representations and utilizes one-hot or
+text embedding of the action labels for supervision. This
+paradigm overlooks the challenge of mapping from static im-
+ages to complicated activity concepts. In this paper, we pro-
+pose a novel “Align before Adapt” (ALT) paradigm. Prior
+to adapting to video representation learning, we exploit the
+entity-to-region alignments for each frame. The alignments
+are fulfilled by matching the region-aware image embeddings
+to an offline-constructed text corpus. With the aligned enti-
+ties, we feed their text embeddings to a transformer-based
+video adapter as the queries, which can help extract the
+semantics of the most important entities from a video to a
+vector. This paradigm reuses the visual-language alignment
+of VLP during adaptation and tries to explain an action by
+the underlying entities. This helps understand actions by
+bridging the gap with complex activity semantics, partic-
+ularly when facing unfamiliar or unseen categories. ALT
+demonstrates competitive performance while maintaining
+remarkably low computational costs. In fully supervised ex-
+periments, it achieves 88.1% top-1 accuracy on Kinetics-400
+with only 4947 GFLOPs. Moreover, ALT outperforms the
+previous state-of-the-art methods in both zero-shot and few-
+shot experiments, emphasizing its superior generalizability
+across various learning scenarios.
+1. Introduction
+Video action recognition is a fundamental task in the pur-
+suit of intelligent video understanding. The recent trend
+of utilizing the visual-language pre-trained (VLP) mod-
+els [26, 31, 49, 73] have significantly advanced the research
+of action recognition [27, 37, 43, 45, 64, 71]. By lightly
+fine-tuning the model, VLP-based methods outperform the
+previous end-to-end network architectures, including two-
+stream networks [54, 63, 78], 3D convolutional neural net-
+works [6, 14, 15, 22, 48, 58, 59, 67], and vision-transformer-
+based (ViT) networks [3, 12, 38, 46, 70]. Employing a pre-
+trained VLP model for action recognition can better encode
+the semantic meaning of items in images, even if they have
+very different visual appearances. This is very helpful in
+understanding human action and also explains why VLP
+models have achieved superior performance. As shown in
+Fig. 1, the current VLP-based action recognition methods
+follow an “adapt then align” paradigm. They either introduce
+temporal interaction upon image representations or insert
+temporal modules into pre-trained image encoders. However,
+the “adapt then align” paradigm will merely fit the video
+representation to the action name, which potentially destroys
+the other visual-semantic correspondences provided by VLP
+models. As far as we are concerned, actions are complex
+concepts that involve multiple fine-grained entities, such as
+body parts, scenes, and objects. With VLP model, the text
+embedding of the relevant entities should also be grounded
+in some image region. “adapt then align” paradigm does not
+emphasize the underlying entities-to-regions correspondence
+behind the action concept. Furthermore, human-centric ac-
+tivities often share common entities, implying that visual-
+language correspondences can be reused across different
+actions, even for those that were not included in the training
+set. The re-usability of entities-to-regions correspondences
+allow the model to quickly recognize new action categories.
+In this paper, we propose the “ALign before adapt” (ALT)
+paradigm. Unlike the “adapt then align” approaches that
+align the image-level visual embedding with the text embed-
+ding of the action name, ALT aims to establish an entity-level
+correspondence to support action recognition. The relevant
+entities should have evidence in specific regions of the image.
+To achieve entities-to-regions alignment, the VLP model is
+leveraged in two aspects: (1) Aggregating adjacent and sim-
+ilar image token embeddings from the VLP model. The
+resulting embedding typically represents a region containing
+the same entity. (2) Selecting the most relevant entities for
+each region by matching their image embeddings to the text
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+18688
+Abstract
+We
+present
+the
+pioneering
+Large
+Visual
+Motion
+Model (LVMM), meticulously engineered to analyze the
+intrinsic dynamics encapsulated within real-world imagery.
+Our model, fortified with a wealth of prior knowledge
+extracted from billions of image pairs,
+demonstrates
+promising results in predicting a diverse spectrum of scene
+dynamics. As a result, it can infuse any generic image with
+authentic dynamic effects, enhancing its visual allure.
+Project page: https://github.com/densechen/
+LVMM.
+1. Introduction
+Recent progress in generative models [39], specifically
+conditional diffusion models [11,22], and large-scale mod-
+els [39], have substantially enhanced our capability to rep-
+resent complex and rich distributions. These models have
+underscored the transformative potential of harnessing vast
+data and intensive training [14], exhibiting unparalleled pro-
+ficiency in comprehending and generating human-like text,
+and creating visually rich and diverse images from textual
+descriptions.
+This has facilitated a variety of previously
+unachievable applications, such as text-conditioned gener-
+ation of arbitrary, realistic image content [21]. The advent
+of these models [5, 19, 24], propelled by the availability
+of large-scale datasets [25] and advancements in training
+methodologies [4, 20], has ignited interest in probing other
+domains, including audio [38] and multimodal data [15].
+In this paper, we present a novel Large Visual Motion
+Model (LVMM), specifically designed to proficiently pre-
+dict local motion embedded within a given scene, thereby
+enhancing the dynamic appeal of a static image. The dy-
+namism of the natural world is characterized by subtle
+changes even in seemingly static landscapes, influenced by
+various factors such as wind, water currents, and inherent
+rhythms. When observing a still image, we can envisage
+plausible motions that might have been occurring when the
+(a) I0
+(b) ˆz1,··· ,K
+(c) ˆp1,··· ,K
+(d) X-t slices
+(e) Capability to animate faces, generating natural and realistic smiles.
+Figure 1.
+Beginning with a reference image I0 as depicted in
+Fig. 1a, the Large Visual Motion Model (LVMM) estimates a
+latent motion trajectory ˆz1,··· ,K as shown by the t-SNE plot in
+Fig. 1b, utilizing the motion denoising model ϵθ. This trajectory
+is subsequently processed by the Motion Decoder D, generating a
+sequence of optical flows ˆδ1,··· ,K (visualized in the left column of
+Fig. 1c) and intention maps ˆω1,··· ,K (displayed in the right column
+of Fig. 1c). Ultimately, the Neural Image Renderer R transforms
+I0 into a series of novel images ˆI1,··· ,K, guided by optical flows
+and intention maps. Fig 1d illustrates the resultant videos, employ-
+ing space-time X-t slices across 300 frames (corresponding to the
+scanline shown in Fig. 1a).
+photograph was captured. This predictability is ingrained in
+our human perception of real scenes, i.e., we can imagine a
+distribution of natural motions conditioned on that image if
+there could have been multiple possible motions. Given the
+ease with which humans can envision these potential mo-
+tions, an intriguing research question is to computationally
+model this motion distribution with a large-scale model.
+The proposed LVMM excels in associating salient vi-
+sual and motion patterns, thereby accurately predicting lo-
+cal motion trajectory, as shown in Fig. 1. It comprises two
+components: the motion rendering model and the motion
+diffusion model. The former extracts a latent motion vector
+from the scene and reconstructs the target image. The latter
+generates suitable motion trajectories from the given scene
+and feeds them to the motion rendering model to produce
+realistic dynamic effects.
+Our primary contribution is the pioneering proposal and
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+7131
+Abstract
+Recent advancements in text-to-image technology have
+significantly advanced the field of image customization.
+Among various applications, the task of customizing diverse
+scenes for user-specified composited elements holds great
+application value but has not been extensively explored.
+Addressing this gap, we propose AnyScene, a specialized
+framework designed to create varied scenes from compos-
+ited foreground using textual prompts. AnyScene addresses
+the primary challenges inherent in existing methods, partic-
+ularly scene disharmony due to a lack of foreground seman-
+tic understanding and distortion of foreground elements.
+Specifically, we develop a foreground injection module that
+guides a pre-trained diffusion model to generate cohesive
+scenes in visual harmony with the provided foreground. To
+enhance robust generation, we implement a layout control
+strategy that prevents distortions of foreground elements.
+Furthermore, an efficient image blending mechanism seam-
+lessly reintegrates foreground details into the generated
+scenes, producing outputs with overall visual harmony and
+precise foreground details. In addition, we propose a new
+benchmark and a series of quantitative metrics to evaluate
+this proposed image customization task. Extensive exper-
+imental results demonstrate the effectiveness of AnyScene,
+which confirms its potential in various applications.
+1. Introduction
+Recently, text-to-image (T2I) synthesis models [24, 28, 30,
+34] have seen rapid advancements and gained significant
+attention due to their ability to generate high-fidelity im-
+ages from textual prompts. Among the various applications
+that harness T2I technology to enhance design efforts, gen-
+erating diverse scenes tailored to specific composited fore-
+grounds is valuable. It is effective in image editing tasks
+demanding background alteration and creation, such as sit-
+uating e-commerce products in customized scenes, depict-
+ing objects in various environmental settings, etc. Despite
+its clear utility, this task of “customizing diverse scenes for
+1† Equal contribution.
+2∗Corresponding author: An-An Liu (anan0422@gmail.com).
+Figure 1. Our proposed AnyScene is capable of synthesizing high-
+quality scenes that align with textual prompts based on the given
+foregrounds. Compared to previous alternative methods [42, 45],
+AnyScene provides precise control over the introduced foreground
+and generates visually harmonious images.
+composited foreground” has not been extensively explored.
+Currently, several alternative methods [42, 45] can
+achieve this task. One such method is employing the canny
+edge as a control condition [23, 45], combined with over-
+laying the original foreground onto the generated image,
+often requiring manual adjustments to achieve visual har-
+mony. Another strategy involves inpainting models [30, 42]
+that construct backgrounds by painting around the exterior
+of a masked foreground area. Furthermore, in cases where
+the foreground comprises only one or two specific objects,
+subject-driven techniques [17, 19, 32] have shown profi-
+ciency in generating customized images.
+However, these methods have limitations in practical ap-
+plications.
+The method of directly controlling the fore-
+ground edge [45] does not consider the visual context, lead-
+ing to scenes that lack harmony (e.g. Fig. 2(a)). More-
+over, inpainting-based approaches [30, 42], though capa-
+ble of creating cohesive scenes, are commonly trained un-
+der a random area recovering paradigm, which may distort
+the foreground elements or cause unintended regeneration
+of elements from foreground descriptions (e.g. Fig. 2(b)).
+Finally, subject-driven methods [17, 19, 32] often compro-
+mise high-level details of objects (e.g. Fig. 2(c)), leading
+to significant distortions of details such as logos, text, etc,
+which is problematic for the applications like commodity
+poster design. Meanwhile, their limited capacity to com-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+8724
+Abstract
+This work introduces ArtAdapter, a transformative text-
+to-image (T2I) style transfer framework that transcends tra-
+ditional limitations of color, brushstrokes, and object shape,
+capturing high-level style elements such as composition and
+distinctive artistic expression. The integration of a multi-
+level style encoder with our proposed explicit adaptation
+mechanism enables ArtAdapter to achieve unprecedented
+fidelity in style transfer, ensuring close alignment with tex-
+tual descriptions. Additionally, the incorporation of an Aux-
+iliary Content Adapter (ACA) effectively separates content
+from style, alleviating the borrowing of content from style
+references. Moreover, our novel fast finetuning approach
+could further enhance zero-shot style representation while
+mitigating the risk of overfitting. Comprehensive evalua-
+tions confirm that ArtAdapter surpasses current state-of-
+the-art methods.
+1. Introduction
+Bridging the realms of artificial intelligence and artistic cre-
+ativity, text-to-image (T2I) style transfer [13, 24, 25] stands
+out as a captivating domain that masterfully transforms
+textual descriptions into visually rich and stylistic repre-
+sentations. The core challenge lies in not just generating
+text-resonant images but infusing them with artistic depth
+and nuance, spanning from delicate brushstrokes to bold
+compositional elements—thereby capturing the essence of
+artistic vision. Conventional arbitrary style transfer (AST)
+methods [4, 7–9, 15, 21, 28, 54] typically struggle beyond
+low-level features such as medium and colors, failing to
+grasp the more sophisticated realms of artistic expression.
+Diffusion approaches [25, 55], including Textual Inversion
+[14], DreamBooth [39], and Low-Rank Adaptation (LoRA)
+[2, 20], have shown potential in style representation. Yet,
+these methods are hindered by laborious finetuning pro-
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+8619
+Abstract
+Understanding how attention varies across individuals has
+significant scientific and societal impacts. However, exist-
+ing visual scanpath models treat attention uniformly, ne-
+glecting individual differences. To bridge this gap, this pa-
+per focuses on individualized scanpath prediction (ISP), a
+new attention modeling task that aims to accurately predict
+how different individuals shift their attention in diverse vi-
+sual tasks. It proposes an ISP method featuring three novel
+technical components: (1) an observer encoder to charac-
+terize and integrate an observer’s unique attention traits,
+(2) an observer-centric feature integration approach that
+holistically combines visual features, task guidance, and
+observer-specific characteristics, and (3) an adaptive fix-
+ation prioritization mechanism that refines scanpath pre-
+dictions by dynamically prioritizing semantic feature maps
+based on individual observers’ attention traits. These novel
+components allow scanpath models to effectively address
+the attention variations across different observers.
+Our
+method is generally applicable to different datasets, model
+architectures, and visual tasks, offering a comprehensive
+tool for transforming general scanpath models into indi-
+vidualized ones. Comprehensive evaluations using value-
+based and ranking-based metrics verify the method’s effec-
+tiveness and generalizability.
+1. Introduction
+Saccadic eye movements, such as fixations and saccades,
+enable individuals to shift their attention quickly and redi-
+rect their focus to different points in the visual field. Study-
+ing various factors driving people’s eye movements is im-
+portant for understanding human attention and develop-
+ing human-like attention systems. Computational models
+predicting eye movements have broad impacts across var-
+ious domains, such as assessing image and video qual-
+ity [8, 27, 47], developing intuitive human-computer inter-
+action systems [33, 40, 55, 64, 67], creating immersive vir-
+tual reality experiences [1, 57, 58], enhancing the safety and
+efficiency of autonomous vehicles [28, 77, 78], and diag-
+(a)
+(b)
+(c)
+Figure 1. Understanding and predicting the distinct eye move-
+ments of each observer is the key objective of individualized scan-
+path prediction. These examples reveal the variations in the scan-
+paths of different observers, showing their distinct attention pref-
+erences in (a) faces, (b) objects, and (c) background. Each dot
+represents a fixation, with the number and radius indicating its or-
+der and duration, respectively. The blue and red dots indicate the
+beginning and the end of the scanpath, respectively.
+nosing neurodevelopmental conditions [11, 22, 39].
+While existing models of saccadic eye movements pre-
+dominantly focus on modeling generic gaze patterns man-
+ifested as observer-agnostic scanpaths (i.e., a spatiotem-
+poral sequence of fixations), this work seeks to model
+the individual variations in eye movements. As shown in
+Figure 1, there exists significant inter-observer variations
+in visual scanpaths. Such variations can be attributed to
+a multitude of individual characteristics, such as gender,
+age, and neurodevelopmental conditions [56, 61]. For in-
+stance, females show more explorative gaze patterns than
+males [53, 62, 63], older adults prefer faces [54] and ob-
+jects with high color visibility [74], individuals with neu-
+rodevelopmental disorders, such as autism spectrum disor-
+der (ASD), may show a preference for repetitive patterns
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+25420
+Abstract
+How to effectively explore multi-scale representations of
+rain streaks is important for image deraining. In contrast
+to existing Transformer-based methods that depend mostly
+on single-scale rain appearance, we develop an end-to-end
+multi-scale Transformer that leverages the potentially use-
+ful features in various scales to facilitate high-quality im-
+age reconstruction. To better explore the common degra-
+dation representations from spatially-varying rain streaks,
+we incorporate intra-scale implicit neural representations
+based on pixel coordinates with the degraded inputs in a
+closed-loop design, enabling the learned features to facili-
+tate rain removal and improve the robustness of the model
+in complex scenarios. To ensure richer collaborative rep-
+resentation from different scales, we embed a simple yet ef-
+fective inter-scale bidirectional feedback operation into our
+multi-scale Transformer by performing coarse-to-ﬁne and
+ﬁne-to-coarse information communication. Extensive ex-
+periments demonstrate that our approach, named as NeRD-
+Rain, performs favorably against the state-of-the-art ones
+on both synthetic and real-world benchmark datasets. The
+source code and trained models are available at https:
+//github.com/cschenxiang/NeRD-Rain.
+1. Introduction
+Recent years have witnessed signiﬁcant progress in image
+deraining due to the development of numerous deep con-
+volutional neural networks (CNNs) [15, 22, 51, 60, 63].
+However, as the basic operation in CNNs, the convolution
+is spatially invariant and has limited receptive ﬁelds, which
+cannot effectively model the spatially-variant property and
+non-local structures of clear images [49, 62]. Moreover,
+simply increasing the network depth to obtain larger recep-
+tive ﬁelds does not always lead to better performance.
+To alleviate this problem, several recent approaches uti-
+lize Transformers to solve single image deraining [5, 8, 20,
+55, 56, 62], since Transformers can model the non-local in-
+formation for better image restoration. Although these ap-
+proaches achieve better performance than most of the CNN-
+∗Corresponding author.
+INR
+INR
+(a) Coarse-to-ﬁne
+(b) Multi-patch
+(c) Ours
+Figure 1. Illustration of the proposed approach and the currently
+existing multi-scale solutions. (a) coarse-to-ﬁne scheme [22, 63];
+(b) multi-patch scheme [61]; (c) our method. Compared to previ-
+ous approaches, the method one integrates implicit neural repre-
+sentations (INR) into our bidirectional multi-scale model to form
+a closed-loop framework, which allows for better exploration of
+multi-scale information and modeling of complex rain streaks.
+based ones, they mostly explore feature representations at a
+ﬁxed image scale (i.e., a single-input single-output archi-
+tecture), while ignoring potentially useful information from
+other scales. As the rain effect decreases signiﬁcantly at
+coarser image scales, exploring the multi-scale representa-
+tion would facilitate the rain removal.
+To this end, several approaches introduce the coarse-to-
+ﬁne mechanism [12, 47] or multi-patch strategy [61] into
+deep neural networks to exploit multi-scale rain features.
+As shown in Figure 1, the decoder’s feature or derained im-
+age is initially estimated at a coarse scale and then used as
+the input at a ﬁner scale for guidance. Although impres-
+sive performance has been achieved, these methods are less
+effective when handling complex and random rain streaks
+because these rain streaks cannot be removed by down-
+sampling operations and inaccurate estimation of a coarser
+scale will result in suboptimal restoration performance at
+ﬁner scales. Despite the spatially-varying rain streaks ex-
+hibit a variety of scale properties (e.g., size, shape, length,
+and density), the degraded rainy images tend to share some
+similar visual degradation characteristics (i.e., common rain
+degradation representation) [52, 53, 56]. However, existing
+methods do not effectively model the common degradation
+as they usually rely on traditional representation forms that
+are sensitive to the input variation rather than capturing un-
+derlying implicit functions, which limits their performance
+on complex scenarios. Thus, it is of great interest to learn
+the underlying correlations among features to encode rain
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+25627
+Abstract
+An effective pre-training framework with universal 3D
+representations is extremely desired in perceiving large-
+scale dynamic scenes.
+However, establishing such an
+ideal framework that is both task-generic and label-efficient
+poses a challenge in unifying the representation of the
+same primitive across diverse scenes.
+The current con-
+trastive 3D pre-training methods typically follow a frame-
+level consistency, which focuses on the 2D-3D relationships
+in each detached image. Such inconsiderate consistency
+greatly hampers the promising path of reaching an uni-
+versal pre-training framework: (1) The cross-scene seman-
+tic self-conflict, i.e., the intense collision between primitive
+segments of the same semantics from different scenes; (2)
+Lacking a globally unified bond that pushes the cross-scene
+semantic consistency into 3D representation learning. To
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+19925
