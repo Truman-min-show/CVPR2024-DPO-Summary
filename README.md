@@ -124,5 +124,11 @@ pip install -r requirements.txt
 - **数据分析**：本项目的数据集可用于NLP任务、文献分析等研究，帮助研究人员了解CVPR 2024会议的论文分布和研究热点。
 - **DPO训练**：提供了完整的DPO训练流程和代码实现，研究者可以基于此数据集和代码框架，进一步探索和优化文本摘要生成模型。
 - **机器学习**：项目中的代码和模型可结合其他LLM进行研究，为自然语言处理领域的相关任务提供参考和基础。
+- 
+## 协作者
 
+- [tzhm5577](https://github.com/tzhm5577)
+- [wangxinyue-maomi](https://github.com/wangxinyue-maomi)
+- [dzwdzwd1](https://github.com/dzwdzwd1)
+- [ChenMing_Li]
 📢 **欢迎Star ⭐ 和 Fork 🍴！** 如果您在使用过程中有任何问题或建议，欢迎随时提出，我们会尽力为您解答和改进！
