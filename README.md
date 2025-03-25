@@ -56,13 +56,6 @@
 
 本项目不仅提供了丰富的数据集，还包含了基于DPO方法对mT5模型进行训练和推理的完整流程，具体功能如下：
 
-### 📚 数据处理
-
-- `clean_data.py`：对原始数据进行清洗，去除不必要的内容，如代码片段等。
-- `get_json.py`：将CSV文件转换为DPO训练所需的JSON格式，其中`chosen`和`rejected`字段为空，供后续填充。
-- `get_txt.py`：将CSV文件中的每10行数据分别生成一个内容为摘要的TXT文件和一个内容为标题的TXT文件，便于数据的分块处理和分析。
-- `process_data.py`：利用mT5模型生成`rejected`摘要，并将数据划分为训练集和测试集，最终生成完整的DPO训练数据集。
-
 ### 🧠 模型训练与评估
 
 - `train.py`：基于DPO方法对mT5模型进行训练，配置了训练参数如批量大小、学习率、训练轮数等，并在训练过程中保存模型。
@@ -99,13 +92,6 @@ pip install -r requirements.txt
 1. 将CVPR 2024的文献数据整理成CSV格式，包含`title`、`abstract`、`introduction`等字段。
 2. 将CSV文件放置在`data`目录下，命名为`arxiv_data.csv`。
 
-### 🛠️ 数据处理
-
-运行以下脚本对数据进行处理：
-
-1. **生成空JSON数据**：运行`get_json.py`，将CSV文件转换为DPO训练所需的空JSON格式文件。
-2. **生成TXT文件**：运行`get_txt.py`，将CSV文件中的每10行数据分别生成摘要和标题的TXT文件，便于后续处理。
-3. **填充rejected摘要并划分数据集**：运行`process_data.py`，利用mT5模型生成rejected摘要，并将数据划分为训练集和测试集，最终生成完整的DPO训练数据集。
 
 ### 🚂 模型训练
 
