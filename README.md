@@ -115,6 +115,6 @@ pip install -r requirements.txt
 - [tzhm5577](https://github.com/tzhm5577)
 - [wangxinyue-maomi](https://github.com/wangxinyue-maomi)
 - [dzwdzwd1](https://github.com/dzwdzwd1)
-- [ChenMing_Li]
+- [Lcixs](https://github.com/Lcixs)
 
 📢 **欢迎Star ⭐ 和 Fork 🍴！** 如果您在使用过程中有任何问题或建议，欢迎随时提出，我们会尽力为您解答和改进！
